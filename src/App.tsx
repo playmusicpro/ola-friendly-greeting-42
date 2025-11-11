@@ -3,8 +3,17 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
+import Shows from "./pages/Shows";
+import Financas from "./pages/Financas";
+import Projeto from "./pages/Projeto";
+import Desafios from "./pages/Desafios";
+import Presskit from "./pages/Presskit";
+import Flyer from "./pages/Flyer";
+import Configuracoes from "./pages/Configuracoes";
 import NotFound from "./pages/NotFound";
+import MobileNav from "./components/MobileNav";
+import DesktopSidebar from "./components/DesktopSidebar";
 
 const queryClient = new QueryClient();
 
@@ -14,11 +23,25 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <div className="min-h-screen flex w-full bg-background">
+          <DesktopSidebar />
+          <main className="flex-1 md:ml-64 pb-20 md:pb-0">
+            <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/shows" element={<Shows />} />
+                <Route path="/financas" element={<Financas />} />
+                <Route path="/projeto" element={<Projeto />} />
+                <Route path="/desafios" element={<Desafios />} />
+                <Route path="/desafios/presskit" element={<Presskit />} />
+                <Route path="/desafios/flyer" element={<Flyer />} />
+                <Route path="/configuracoes" element={<Configuracoes />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </div>
+          </main>
+          <MobileNav />
+        </div>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
