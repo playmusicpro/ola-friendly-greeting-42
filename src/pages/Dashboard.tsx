@@ -7,10 +7,12 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Painel Inicial</h1>
-        <p className="text-muted-foreground">
-          Bem-vindo de volta! Aqui está um resumo da sua atividade.
+      <div className="mb-2">
+        <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-primary via-gold to-primary bg-clip-text text-transparent">
+          Painel Inicial
+        </h1>
+        <p className="text-muted-foreground text-lg">
+          Bem-vindo de volta! Aqui está um resumo da sua atividade musical.
         </p>
       </div>
 
@@ -47,48 +49,48 @@ const Dashboard = () => {
       </div>
 
       {/* Quick Actions */}
-      <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Acesso Rápido</h2>
+      <Card className="p-6 shadow-lg border-primary/10">
+        <h2 className="text-xl font-semibold mb-4 text-gold">Acesso Rápido</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Button className="h-auto py-4 flex-col gap-2" variant="outline">
-            <Plus className="h-6 w-6" />
-            <span>Adicionar Show</span>
+          <Button className="h-auto py-6 flex-col gap-3 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-md">
+            <Plus className="h-7 w-7" />
+            <span className="font-semibold">Adicionar Show</span>
           </Button>
-          <Button className="h-auto py-4 flex-col gap-2" variant="outline">
-            <Plus className="h-6 w-6" />
-            <span>Adicionar Gasto</span>
+          <Button className="h-auto py-6 flex-col gap-3 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-md">
+            <Plus className="h-7 w-7" />
+            <span className="font-semibold">Adicionar Gasto</span>
           </Button>
-          <Button className="h-auto py-4 flex-col gap-2" variant="outline">
-            <Plus className="h-6 w-6" />
-            <span>Adicionar Meta</span>
+          <Button className="h-auto py-6 flex-col gap-3 bg-gold hover:bg-gold/90 text-black rounded-xl shadow-md">
+            <Plus className="h-7 w-7" />
+            <span className="font-semibold">Adicionar Meta</span>
           </Button>
         </div>
       </Card>
 
       {/* Recent Activity */}
-      <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Atividade Recente</h2>
+      <Card className="p-6 shadow-lg">
+        <h2 className="text-xl font-semibold mb-4 text-primary">Atividade Recente</h2>
         <div className="space-y-4">
-          <div className="flex items-center justify-between py-3 border-b border-border">
+          <div className="flex items-center justify-between py-3 border-b border-border/50">
             <div>
               <p className="font-medium">Show - Boteco da Esquina</p>
-              <p className="text-sm text-muted-foreground">10 Dez, 21h</p>
+              <p className="text-xs text-muted-foreground">10 Dez, 21h</p>
             </div>
-            <span className="text-success font-semibold">R$ 600</span>
+            <span className="text-success font-bold text-lg">+R$ 600</span>
           </div>
-          <div className="flex items-center justify-between py-3 border-b border-border">
+          <div className="flex items-center justify-between py-3 border-b border-border/50">
             <div>
               <p className="font-medium">Gasto - Cordas de violão</p>
-              <p className="text-sm text-muted-foreground">8 Dez</p>
+              <p className="text-xs text-muted-foreground">8 Dez</p>
             </div>
-            <span className="text-destructive font-semibold">-R$ 85</span>
+            <span className="text-destructive font-bold text-lg">-R$ 85</span>
           </div>
           <div className="flex items-center justify-between py-3">
             <div>
               <p className="font-medium">Show - Casa de Eventos</p>
-              <p className="text-sm text-muted-foreground">5 Dez, 20h</p>
+              <p className="text-xs text-muted-foreground">5 Dez, 20h</p>
             </div>
-            <span className="text-success font-semibold">R$ 1.200</span>
+            <span className="text-success font-bold text-lg">+R$ 1.200</span>
           </div>
         </div>
       </Card>

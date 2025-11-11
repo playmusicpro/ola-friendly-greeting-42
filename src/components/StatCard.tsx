@@ -23,15 +23,15 @@ const StatCard = ({ title, value, icon: Icon, trend, variant = "default" }: Stat
   };
 
   return (
-    <Card className={`p-4 border ${variantStyles[variant]} transition-all duration-300`}>
+    <Card className={`p-5 border ${variantStyles[variant]} transition-all duration-300 shadow-lg`}>
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm text-muted-foreground mb-1">{title}</p>
-          <p className="text-2xl font-bold">{value}</p>
-          {trend && <p className="text-xs text-muted-foreground mt-1">{trend}</p>}
+          <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 font-semibold">{title}</p>
+          <p className="text-3xl font-bold mb-1">{value}</p>
+          {trend && <p className="text-xs text-muted-foreground">{trend}</p>}
         </div>
-        <div className={`p-2 rounded-lg bg-secondary ${iconStyles[variant]}`}>
-          <Icon className="h-5 w-5" />
+        <div className={`p-3 rounded-xl bg-secondary/50 ${iconStyles[variant]}`}>
+          <Icon className="h-6 w-6" />
         </div>
       </div>
     </Card>

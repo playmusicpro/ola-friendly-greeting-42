@@ -1,7 +1,6 @@
 import { Video, Target, FileText, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 
 const Projeto = () => {
@@ -12,9 +11,11 @@ const Projeto = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Projeto Audiovisual</h1>
-        <p className="text-muted-foreground">
+      <div className="mb-2">
+        <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-gold to-primary bg-clip-text text-transparent">
+          Projeto Audiovisual
+        </h1>
+        <p className="text-muted-foreground text-lg">
           Planeje e acompanhe seu próximo clipe ou álbum visual
         </p>
       </div>
@@ -34,13 +35,18 @@ const Projeto = () => {
         {/* Budget Progress */}
         <div className="space-y-4">
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Orçamento</span>
-              <span className="text-sm font-medium">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm text-muted-foreground font-medium">Orçamento do Projeto</span>
+              <span className="text-sm font-semibold">
                 R$ {savedValue.toLocaleString()} de R$ {projectValue.toLocaleString()}
               </span>
             </div>
-            <Progress value={progress} className="h-3" />
+            <div className="relative h-4 bg-secondary rounded-full overflow-hidden shadow-inner">
+              <div 
+                className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-gold to-primary rounded-full transition-all duration-500 shadow-lg" 
+                style={{ width: `${progress}%` }}
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border">
@@ -59,8 +65,8 @@ const Projeto = () => {
           </div>
         </div>
 
-        <Button className="w-full mt-6 bg-gold text-black hover:bg-gold/90">
-          <Plus className="h-4 w-4 mr-2" />
+        <Button className="w-full mt-6 bg-gold text-black hover:bg-gold/90 font-semibold rounded-xl shadow-lg py-6">
+          <Plus className="h-5 w-5 mr-2" />
           Adicionar ao Cofrinho
         </Button>
       </Card>

@@ -13,6 +13,7 @@ import Flyer from "./pages/Flyer";
 import Configuracoes from "./pages/Configuracoes";
 import NotFound from "./pages/NotFound";
 import MobileNav from "./components/MobileNav";
+import MobileHeader from "./components/MobileHeader";
 import DesktopSidebar from "./components/DesktopSidebar";
 
 const queryClient = new QueryClient();
@@ -25,7 +26,8 @@ const App = () => (
       <BrowserRouter>
         <div className="min-h-screen flex w-full bg-background">
           <DesktopSidebar />
-          <main className="flex-1 md:ml-64 pb-20 md:pb-0">
+          <MobileHeader />
+          <main className="flex-1 md:ml-64 pt-16 md:pt-0 pb-20 md:pb-0">
             <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
               <Routes>
                 <Route path="/" element={<Dashboard />} />

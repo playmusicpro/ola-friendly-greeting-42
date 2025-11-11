@@ -8,10 +8,12 @@ const Financas = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Consultor Financeiro</h1>
-        <p className="text-muted-foreground">
-          Acompanhe seus gastos e economias
+      <div className="mb-2">
+        <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-gold via-primary to-gold bg-clip-text text-transparent">
+          Consultor Financeiro
+        </h1>
+        <p className="text-muted-foreground text-lg">
+          Acompanhe seus gastos e economias de forma profissional
         </p>
       </div>
 
@@ -21,21 +23,21 @@ const Financas = () => {
           title="Total de Gastos"
           value="R$ 1.250"
           icon={TrendingDown}
-          trend="Este mês"
+          trend="Custos operacionais deste mês"
           variant="default"
         />
         <StatCard
           title="Cofrinho"
           value="R$ 3.500"
           icon={PiggyBank}
-          trend="Guardado para projeto"
+          trend="35% do seu projeto audiovisual"
           variant="gold"
         />
         <StatCard
           title="Despesas Fixas"
           value="R$ 2.800"
           icon={HomeIcon}
-          trend="Mensais"
+          trend="Compromissos recorrentes"
           variant="default"
         />
       </div>
@@ -51,40 +53,40 @@ const Financas = () => {
         </TabsList>
 
         <TabsContent value="combustivel" className="space-y-4">
-          <Card className="p-6">
+          <Card className="p-6 shadow-lg border-primary/10">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-primary/10">
+                <div className="p-3 rounded-xl bg-primary/10">
                   <Fuel className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold">Combustível</h2>
-                  <p className="text-sm text-muted-foreground">Gastos com transporte</p>
+                  <p className="text-xs text-muted-foreground">Gastos com transporte para shows</p>
                 </div>
               </div>
-              <Button>Adicionar Gasto</Button>
+              <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl">Adicionar Gasto</Button>
             </div>
             
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-xl border border-border">
                 <div>
                   <p className="font-medium">Gasolina - Show Bar do Zé</p>
-                  <p className="text-sm text-muted-foreground">15 Dez, 50km</p>
+                  <p className="text-xs text-muted-foreground">15 Dez, 50km rodados</p>
                 </div>
                 <span className="text-lg font-semibold text-destructive">R$ 120</span>
               </div>
-              <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-xl border border-border">
                 <div>
                   <p className="font-medium">Pedágio + Gasolina - Casa de Eventos</p>
-                  <p className="text-sm text-muted-foreground">20 Dez, 80km</p>
+                  <p className="text-xs text-muted-foreground">20 Dez, 80km rodados</p>
                 </div>
                 <span className="text-lg font-semibold text-destructive">R$ 210</span>
               </div>
             </div>
 
-            <div className="mt-6 pt-6 border-t border-border">
+            <div className="mt-6 pt-6 border-t border-gold/20">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Total do mês</span>
+                <span className="text-sm text-muted-foreground">Total do mês em combustível</span>
                 <span className="text-2xl font-bold text-destructive">R$ 330</span>
               </div>
             </div>

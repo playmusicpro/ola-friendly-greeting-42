@@ -128,40 +128,56 @@ Nota: Cole no MidJourney e depois adicione os textos no Canva.`,
         <Button
           variant="ghost"
           onClick={() => navigate("/desafios")}
-          className="mb-4 -ml-2"
+          className="mb-6 -ml-2 hover:text-gold"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
+          <ArrowLeft className="h-5 w-5 mr-2" />
           Voltar para Desafios
         </Button>
-        <h1 className="text-3xl font-bold mb-2">Nunca mais pague por flyer</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-gold to-primary bg-clip-text text-transparent">
+          Nunca mais pague por flyer
+        </h1>
+        <p className="text-muted-foreground text-lg">
           Prompts para criar flyers profissionais com IA e ferramentas gratuitas
         </p>
       </div>
 
       {/* Instructions */}
-      <Card className="p-6 border-gold/20 bg-gold/5">
-        <h2 className="text-lg font-semibold mb-3">Ferramentas recomendadas:</h2>
-        <ul className="space-y-2 text-sm text-muted-foreground">
-          <li>• <strong>ChatGPT/Claude:</strong> Para layouts descritivos e conceitos</li>
-          <li>• <strong>MidJourney/DALL-E:</strong> Para gerar imagens base</li>
-          <li>• <strong>Canva (grátis):</strong> Para adicionar textos sobre a imagem</li>
-          <li>• <strong>Remove.bg:</strong> Para remover fundos de fotos</li>
-          <li>• <strong>Coolors.co:</strong> Para paletas de cores harmoniosas</li>
+      <Card className="p-6 border-gold/30 bg-gradient-to-br from-gold/10 to-transparent shadow-lg">
+        <h2 className="text-xl font-semibold mb-4 text-gold">Ferramentas recomendadas:</h2>
+        <ul className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+          <li className="flex items-start gap-2">
+            <span className="text-gold font-bold">•</span>
+            <span><strong>ChatGPT/Claude:</strong> Para layouts descritivos e conceitos</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-gold font-bold">•</span>
+            <span><strong>MidJourney/DALL-E:</strong> Para gerar imagens base</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-gold font-bold">•</span>
+            <span><strong>Canva (grátis):</strong> Para adicionar textos sobre a imagem</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-gold font-bold">•</span>
+            <span><strong>Remove.bg:</strong> Para remover fundos de fotos</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-gold font-bold">•</span>
+            <span><strong>Coolors.co:</strong> Para paletas de cores harmoniosas</span>
+          </li>
         </ul>
       </Card>
 
       {/* Prompts */}
-      <div className="space-y-4">
+      <div className="space-y-5">
         {prompts.map((item, index) => (
-          <Card key={index} className="p-6 hover:border-gold/40 transition-colors">
+          <Card key={index} className="p-6 hover:border-gold/40 transition-colors shadow-lg">
             <div className="flex items-start justify-between mb-4">
-              <h3 className="text-xl font-semibold">{item.title}</h3>
+              <h3 className="text-xl font-semibold text-gold">{item.title}</h3>
               <Button
                 size="sm"
-                variant="outline"
                 onClick={() => copyToClipboard(item.prompt, index)}
-                className="gap-2"
+                className="gap-2 bg-gold hover:bg-gold/90 text-black rounded-lg font-semibold"
               >
                 {copiedIndex === index ? (
                   <>
@@ -176,7 +192,7 @@ Nota: Cole no MidJourney e depois adicione os textos no Canva.`,
                 )}
               </Button>
             </div>
-            <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans bg-secondary p-4 rounded-lg">
+            <pre className="text-sm text-muted-foreground whitespace-pre-wrap font-sans bg-secondary/50 p-5 rounded-xl border border-border leading-relaxed">
               {item.prompt}
             </pre>
           </Card>
