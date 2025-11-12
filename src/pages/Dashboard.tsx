@@ -1,50 +1,100 @@
-import { Calendar, DollarSign, TrendingUp, Video, Plus } from "lucide-react";
+import { Calendar, DollarSign, TrendingUp, Video, Plus, Wallet, AlertTriangle, Info } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useFinancialData } from "@/hooks/useFinancialData";
+import { 
+  calculateDRE, 
+  calculateMonthlyProjection, 
+  generateAlerts,
+  formatCurrency,
+  formatPercentage 
+} from "@/lib/calculations";
 
 const Dashboard = () => {
+  const { shows, expenses, fixedExpenses, project } = useFinancialData();
+  
+  // Calcular métricas
+  const dre = calculateDRE(shows, expenses, fixedExpenses);
+  const projection = calculateMonthlyProjection(shows);
+  
+  // Encontrar próximo show
+  const nextShow = shows.length > 0 ? shows[0] : null;
+  const nextShowDate = nextShow ? new Date(nextShow.date) : undefined;
+  
+  // Gerar alertas
+  const alerts = generateAlerts(shows, dre, nextShowDate);
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="mb-2">
-        <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-primary via-gold to-primary bg-clip-text text-transparent">
+        <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-gold via-primary to-gold bg-clip-text text-transparent">
           Painel Inicial
         </h1>
         <p className="text-muted-foreground text-lg">
-          Bem-vindo de volta! Aqui está um resumo da sua atividade musical.
+          Bem-vindo ao seu assistente profissional
         </p>
       </div>
+
+      {/* Alertas Inteligentes */}
+      {alerts.length > 0 && (
+        <div className="space-y-3">
+          {alerts.map((alert) => (
+            <Alert 
+              key={alert.id} 
+              className={
+                alert.type === 'danger' 
+                  ? 'border-destructive/50 bg-destructive/10' 
+                  : alert.type === 'warning'
+                  ? 'border-yellow-500/50 bg-yellow-500/10'
+                  : 'border-primary/50 bg-primary/10'
+              }
+            >
+              {alert.type === 'danger' ? (
+                <AlertTriangle className="h-4 w-4 text-destructive" />
+              ) : alert.type === 'warning' ? (
+                <AlertTriangle className="h-4 w-4 text-yellow-500" />
+              ) : (
+                <Info className="h-4 w-4 text-primary" />
+              )}
+              <AlertDescription className="font-medium">
+                {alert.message}
+              </AlertDescription>
+            </Alert>
+          ))}
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Próximo Show"
-          value="15 Dez"
+          value={nextShow ? new Date(nextShow.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : 'Nenhum'}
           icon={Calendar}
-          trend="Bar do Zé - R$ 800"
+          trend={nextShow ? `${nextShow.local} - ${nextShow.time}` : 'Adicione um show'}
           variant="default"
         />
         <StatCard
-          title="Faturamento Previsto"
-          value="R$ 4.500"
-          icon={TrendingUp}
-          trend="Este mês"
+          title="Faturamento Projetado"
+          value={formatCurrency(projection.faturamentoProjetado)}
+          icon={DollarSign}
+          trend="Baseado na média dos últimos 3 meses"
           variant="gold"
         />
         <StatCard
-          title="Gastos Totais"
-          value="R$ 1.250"
-          icon={DollarSign}
-          trend="Este mês"
-          variant="default"
+          title="Resultado do Mês"
+          value={formatCurrency(dre.resultadoOperacional)}
+          icon={Wallet}
+          trend={`Margem: ${formatPercentage(dre.margemFinal)}`}
+          variant={dre.resultadoOperacional >= 0 ? "success" : "default"}
         />
         <StatCard
-          title="Projeto Audiovisual"
-          value="35%"
+          title="Projeto AV"
+          value={formatPercentage((project.savedValue / project.totalValue) * 100)}
           icon={Video}
-          trend="R$ 3.500 de R$ 10.000"
-          variant="success"
+          trend={`${formatCurrency(project.savedValue)} de ${formatCurrency(project.totalValue)}`}
+          variant="default"
         />
       </div>
 

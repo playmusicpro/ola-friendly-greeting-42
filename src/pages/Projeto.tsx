@@ -1,12 +1,15 @@
-import { Video, Target, FileText, Plus } from "lucide-react";
+import { Video, Target, FileText, Plus, Calendar, TrendingUp } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { useFinancialData } from "@/hooks/useFinancialData";
+import { calculateProjectProgress, formatCurrency, formatPercentage } from "@/lib/calculations";
 
 const Projeto = () => {
-  const projectValue = 10000;
-  const savedValue = 3500;
-  const progress = (savedValue / projectValue) * 100;
+  const { project } = useFinancialData();
+  const calc = calculateProjectProgress(project);
+  const progress = calc.progressPercentual;
 
   return (
     <div className="space-y-6">
@@ -22,14 +25,21 @@ const Projeto = () => {
 
       {/* Project Overview */}
       <Card className="p-6 border-gold/20">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 rounded-lg bg-gold/10">
-            <Video className="h-6 w-6 text-gold" />
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="p-3 rounded-lg bg-gold/10">
+              <Video className="h-6 w-6 text-gold" />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold">{project.name}</h2>
+              <p className="text-sm text-muted-foreground">{project.description}</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-xl font-semibold">Meu Primeiro Clipe Profissional</h2>
-            <p className="text-sm text-muted-foreground">Clipe da música "Sem Você"</p>
-          </div>
+          {calc.metaAlcancada && (
+            <Badge className="bg-success text-white border-success px-4 py-2 text-sm font-semibold shadow-md">
+              ✓ Meta alcançada!
+            </Badge>
+          )}
         </div>
 
         {/* Budget Progress */}
@@ -38,13 +48,13 @@ const Projeto = () => {
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm text-muted-foreground font-medium">Orçamento do Projeto</span>
               <span className="text-sm font-semibold">
-                R$ {savedValue.toLocaleString()} de R$ {projectValue.toLocaleString()}
+                {formatCurrency(project.savedValue)} de {formatCurrency(project.totalValue)}
               </span>
             </div>
             <div className="relative h-4 bg-secondary rounded-full overflow-hidden shadow-inner">
               <div 
                 className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-gold to-primary rounded-full transition-all duration-500 shadow-lg" 
-                style={{ width: `${progress}%` }}
+                style={{ width: `${Math.min(progress, 100)}%` }}
               />
             </div>
           </div>
@@ -52,17 +62,36 @@ const Projeto = () => {
           <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border">
             <div className="text-center">
               <p className="text-sm text-muted-foreground mb-1">Objetivo</p>
-              <p className="text-xl font-bold text-gold">R$ {projectValue.toLocaleString()}</p>
+              <p className="text-xl font-bold text-gold">{formatCurrency(project.totalValue)}</p>
             </div>
             <div className="text-center">
               <p className="text-sm text-muted-foreground mb-1">Guardado</p>
-              <p className="text-xl font-bold text-success">R$ {savedValue.toLocaleString()}</p>
+              <p className="text-xl font-bold text-success">{formatCurrency(project.savedValue)}</p>
             </div>
             <div className="text-center">
               <p className="text-sm text-muted-foreground mb-1">Progresso</p>
-              <p className="text-xl font-bold text-primary">{progress.toFixed(0)}%</p>
+              <p className="text-xl font-bold text-primary">{formatPercentage(calc.progressPercentual)}</p>
             </div>
           </div>
+
+          {/* Projeção de tempo */}
+          {calc.weeksToComplete && !calc.metaAlcancada && project.weeklyDeposit && (
+            <div className="flex items-center justify-between p-4 bg-primary/10 rounded-xl border border-primary/20 mt-4">
+              <div className="flex items-center gap-3">
+                <Calendar className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="text-sm font-medium">Tempo estimado para completar</p>
+                  <p className="text-xs text-muted-foreground">
+                    Com depósitos semanais de {formatCurrency(project.weeklyDeposit)}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold text-primary">{calc.weeksToComplete}</p>
+                <p className="text-xs text-muted-foreground">semanas</p>
+              </div>
+            </div>
+          )}
         </div>
 
         <Button className="w-full mt-6 bg-gold text-black hover:bg-gold/90 font-semibold rounded-xl shadow-lg py-6">

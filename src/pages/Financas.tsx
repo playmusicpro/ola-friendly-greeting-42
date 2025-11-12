@@ -1,10 +1,21 @@
-import { Fuel, Shirt, Music, PiggyBank, Home as HomeIcon, TrendingDown } from "lucide-react";
+import { Fuel, Shirt, Music, PiggyBank, Home as HomeIcon, TrendingDown, TrendingUp, AlertTriangle } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useFinancialData } from "@/hooks/useFinancialData";
+import { calculateDRE, formatCurrency, formatPercentage } from "@/lib/calculations";
 
 const Financas = () => {
+  const { shows, expenses, fixedExpenses, project } = useFinancialData();
+  
+  // Calcular totais
+  const totalGastos = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+  const totalFixas = fixedExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+  
+  // Calcular DRE
+  const dre = calculateDRE(shows, expenses, fixedExpenses);
+  
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -21,26 +32,91 @@ const Financas = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <StatCard
           title="Total de Gastos"
-          value="R$ 1.250"
+          value={formatCurrency(totalGastos)}
           icon={TrendingDown}
           trend="Custos operacionais deste mês"
           variant="default"
         />
         <StatCard
           title="Cofrinho"
-          value="R$ 3.500"
+          value={formatCurrency(project.savedValue)}
           icon={PiggyBank}
-          trend="35% do seu projeto audiovisual"
+          trend={`${((project.savedValue / project.totalValue) * 100).toFixed(0)}% do seu projeto audiovisual`}
           variant="gold"
         />
         <StatCard
           title="Despesas Fixas"
-          value="R$ 2.800"
+          value={formatCurrency(totalFixas)}
           icon={HomeIcon}
           trend="Compromissos recorrentes"
           variant="default"
         />
       </div>
+
+      {/* DRE Simplificado */}
+      <Card className="p-6 shadow-lg border-gold/20 bg-gradient-to-br from-primary/5 to-gold/5">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 rounded-xl bg-gold/10">
+            <TrendingUp className="h-6 w-6 text-gold" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold">DRE Simplificado</h2>
+            <p className="text-xs text-muted-foreground">Demonstrativo de Resultado do Mês</p>
+          </div>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-4 bg-background/50 rounded-xl border border-border">
+            <div>
+              <p className="text-sm text-muted-foreground">Receita Bruta</p>
+              <p className="text-xs text-muted-foreground mt-1">Soma de todos os cachês</p>
+            </div>
+            <span className="text-2xl font-bold text-success">{formatCurrency(dre.receitaBruta)}</span>
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-background/50 rounded-xl border border-border">
+            <div>
+              <p className="text-sm text-muted-foreground">Custos Diretos</p>
+              <p className="text-xs text-muted-foreground mt-1">Gastos relacionados aos shows</p>
+            </div>
+            <span className="text-2xl font-bold text-destructive">-{formatCurrency(dre.custosDirectos)}</span>
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-background/50 rounded-xl border border-border">
+            <div>
+              <p className="text-sm text-muted-foreground">Despesas Fixas</p>
+              <p className="text-xs text-muted-foreground mt-1">Aluguel, pensão, parcelas, etc.</p>
+            </div>
+            <span className="text-2xl font-bold text-destructive">-{formatCurrency(dre.despesasFixas)}</span>
+          </div>
+
+          <div className="h-px bg-gold/20 my-4"></div>
+
+          <div className="flex items-center justify-between p-5 bg-gradient-to-r from-primary/10 to-gold/10 rounded-xl border-2 border-gold/30">
+            <div>
+              <p className="font-semibold text-lg">Resultado Operacional</p>
+              <p className="text-xs text-muted-foreground mt-1">Lucro líquido do período</p>
+            </div>
+            <div className="text-right">
+              <p className={`text-3xl font-bold ${dre.resultadoOperacional >= 0 ? 'text-success' : 'text-destructive'}`}>
+                {formatCurrency(dre.resultadoOperacional)}
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Margem: {formatPercentage(dre.margemFinal)}
+              </p>
+            </div>
+          </div>
+
+          {dre.margemFinal < 0 && (
+            <div className="flex items-center gap-3 p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              <p className="text-sm text-destructive font-medium">
+                Atenção: Suas despesas superaram sua receita este mês
+              </p>
+            </div>
+          )}
+        </div>
+      </Card>
 
       {/* Tabs for Categories */}
       <Tabs defaultValue="combustivel" className="space-y-4">
