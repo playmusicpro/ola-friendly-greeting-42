@@ -111,15 +111,40 @@ const mockProject: Project = {
 };
 
 export function useFinancialData() {
-  const [shows] = useState<Show[]>(mockShows);
+  const [shows, setShows] = useState<Show[]>(mockShows);
   const [expenses] = useState<Expense[]>(mockExpenses);
   const [fixedExpenses] = useState<FixedExpense[]>(mockFixedExpenses);
   const [project] = useState<Project>(mockProject);
+
+  const addShow = (showData: Omit<Show, 'id'>) => {
+    const newShow: Show = {
+      ...showData,
+      id: Date.now().toString(),
+    };
+    setShows(prev => [...prev, newShow].sort((a, b) => 
+      new Date(a.date).getTime() - new Date(b.date).getTime()
+    ));
+  };
+
+  const updateShow = (id: string, showData: Omit<Show, 'id'>) => {
+    setShows(prev => prev.map(show => 
+      show.id === id ? { ...showData, id } : show
+    ).sort((a, b) => 
+      new Date(a.date).getTime() - new Date(b.date).getTime()
+    ));
+  };
+
+  const deleteShow = (id: string) => {
+    setShows(prev => prev.filter(show => show.id !== id));
+  };
 
   return {
     shows,
     expenses,
     fixedExpenses,
     project,
+    addShow,
+    updateShow,
+    deleteShow,
   };
 }
