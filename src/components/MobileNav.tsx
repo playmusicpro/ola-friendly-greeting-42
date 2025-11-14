@@ -1,4 +1,4 @@
-import { Home, Calendar, DollarSign, Video } from "lucide-react";
+import { Home, Calendar, DollarSign, Music } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
 const MobileNav = () => {
@@ -6,7 +6,7 @@ const MobileNav = () => {
     { icon: Home, label: "Home", path: "/" },
     { icon: Calendar, label: "Shows", path: "/shows" },
     { icon: DollarSign, label: "Finanças", path: "/financas" },
-    { icon: Video, label: "Projeto AV", path: "/projeto" },
+    { icon: Music, label: "Repertório", path: "/repertorio" },
   ];
 
   return (

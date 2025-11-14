@@ -73,3 +73,20 @@ export interface Alert {
   type: 'warning' | 'danger' | 'info';
   message: string;
 }
+
+export interface Song {
+  id: string;
+  title: string;
+  artist: string;
+  tone: string;
+  howYouPlay?: string;
+  cifraClubLink?: string;
+  notes?: string;
+}
+
+export interface Setlist {
+  id: string;
+  name: string;
+  songIds: string[];
+  createdAt: string;
+}

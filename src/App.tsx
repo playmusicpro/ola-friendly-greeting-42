@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Shows from "./pages/Shows";
 import Financas from "./pages/Financas";
 import Projeto from "./pages/Projeto";
+import Repertorio from "./pages/Repertorio";
 import Desafios from "./pages/Desafios";
 import Presskit from "./pages/Presskit";
 import Flyer from "./pages/Flyer";
@@ -34,6 +35,7 @@ const App = () => (
                 <Route path="/shows" element={<Shows />} />
                 <Route path="/financas" element={<Financas />} />
                 <Route path="/projeto" element={<Projeto />} />
+                <Route path="/repertorio" element={<Repertorio />} />
                 <Route path="/desafios" element={<Desafios />} />
                 <Route path="/desafios/presskit" element={<Presskit />} />
                 <Route path="/desafios/flyer" element={<Flyer />} />

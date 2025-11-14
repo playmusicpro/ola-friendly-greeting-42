@@ -1,9 +1,10 @@
-import { Calendar, DollarSign, TrendingUp, Video, Plus, Wallet, AlertTriangle, Info } from "lucide-react";
+import { Calendar, DollarSign, TrendingUp, Video, Plus, Wallet, AlertTriangle, Info, Music } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useFinancialData } from "@/hooks/useFinancialData";
+import { useRepertoire } from "@/hooks/useRepertoire";
 import { 
   calculateDRE, 
   calculateMonthlyProjection, 
@@ -14,6 +15,7 @@ import {
 
 const Dashboard = () => {
   const { shows, expenses, fixedExpenses, project } = useFinancialData();
+  const { songs, setlists } = useRepertoire();
   
   // Calcular métricas
   const dre = calculateDRE(shows, expenses, fixedExpenses);
@@ -67,7 +69,7 @@ const Dashboard = () => {
       )}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
           title="Próximo Show"
           value={nextShow ? new Date(nextShow.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : 'Nenhum'}
@@ -94,6 +96,13 @@ const Dashboard = () => {
           value={formatPercentage((project.savedValue / project.totalValue) * 100)}
           icon={Video}
           trend={`${formatCurrency(project.savedValue)} de ${formatCurrency(project.totalValue)}`}
+          variant="default"
+        />
+        <StatCard
+          title="Repertório"
+          value={songs.length.toString()}
+          icon={Music}
+          trend={`${setlists.length} setlist(s) criada(s)`}
           variant="default"
         />
       </div>
