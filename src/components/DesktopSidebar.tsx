@@ -1,4 +1,4 @@
-import { Home, Calendar, DollarSign, Video, Trophy, Settings, User, HelpCircle } from "lucide-react";
+import { Home, Calendar, DollarSign, Video, Music, Trophy, Settings } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Separator } from "@/components/ui/separator";
 
@@ -8,6 +8,7 @@ const DesktopSidebar = () => {
     { icon: Calendar, label: "Agenda de Shows", path: "/shows" },
     { icon: DollarSign, label: "Consultor Financeiro", path: "/financas" },
     { icon: Video, label: "Projeto Audiovisual", path: "/projeto" },
+    { icon: Music, label: "Repertório Inteligente", path: "/repertorio" },
   ];
 
   const extraNavItems = [
