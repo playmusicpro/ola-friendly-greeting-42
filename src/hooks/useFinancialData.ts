@@ -138,6 +138,23 @@ export function useFinancialData() {
     setShows(prev => prev.filter(show => show.id !== id));
   };
 
+  const duplicateShow = (id: string) => {
+    const originalShow = shows.find(show => show.id === id);
+    if (!originalShow) return;
+
+    const duplicatedShow: Show = {
+      ...originalShow,
+      id: `show-${Date.now()}`,
+      local: `${originalShow.local} (cópia)`,
+    };
+
+    setShows(prev => [duplicatedShow, ...prev].sort((a, b) => 
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    ));
+
+    return duplicatedShow;
+  };
+
   return {
     shows,
     expenses,
@@ -146,5 +163,6 @@ export function useFinancialData() {
     addShow,
     updateShow,
     deleteShow,
+    duplicateShow,
   };
 }

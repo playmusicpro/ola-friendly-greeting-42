@@ -165,3 +165,69 @@ export function formatCurrency(value: number): string {
 export function formatPercentage(value: number): string {
   return `${value.toFixed(1)}%`;
 }
+
+export interface ShowDRE {
+  showId: string;
+  titulo: string;
+  data: string;
+  receita: number;
+  custo: number;
+  lucro: number;
+  margem: number;
+}
+
+export function calculateShowDRE(show: Show): ShowDRE {
+  const calc = calculateShow(show);
+  return {
+    showId: show.id,
+    titulo: show.local,
+    data: show.date,
+    receita: show.cache,
+    custo: calc.totalGastos,
+    lucro: calc.lucroReal,
+    margem: calc.margemPercentual,
+  };
+}
+
+export function getShowsAnalysis(
+  shows: Show[],
+  startDate?: string,
+  endDate?: string
+) {
+  // Filtrar por período se fornecido
+  let filteredShows = shows;
+  if (startDate || endDate) {
+    filteredShows = shows.filter((show) => {
+      if (startDate && show.date < startDate) return false;
+      if (endDate && show.date > endDate) return false;
+      return true;
+    });
+  }
+
+  // Calcular DRE para cada show
+  const items = filteredShows.map(calculateShowDRE);
+
+  // Top 5 mais lucrativos
+  const topMost = [...items]
+    .sort((a, b) => b.lucro - a.lucro)
+    .slice(0, 5);
+
+  // Top 5 menos lucrativos
+  const topLeast = [...items]
+    .sort((a, b) => a.lucro - b.lucro)
+    .slice(0, 5);
+
+  // Dados para gráfico
+  const chartData = items.map((item) => ({
+    name: item.titulo,
+    receita: item.receita,
+    custo: item.custo,
+  }));
+
+  return {
+    items,
+    topMost,
+    topLeast,
+    chartData,
+  };
+}
