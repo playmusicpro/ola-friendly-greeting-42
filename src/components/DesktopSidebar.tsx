@@ -1,4 +1,4 @@
-import { Home, Calendar, DollarSign, Video, Music, Trophy, Settings } from "lucide-react";
+import { Home, Calendar, DollarSign, Video, Music, Trophy, Settings, BarChart3 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Separator } from "@/components/ui/separator";
 
@@ -7,6 +7,7 @@ const DesktopSidebar = () => {
     { icon: Home, label: "Painel Inicial", path: "/" },
     { icon: Calendar, label: "Agenda de Shows", path: "/shows" },
     { icon: DollarSign, label: "Consultor Financeiro", path: "/financas" },
+    { icon: BarChart3, label: "Análise por Evento", path: "/analises" },
     { icon: Video, label: "Projeto Audiovisual", path: "/projeto" },
     { icon: Music, label: "Repertório Inteligente", path: "/repertorio" },
   ];
