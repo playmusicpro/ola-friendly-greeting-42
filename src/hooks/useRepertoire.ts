@@ -36,6 +36,11 @@ const mockSetlists: Setlist[] = [
     id: '1',
     name: 'Setlist Bar do Zé - Dezembro',
     songIds: ['1', '2'],
+    musicas: [
+      { songId: '1', tomEscolhido: null },
+      { songId: '2', tomEscolhido: null },
+    ],
+    order: ['1', '2'],
     createdAt: '2024-12-01',
   },
 ];
@@ -78,18 +83,45 @@ export function useRepertoire() {
       ...setlistData,
       id: Date.now().toString(),
       createdAt: new Date().toISOString(),
+      musicas: setlistData.musicas || setlistData.songIds.map(songId => ({
+        songId,
+        tomEscolhido: null,
+      })),
+      order: setlistData.order || setlistData.songIds,
     };
     setSetlists(prev => [...prev, newSetlist]);
   };
 
   const updateSetlist = (id: string, setlistData: Omit<Setlist, 'id' | 'createdAt'>) => {
     setSetlists(prev => prev.map(setlist => 
-      setlist.id === id ? { ...setlistData, id, createdAt: setlist.createdAt } : setlist
+      setlist.id === id ? { 
+        ...setlistData, 
+        id, 
+        createdAt: setlist.createdAt,
+        musicas: setlistData.musicas || setlistData.songIds.map(songId => ({
+          songId,
+          tomEscolhido: null,
+        })),
+        order: setlistData.order || setlistData.songIds,
+      } : setlist
     ));
   };
 
   const deleteSetlist = (id: string) => {
     setSetlists(prev => prev.filter(setlist => setlist.id !== id));
+  };
+
+  const updateSetlistSongTone = (setlistId: string, songId: string, tomEscolhido: string | null) => {
+    setSetlists(prev => prev.map(setlist => {
+      if (setlist.id !== setlistId) return setlist;
+      
+      return {
+        ...setlist,
+        musicas: setlist.musicas.map(m => 
+          m.songId === songId ? { ...m, tomEscolhido } : m
+        ),
+      };
+    }));
   };
 
   return {
@@ -102,5 +134,6 @@ export function useRepertoire() {
     addSetlist,
     updateSetlist,
     deleteSetlist,
+    updateSetlistSongTone,
   };
 }

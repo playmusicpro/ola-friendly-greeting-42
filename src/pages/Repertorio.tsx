@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Music, Plus, Edit, Trash2, ExternalLink, ChevronUp, ChevronDown, ListMusic } from "lucide-react";
+import { Music, Plus, Edit, Trash2, ExternalLink, ChevronUp, ChevronDown, ListMusic, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,9 +25,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SetlistDetails } from "@/components/SetlistDetails";
+import { transposeCifraText, getSemitoneDistance, getAllKeys } from "@/lib/transposeChord";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Repertorio = () => {
-  const { songs, setlists, addSong, updateSong, deleteSong, updateSongTone, addSetlist, updateSetlist, deleteSetlist } = useRepertoire();
+  const { songs, setlists, addSong, updateSong, deleteSong, updateSongTone, addSetlist, updateSetlist, deleteSetlist, updateSetlistSongTone } = useRepertoire();
   const { toast } = useToast();
   const [isSongFormOpen, setIsSongFormOpen] = useState(false);
   const [isSetlistFormOpen, setIsSetlistFormOpen] = useState(false);
@@ -36,6 +45,10 @@ const Repertorio = () => {
   const [songToDelete, setSongToDelete] = useState<string | null>(null);
   const [setlistToDelete, setSetlistToDelete] = useState<string | null>(null);
   const [viewingSong, setViewingSong] = useState<Song | null>(null);
+  const [viewingSetlist, setViewingSetlist] = useState<Setlist | null>(null);
+  const [transposedTone, setTransposedTone] = useState<string | null>(null);
+
+  const allKeys = getAllKeys();
 
   const handleAddSong = (songData: Omit<Song, 'id'>) => {
     addSong(songData);
@@ -98,16 +111,11 @@ const Repertorio = () => {
     }
   };
 
-  const handleToneChange = (songId: string, direction: 'up' | 'down') => {
-    const song = songs.find(s => s.id === songId);
-    if (!song) return;
+  const handleToneChange = (direction: 'up' | 'down') => {
+    if (!viewingSong) return;
 
-    const tones = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    const minorTones = ['Cm', 'C#m', 'Dm', 'D#m', 'Em', 'Fm', 'F#m', 'Gm', 'G#m', 'Am', 'A#m', 'Bm'];
-    
-    const isMinor = song.tone.includes('m');
-    const toneList = isMinor ? minorTones : tones;
-    const currentIndex = toneList.findIndex(t => t.toLowerCase() === song.tone.toLowerCase());
+    const currentTone = transposedTone || viewingSong.tone;
+    const currentIndex = allKeys.indexOf(currentTone);
     
     if (currentIndex === -1) {
       toast({
@@ -119,15 +127,41 @@ const Repertorio = () => {
     }
 
     const newIndex = direction === 'up' 
-      ? (currentIndex + 1) % toneList.length 
-      : (currentIndex - 1 + toneList.length) % toneList.length;
+      ? (currentIndex + 1) % allKeys.length 
+      : (currentIndex - 1 + allKeys.length) % allKeys.length;
     
-    updateSongTone(songId, toneList[newIndex]);
+    const newTone = allKeys[newIndex];
+    setTransposedTone(newTone);
+    
+    const semitones = getSemitoneDistance(viewingSong.tone, newTone);
     toast({
       title: "Tom alterado!",
-      description: `Tom mudou de ${song.tone} para ${toneList[newIndex]}`,
+      description: `Tom mudou de ${currentTone} para ${newTone} (${semitones > 0 ? '+' : ''}${semitones})`,
     });
   };
+
+  const handleSaveTransposedTone = () => {
+    if (!viewingSong || !transposedTone) return;
+
+    updateSongTone(viewingSong.id, transposedTone);
+    toast({
+      title: "Tom salvo!",
+      description: `O tom da música foi atualizado para ${transposedTone}`,
+    });
+    setTransposedTone(null);
+    setViewingSong(null);
+  };
+
+  // Se estiver visualizando detalhes da setlist, mostrar componente específico
+  if (viewingSetlist) {
+    return (
+      <SetlistDetails
+        setlist={viewingSetlist}
+        songs={songs}
+        onUpdateSetlistSongTone={updateSetlistSongTone}
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -251,7 +285,16 @@ const Repertorio = () => {
                         {setlist.songIds.length} música(s) • Criada em {new Date(setlist.createdAt).toLocaleDateString('pt-BR')}
                       </p>
                     </div>
-                    <div className="flex gap-2">
+                     <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setViewingSetlist(setlist)}
+                        className="gap-2 bg-gold/10 hover:bg-gold/20 text-gold border-gold/30"
+                      >
+                        <Eye className="h-4 w-4" />
+                        Ver
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"
@@ -311,32 +354,83 @@ const Repertorio = () => {
                   <p className="text-lg font-medium">{viewingSong.artist}</p>
                 </div>
 
-                <div className="flex items-center gap-4">
-                  <div className="flex-1">
-                    <p className="text-sm text-muted-foreground mb-1">Tom atual</p>
-                    <div className="flex items-center gap-2">
-                      <Badge className="bg-gold/20 text-gold border-gold/30 text-xl py-2 px-4">
-                        {viewingSong.tone}
-                      </Badge>
-                      <div className="flex gap-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleToneChange(viewingSong.id, 'down')}
-                          className="h-8 w-8 p-0"
-                        >
-                          <ChevronDown className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleToneChange(viewingSong.id, 'up')}
-                          className="h-8 w-8 p-0"
-                        >
-                          <ChevronUp className="h-4 w-4" />
-                        </Button>
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Tom Original</p>
+                    <Badge variant="outline" className="text-lg py-2 px-4">
+                      {viewingSong.tone}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1">
+                      <p className="text-sm text-muted-foreground mb-2">Tom Transposto (Preview)</p>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-gold/20 text-gold border-gold/30 text-xl py-2 px-4">
+                          {transposedTone || viewingSong.tone}
+                        </Badge>
+                        {transposedTone && (
+                          <Badge variant="outline" className="text-sm">
+                            {getSemitoneDistance(viewingSong.tone, transposedTone) > 0 ? '+' : ''}
+                            {getSemitoneDistance(viewingSong.tone, transposedTone)} semitons
+                          </Badge>
+                        )}
                       </div>
                     </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleToneChange('down')}
+                      className="h-9 w-9 p-0"
+                    >
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleToneChange('up')}
+                      className="h-9 w-9 p-0"
+                    >
+                      <ChevronUp className="h-4 w-4" />
+                    </Button>
+
+                    <Select
+                      value={transposedTone || viewingSong.tone}
+                      onValueChange={setTransposedTone}
+                    >
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {allKeys.map(key => (
+                          <SelectItem key={key} value={key}>
+                            {key}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {transposedTone && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setTransposedTone(null)}
+                        >
+                          Resetar
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={handleSaveTransposedTone}
+                          className="bg-primary hover:bg-primary/90"
+                        >
+                          Salvar Tom
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -344,6 +438,22 @@ const Repertorio = () => {
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Como você toca</p>
                     <p className="text-base">{viewingSong.howYouPlay}</p>
+                  </div>
+                )}
+
+                {viewingSong.cifraText && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Cifra</p>
+                    <div className="bg-muted/30 p-4 rounded-lg max-h-[300px] overflow-y-auto">
+                      <pre className="font-mono text-sm whitespace-pre-wrap">
+                        {transposedTone
+                          ? transposeCifraText(
+                              viewingSong.cifraText,
+                              getSemitoneDistance(viewingSong.tone, transposedTone)
+                            )
+                          : viewingSong.cifraText}
+                      </pre>
+                    </div>
                   </div>
                 )}
 

@@ -78,6 +78,11 @@ export function SetlistForm({ open, onOpenChange, onSubmit, songs, initialData }
     onSubmit({
       name: data.name,
       songIds: selectedSongIds,
+      musicas: selectedSongIds.map(songId => ({
+        songId,
+        tomEscolhido: null,
+      })),
+      order: selectedSongIds,
     });
     reset();
     setSelectedSongIds([]);
