@@ -78,15 +78,22 @@ export interface Song {
   id: string;
   title: string;
   artist: string;
-  tone: string;
+  tone: string; // Tom original
   howYouPlay?: string;
   cifraClubLink?: string;
   notes?: string;
+  acordesArray?: string[]; // Array de acordes para transposição
+  cifraText?: string; // Texto da cifra com acordes entre colchetes [C] [Am] etc
 }
 
 export interface Setlist {
   id: string;
   name: string;
-  songIds: string[];
+  songIds: string[]; // Mantido para compatibilidade
+  musicas: Array<{
+    songId: string;
+    tomEscolhido: string | null; // Tom transposto (sombra), null = tom original
+  }>;
+  order: string[]; // Ordem das músicas no setlist
   createdAt: string;
 }

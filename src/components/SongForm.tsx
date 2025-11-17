@@ -21,6 +21,8 @@ const songSchema = z.object({
   howYouPlay: z.string().optional(),
   cifraClubLink: z.string().url("Link inválido").optional().or(z.literal("")),
   notes: z.string().optional(),
+  acordesArray: z.array(z.string()).optional(),
+  cifraText: z.string().optional(),
 });
 
 type SongFormData = z.infer<typeof songSchema>;
@@ -47,6 +49,8 @@ export function SongForm({ open, onOpenChange, onSubmit, initialData }: SongForm
       howYouPlay: "",
       cifraClubLink: "",
       notes: "",
+      acordesArray: [],
+      cifraText: "",
     },
   });
 
@@ -130,6 +134,20 @@ export function SongForm({ open, onOpenChange, onSubmit, initialData }: SongForm
             )}
             <p className="text-xs text-muted-foreground">
               Cole o link da cifra para abrir externamente depois
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="cifraText">Cifra (opcional)</Label>
+            <Textarea
+              id="cifraText"
+              {...register("cifraText")}
+              placeholder="Cole a cifra aqui. Use colchetes para acordes: [C] [Am] [F] [G]"
+              rows={6}
+              className="font-mono text-sm"
+            />
+            <p className="text-xs text-muted-foreground">
+              Use colchetes para marcar acordes que serão transpostos. Ex: [C] Hoje eu [Am] sinto
             </p>
           </div>
 
