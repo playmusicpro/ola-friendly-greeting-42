@@ -74,6 +74,31 @@ export interface Alert {
   message: string;
 }
 
+export interface Income {
+  id: string;
+  description: string;
+  amount: number;
+  date: string;
+  category?: string;
+  source: 'lessons' | 'freelance' | 'other';
+}
+
+export interface NotificationSettings {
+  enableWhatsAppNotifications: boolean;
+  whatsAppNumber?: string;
+}
+
+export interface NotificationLog {
+  id: string;
+  timestamp: string;
+  userId: string;
+  eventType: 'whatsapp' | 'push';
+  eventId: string;
+  messageBody: string;
+  deliveryStatus: 'sent' | 'failed' | 'pending';
+  error?: string;
+}
+
 export interface Song {
   id: string;
   title: string;

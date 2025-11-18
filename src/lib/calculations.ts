@@ -7,7 +7,8 @@ import {
   ProjectCalculations,
   Project,
   Expense,
-  FixedExpense
+  FixedExpense,
+  Income
 } from '@/types';
 
 export function calculateShow(show: Show): ShowCalculations {
@@ -56,9 +57,11 @@ export function calculateMonthlyProjection(
 export function calculateDRE(
   shows: Show[],
   expenses: Expense[],
-  fixedExpenses: FixedExpense[]
+  fixedExpenses: FixedExpense[],
+  incomes?: Income[]
 ): DRE {
   const receitaBruta = shows.reduce((sum, show) => sum + show.cache, 0);
+  const receitaOutras = incomes ? incomes.reduce((sum, income) => sum + income.amount, 0) : 0;
   
   const custosDirectos = shows.reduce((sum, show) => {
     const calc = calculateShow(show);
@@ -69,11 +72,11 @@ export function calculateDRE(
     expenses.reduce((sum, exp) => sum + exp.amount, 0) +
     fixedExpenses.reduce((sum, exp) => sum + exp.amount, 0);
 
-  const resultadoOperacional = receitaBruta - custosDirectos - despesasFixas;
-  const margemFinal = receitaBruta > 0 ? (resultadoOperacional / receitaBruta) * 100 : 0;
+  const resultadoOperacional = (receitaBruta + receitaOutras) - custosDirectos - despesasFixas;
+  const margemFinal = (receitaBruta + receitaOutras) > 0 ? (resultadoOperacional / (receitaBruta + receitaOutras)) * 100 : 0;
 
   return {
-    receitaBruta,
+    receitaBruta: receitaBruta + receitaOutras,
     custosDirectos,
     despesasFixas,
     resultadoOperacional,

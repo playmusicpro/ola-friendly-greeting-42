@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Show, Expense, FixedExpense, Project } from '@/types';
+import { Show, Expense, FixedExpense, Project, Income, NotificationSettings } from '@/types';
 
 // Mock data para demonstração
 const mockShows: Show[] = [
@@ -110,11 +110,36 @@ const mockProject: Project = {
   weeklyDeposit: 400,
 };
 
+const mockIncomes: Income[] = [
+  {
+    id: '1',
+    description: 'Aula de violão - Maria',
+    amount: 150,
+    date: '2024-12-10',
+    source: 'lessons',
+    category: 'Ensino',
+  },
+  {
+    id: '2',
+    description: 'Produção musical freelance',
+    amount: 800,
+    date: '2024-12-15',
+    source: 'freelance',
+    category: 'Produção',
+  },
+];
+
+const mockNotificationSettings: NotificationSettings = {
+  enableWhatsAppNotifications: false,
+};
+
 export function useFinancialData() {
   const [shows, setShows] = useState<Show[]>(mockShows);
   const [expenses] = useState<Expense[]>(mockExpenses);
   const [fixedExpenses] = useState<FixedExpense[]>(mockFixedExpenses);
   const [project] = useState<Project>(mockProject);
+  const [incomes, setIncomes] = useState<Income[]>(mockIncomes);
+  const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>(mockNotificationSettings);
 
   const addShow = (showData: Omit<Show, 'id'>) => {
     const newShow: Show = {
@@ -155,14 +180,46 @@ export function useFinancialData() {
     return duplicatedShow;
   };
 
+  const addIncome = (incomeData: Omit<Income, 'id'>) => {
+    const newIncome: Income = {
+      ...incomeData,
+      id: Date.now().toString(),
+    };
+    setIncomes(prev => [...prev, newIncome].sort((a, b) => 
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    ));
+  };
+
+  const updateIncome = (id: string, incomeData: Omit<Income, 'id'>) => {
+    setIncomes(prev => prev.map(income => 
+      income.id === id ? { ...incomeData, id } : income
+    ).sort((a, b) => 
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    ));
+  };
+
+  const deleteIncome = (id: string) => {
+    setIncomes(prev => prev.filter(income => income.id !== id));
+  };
+
+  const updateNotificationSettings = (settings: Partial<NotificationSettings>) => {
+    setNotificationSettings(prev => ({ ...prev, ...settings }));
+  };
+
   return {
     shows,
     expenses,
     fixedExpenses,
     project,
+    incomes,
+    notificationSettings,
     addShow,
     updateShow,
     deleteShow,
     duplicateShow,
+    addIncome,
+    updateIncome,
+    deleteIncome,
+    updateNotificationSettings,
   };
 }
