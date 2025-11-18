@@ -1,4 +1,4 @@
-import { Home, Calendar, DollarSign, Music, BarChart3, TrendingUp } from "lucide-react";
+import { Home, Calendar, DollarSign, Music, BarChart3, TrendingUp, CalendarDays } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
 const MobileNav = () => {
@@ -8,7 +8,7 @@ const MobileNav = () => {
     { icon: DollarSign, label: "Finanças", path: "/financas" },
     { icon: TrendingUp, label: "Receitas", path: "/receitas" },
     { icon: BarChart3, label: "Análises", path: "/analises" },
-    { icon: Music, label: "Repertório", path: "/repertorio" },
+    { icon: CalendarDays, label: "Agenda", path: "/agenda" },
   ];
 
   return (

@@ -1,11 +1,13 @@
-import { Calendar, DollarSign, TrendingUp, Video, Plus, Wallet, AlertTriangle, Info, Music } from "lucide-react";
+import { Calendar, DollarSign, TrendingUp, Video, Plus, Wallet, AlertTriangle, Info, Music, Users, GraduationCap, Mic, Clock, CalendarDays } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useFinancialData } from "@/hooks/useFinancialData";
 import { useRepertoire } from "@/hooks/useRepertoire";
 import { useShowNotifications } from "@/hooks/useShowNotifications";
+import { formatDateBR } from "@/lib/dateUtils";
 import { 
   calculateDRE, 
   calculateMonthlyProjection, 
@@ -15,11 +17,45 @@ import {
 } from "@/lib/calculations";
 
 const Dashboard = () => {
-  const { shows, expenses, fixedExpenses, project, incomes } = useFinancialData();
+  const { shows, expenses, fixedExpenses, project, incomes, events } = useFinancialData();
   const { songs, setlists } = useRepertoire();
   
   // Enable show notifications
   useShowNotifications(shows);
+  
+  // Get next 3 upcoming events
+  const now = new Date();
+  const upcomingEvents = events
+    .filter(event => {
+      const eventDate = new Date(event.date + 'T' + event.startTime);
+      return eventDate > now && !event.realizado;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.date + 'T' + a.startTime);
+      const dateB = new Date(b.date + 'T' + b.startTime);
+      return dateA.getTime() - dateB.getTime();
+    })
+    .slice(0, 3);
+
+  const getEventIcon = (tipo: string) => {
+    switch (tipo) {
+      case 'Show': return <Music className="h-4 w-4" />;
+      case 'Ensaio': return <Users className="h-4 w-4" />;
+      case 'Aula': return <GraduationCap className="h-4 w-4" />;
+      case 'Gravação': return <Mic className="h-4 w-4" />;
+      default: return <CalendarDays className="h-4 w-4" />;
+    }
+  };
+
+  const getEventColor = (tipo: string) => {
+    switch (tipo) {
+      case 'Show': return 'bg-primary text-primary-foreground';
+      case 'Ensaio': return 'bg-secondary text-secondary-foreground';
+      case 'Aula': return 'bg-accent text-accent-foreground';
+      case 'Gravação': return 'bg-destructive text-destructive-foreground';
+      default: return 'bg-muted text-muted-foreground';
+    }
+  };
   
   // Calcular métricas
   const dre = calculateDRE(shows, expenses, fixedExpenses, incomes);
@@ -110,6 +146,39 @@ const Dashboard = () => {
           variant="default"
         />
       </div>
+
+      {/* Próximos Eventos Widget */}
+      {upcomingEvents.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CalendarDays className="h-5 w-5" />
+              Próximos Eventos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {upcomingEvents.map(event => (
+                <div key={event.id} className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <Badge className={getEventColor(event.tipo)}>
+                      {getEventIcon(event.tipo)}
+                    </Badge>
+                    <div>
+                      <p className="font-semibold">{event.title}</p>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        <span>{formatDateBR(event.date)} às {event.startTime}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <Badge variant="outline">{event.tipo}</Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Quick Actions */}
       <Card className="p-6 shadow-lg border-primary/10">

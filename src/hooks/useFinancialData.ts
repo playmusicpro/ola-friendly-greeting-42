@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Show, Expense, FixedExpense, Project, Income, NotificationSettings } from '@/types';
+import { Show, Expense, FixedExpense, Project, Income, NotificationSettings, Event } from '@/types';
 
 // Mock data para demonstração
 const mockShows: Show[] = [
@@ -133,6 +133,30 @@ const mockNotificationSettings: NotificationSettings = {
   enableWhatsAppNotifications: false,
 };
 
+const mockEvents: Event[] = [
+  {
+    id: '1',
+    title: 'Bar do Zé',
+    tipo: 'Show',
+    date: '2024-12-15',
+    startTime: '21:00',
+    endTime: '23:00',
+    local: 'Bar do Zé',
+    linkedShowId: '1',
+    realizado: false,
+  },
+  {
+    id: '2',
+    title: 'Ensaio Banda',
+    tipo: 'Ensaio',
+    date: '2024-12-18',
+    startTime: '19:00',
+    endTime: '22:00',
+    local: 'Estúdio Musical',
+    realizado: false,
+  },
+];
+
 export function useFinancialData() {
   const [shows, setShows] = useState<Show[]>(mockShows);
   const [expenses] = useState<Expense[]>(mockExpenses);
@@ -140,6 +164,7 @@ export function useFinancialData() {
   const [project] = useState<Project>(mockProject);
   const [incomes, setIncomes] = useState<Income[]>(mockIncomes);
   const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>(mockNotificationSettings);
+  const [events, setEvents] = useState<Event[]>(mockEvents);
 
   const addShow = (showData: Omit<Show, 'id'>) => {
     const newShow: Show = {
@@ -206,6 +231,74 @@ export function useFinancialData() {
     setNotificationSettings(prev => ({ ...prev, ...settings }));
   };
 
+  const addEvent = (eventData: Omit<Event, 'id'>) => {
+    const newEvent: Event = {
+      ...eventData,
+      id: Date.now().toString(),
+    };
+    setEvents(prev => [...prev, newEvent].sort((a, b) => 
+      new Date(a.date + 'T' + a.startTime).getTime() - new Date(b.date + 'T' + b.startTime).getTime()
+    ));
+  };
+
+  const updateEvent = (id: string, eventData: Omit<Event, 'id'>) => {
+    setEvents(prev => prev.map(event => 
+      event.id === id ? { ...eventData, id } : event
+    ).sort((a, b) => 
+      new Date(a.date + 'T' + a.startTime).getTime() - new Date(b.date + 'T' + b.startTime).getTime()
+    ));
+  };
+
+  const deleteEvent = (id: string) => {
+    setEvents(prev => prev.filter(event => event.id !== id));
+  };
+
+  const duplicateEvent = (id: string) => {
+    const originalEvent = events.find(event => event.id === id);
+    if (!originalEvent) return;
+
+    const duplicatedEvent: Event = {
+      ...originalEvent,
+      id: `event-${Date.now()}`,
+      title: `${originalEvent.title} (cópia)`,
+    };
+
+    setEvents(prev => [duplicatedEvent, ...prev].sort((a, b) => 
+      new Date(a.date + 'T' + a.startTime).getTime() - new Date(b.date + 'T' + b.startTime).getTime()
+    ));
+
+    return duplicatedEvent;
+  };
+
+  const markEventAsRealizado = (id: string) => {
+    const event = events.find(e => e.id === id);
+    if (!event) return;
+
+    // Mark event as realizado
+    updateEvent(id, { ...event, realizado: true });
+
+    // If it's a Show event and not linked, optionally create Show doc
+    if (event.tipo === 'Show' && !event.linkedShowId) {
+      const newShow: Omit<Show, 'id'> = {
+        date: event.date,
+        time: event.startTime,
+        local: event.local || event.title,
+        tipo: 'Bar',
+        cache: 0,
+        numMusicos: 1,
+        consumacao: 0,
+        kmRodados: 0,
+        combustivel: 0,
+        pedagio: 0,
+        roupas: 0,
+        equipamentos: 0,
+        outrosCustos: 0,
+        pagamentoMusicos: 0,
+      };
+      addShow(newShow);
+    }
+  };
+
   return {
     shows,
     expenses,
@@ -213,6 +306,7 @@ export function useFinancialData() {
     project,
     incomes,
     notificationSettings,
+    events,
     addShow,
     updateShow,
     deleteShow,
@@ -221,5 +315,10 @@ export function useFinancialData() {
     updateIncome,
     deleteIncome,
     updateNotificationSettings,
+    addEvent,
+    updateEvent,
+    deleteEvent,
+    duplicateEvent,
+    markEventAsRealizado,
   };
 }

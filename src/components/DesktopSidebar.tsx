@@ -11,6 +11,7 @@ const DesktopSidebar = () => {
     { icon: BarChart3, label: "Análise por Evento", path: "/analises" },
     { icon: Video, label: "Projeto Audiovisual", path: "/projeto" },
     { icon: Music, label: "Repertório Inteligente", path: "/repertorio" },
+    { icon: Calendar, label: "Agenda", path: "/agenda" },
   ];
 
   const extraNavItems = [
