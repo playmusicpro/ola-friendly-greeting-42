@@ -122,3 +122,16 @@ export interface Setlist {
   order: string[]; // Ordem das músicas no setlist
   createdAt: string;
 }
+
+export interface Event {
+  id: string;
+  title: string;
+  tipo: 'Show' | 'Ensaio' | 'Aula' | 'Gravação' | 'Outro';
+  date: string; // YYYY-MM-DD
+  startTime: string; // HH:MM
+  endTime?: string; // HH:MM
+  local?: string;
+  notes?: string;
+  linkedShowId?: string; // Link to Show document
+  realizado: boolean;
+}
