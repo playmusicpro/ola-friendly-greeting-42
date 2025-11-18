@@ -7,14 +7,14 @@ import { useFinancialData } from "@/hooks/useFinancialData";
 import { calculateDRE, formatCurrency, formatPercentage } from "@/lib/calculations";
 
 const Financas = () => {
-  const { shows, expenses, fixedExpenses, project } = useFinancialData();
+  const { shows, expenses, fixedExpenses, project, incomes } = useFinancialData();
   
   // Calcular totais
   const totalGastos = expenses.reduce((sum, exp) => sum + exp.amount, 0);
   const totalFixas = fixedExpenses.reduce((sum, exp) => sum + exp.amount, 0);
   
-  // Calcular DRE
-  const dre = calculateDRE(shows, expenses, fixedExpenses);
+  // Calcular DRE incluindo outras receitas
+  const dre = calculateDRE(shows, expenses, fixedExpenses, incomes);
   
   return (
     <div className="space-y-6">

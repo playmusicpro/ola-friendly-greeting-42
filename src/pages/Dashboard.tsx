@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useFinancialData } from "@/hooks/useFinancialData";
 import { useRepertoire } from "@/hooks/useRepertoire";
+import { useShowNotifications } from "@/hooks/useShowNotifications";
 import { 
   calculateDRE, 
   calculateMonthlyProjection, 
@@ -14,11 +15,14 @@ import {
 } from "@/lib/calculations";
 
 const Dashboard = () => {
-  const { shows, expenses, fixedExpenses, project } = useFinancialData();
+  const { shows, expenses, fixedExpenses, project, incomes } = useFinancialData();
   const { songs, setlists } = useRepertoire();
   
+  // Enable show notifications
+  useShowNotifications(shows);
+  
   // Calcular métricas
-  const dre = calculateDRE(shows, expenses, fixedExpenses);
+  const dre = calculateDRE(shows, expenses, fixedExpenses, incomes);
   const projection = calculateMonthlyProjection(shows);
   
   // Encontrar próximo show
