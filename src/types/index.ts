@@ -126,12 +126,13 @@ export interface Setlist {
 export interface Event {
   id: string;
   title: string;
-  tipo: 'Show' | 'Ensaio' | 'Aula' | 'Gravação' | 'Outro';
+  tipo: 'Show' | 'Ensaio' | 'Aula' | 'Gravação' | 'Compromisso' | 'Outro';
   date: string; // YYYY-MM-DD
   startTime: string; // HH:MM
   endTime?: string; // HH:MM
   local?: string;
   notes?: string;
   linkedShowId?: string; // Link to Show document
+  playlistId?: string; // Link to Setlist
   realizado: boolean;
 }

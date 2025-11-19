@@ -5,13 +5,12 @@ import { Separator } from "@/components/ui/separator";
 const DesktopSidebar = () => {
   const mainNavItems = [
     { icon: Home, label: "Painel Inicial", path: "/" },
-    { icon: Calendar, label: "Agenda de Shows", path: "/shows" },
+    { icon: Calendar, label: "Agenda", path: "/agenda" },
     { icon: DollarSign, label: "Consultor Financeiro", path: "/financas" },
     { icon: TrendingUp, label: "Outras Receitas", path: "/receitas" },
     { icon: BarChart3, label: "Análise por Evento", path: "/analises" },
     { icon: Video, label: "Projeto Audiovisual", path: "/projeto" },
     { icon: Music, label: "Repertório Inteligente", path: "/repertorio" },
-    { icon: Calendar, label: "Agenda", path: "/agenda" },
   ];
 
   const extraNavItems = [

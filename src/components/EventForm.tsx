@@ -6,6 +6,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Event } from '@/types';
+import { useRepertoire } from '@/hooks/useRepertoire';
+import { useFinancialData } from '@/hooks/useFinancialData';
 
 interface EventFormProps {
   open: boolean;
@@ -15,6 +17,9 @@ interface EventFormProps {
 }
 
 export function EventForm({ open, onOpenChange, onSubmit, initialData }: EventFormProps) {
+  const { setlists } = useRepertoire();
+  const { shows } = useFinancialData();
+  
   const [formData, setFormData] = useState<Omit<Event, 'id'>>({
     title: '',
     tipo: 'Outro',
@@ -24,6 +29,7 @@ export function EventForm({ open, onOpenChange, onSubmit, initialData }: EventFo
     local: '',
     notes: '',
     linkedShowId: undefined,
+    playlistId: undefined,
     realizado: false,
   });
 
@@ -38,6 +44,7 @@ export function EventForm({ open, onOpenChange, onSubmit, initialData }: EventFo
         local: initialData.local || '',
         notes: initialData.notes || '',
         linkedShowId: initialData.linkedShowId,
+        playlistId: initialData.playlistId,
         realizado: initialData.realizado,
       });
     } else {
@@ -50,6 +57,7 @@ export function EventForm({ open, onOpenChange, onSubmit, initialData }: EventFo
         local: '',
         notes: '',
         linkedShowId: undefined,
+        playlistId: undefined,
         realizado: false,
       });
     }
@@ -87,13 +95,14 @@ export function EventForm({ open, onOpenChange, onSubmit, initialData }: EventFo
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Show">Show</SelectItem>
-                <SelectItem value="Ensaio">Ensaio</SelectItem>
-                <SelectItem value="Aula">Aula</SelectItem>
-                <SelectItem value="Gravação">Gravação</SelectItem>
-                <SelectItem value="Outro">Outro</SelectItem>
-              </SelectContent>
+            <SelectContent>
+              <SelectItem value="Show">Show</SelectItem>
+              <SelectItem value="Ensaio">Ensaio</SelectItem>
+              <SelectItem value="Aula">Aula</SelectItem>
+              <SelectItem value="Gravação">Gravação</SelectItem>
+              <SelectItem value="Compromisso">Compromisso</SelectItem>
+              <SelectItem value="Outro">Outro</SelectItem>
+            </SelectContent>
             </Select>
           </div>
 
@@ -139,6 +148,48 @@ export function EventForm({ open, onOpenChange, onSubmit, initialData }: EventFo
               onChange={(e) => setFormData({ ...formData, local: e.target.value })}
             />
           </div>
+
+          <div>
+            <Label htmlFor="playlistId">Setlist (opcional)</Label>
+            <Select
+              value={formData.playlistId || ''}
+              onValueChange={(value) => setFormData({ ...formData, playlistId: value || undefined })}
+            >
+              <SelectTrigger id="playlistId">
+                <SelectValue placeholder="Selecionar setlist" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Nenhum</SelectItem>
+                {setlists.map((setlist) => (
+                  <SelectItem key={setlist.id} value={setlist.id}>
+                    {setlist.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {formData.tipo === 'Show' && (
+            <div>
+              <Label htmlFor="linkedShowId">Vincular a Show existente (opcional)</Label>
+              <Select
+                value={formData.linkedShowId || ''}
+                onValueChange={(value) => setFormData({ ...formData, linkedShowId: value || undefined })}
+              >
+                <SelectTrigger id="linkedShowId">
+                  <SelectValue placeholder="Selecionar show" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Nenhum</SelectItem>
+                  {shows.map((show) => (
+                    <SelectItem key={show.id} value={show.id}>
+                      {show.local} - {show.date}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div>
             <Label htmlFor="notes">Notas (opcional)</Label>

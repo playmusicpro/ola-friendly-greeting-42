@@ -1,42 +1,77 @@
 import { useState } from 'react';
+import { useFinancialData } from '@/hooks/useFinancialData';
+import { useRepertoire } from '@/hooks/useRepertoire';
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useFinancialData } from '@/hooks/useFinancialData';
+import { 
+  Calendar as CalendarIcon, 
+  Music, 
+  Music2, 
+  GraduationCap, 
+  Mic, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Copy, 
+  CheckCircle, 
+  MessageSquare, 
+  MapPin,
+  Play,
+  FileDown,
+  Link as LinkIcon,
+  Clock
+} from 'lucide-react';
 import { EventForm } from '@/components/EventForm';
 import { Event } from '@/types';
-import { Plus, Music, Users, GraduationCap, Mic, Calendar as CalendarIcon, MapPin, Clock, ExternalLink, Copy, CheckCircle, Trash2 } from 'lucide-react';
-import { formatDateBR } from '@/lib/dateUtils';
-import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 export default function Agenda() {
-  const { events, addEvent, updateEvent, deleteEvent, duplicateEvent, markEventAsRealizado } = useFinancialData();
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [formOpen, setFormOpen] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<Event | undefined>();
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [eventToDelete, setEventToDelete] = useState<string | null>(null);
+  const { events, addEvent, updateEvent, deleteEvent, duplicateEvent, markEventAsRealizado, shows } = useFinancialData();
+  const { setlists, songs } = useRepertoire();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
 
   const getEventIcon = (tipo: Event['tipo']) => {
     switch (tipo) {
-      case 'Show': return <Music className="h-4 w-4" />;
-      case 'Ensaio': return <Users className="h-4 w-4" />;
-      case 'Aula': return <GraduationCap className="h-4 w-4" />;
-      case 'Gravação': return <Mic className="h-4 w-4" />;
-      default: return <CalendarIcon className="h-4 w-4" />;
+      case 'Show':
+        return Music;
+      case 'Ensaio':
+        return Music2;
+      case 'Aula':
+        return GraduationCap;
+      case 'Gravação':
+        return Mic;
+      case 'Compromisso':
+        return CalendarIcon;
+      default:
+        return CalendarIcon;
     }
   };
 
   const getEventColor = (tipo: Event['tipo']) => {
     switch (tipo) {
-      case 'Show': return 'bg-primary text-primary-foreground';
-      case 'Ensaio': return 'bg-secondary text-secondary-foreground';
-      case 'Aula': return 'bg-accent text-accent-foreground';
-      case 'Gravação': return 'bg-destructive text-destructive-foreground';
-      default: return 'bg-muted text-muted-foreground';
+      case 'Show':
+        return 'bg-primary text-primary-foreground';
+      case 'Ensaio':
+        return 'bg-secondary text-secondary-foreground';
+      case 'Aula':
+        return 'bg-accent text-accent-foreground';
+      case 'Gravação':
+        return 'bg-destructive text-destructive-foreground';
+      case 'Compromisso':
+        return 'bg-muted text-muted-foreground';
+      default:
+        return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -45,44 +80,99 @@ export default function Agenda() {
 
   const handleAddEvent = (eventData: Omit<Event, 'id'>) => {
     addEvent(eventData);
-    toast({ title: 'Evento criado com sucesso!' });
+    toast({
+      title: "Evento criado",
+      description: "O evento foi adicionado à agenda.",
+    });
   };
 
   const handleUpdateEvent = (eventData: Omit<Event, 'id'>) => {
     if (editingEvent) {
       updateEvent(editingEvent.id, eventData);
-      toast({ title: 'Evento atualizado com sucesso!' });
+      toast({
+        title: "Evento atualizado",
+        description: "As alterações foram salvas.",
+      });
+      setEditingEvent(null);
     }
   };
 
   const handleDeleteEvent = () => {
-    if (eventToDelete) {
-      deleteEvent(eventToDelete);
-      toast({ title: 'Evento excluído com sucesso!' });
-      setDeleteDialogOpen(false);
-      setEventToDelete(null);
+    if (deletingEventId) {
+      deleteEvent(deletingEventId);
+      toast({
+        title: "Evento excluído",
+        description: "O evento foi removido da agenda.",
+      });
+      setDeletingEventId(null);
     }
+  };
+
+  const handleEditClick = (event: Event) => {
+    setEditingEvent(event);
+    setIsFormOpen(true);
   };
 
   const handleDuplicate = (id: string) => {
     duplicateEvent(id);
-    toast({ title: 'Evento duplicado com sucesso!' });
+    toast({
+      title: "Evento duplicado",
+      description: "Uma cópia do evento foi criada.",
+    });
   };
 
   const handleMarkRealizado = (id: string) => {
     markEventAsRealizado(id);
-    toast({ title: 'Evento marcado como realizado!' });
+    toast({
+      title: "Evento marcado como realizado",
+      description: "O status do evento foi atualizado.",
+    });
   };
 
   const handleWhatsApp = (event: Event) => {
-    const message = `Evento: ${event.title}\nTipo: ${event.tipo}\nData: ${formatDateBR(event.date)}\nHorário: ${event.startTime}${event.endTime ? ` - ${event.endTime}` : ''}\n${event.local ? `Local: ${event.local}` : ''}${event.notes ? `\nNotas: ${event.notes}` : ''}`;
+    const message = `*${event.title}*\nTipo: ${event.tipo}\nData: ${format(new Date(event.date + 'T00:00:00'), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}\nHorário: ${event.startTime}${event.endTime ? ` - ${event.endTime}` : ''}${event.local ? `\nLocal: ${event.local}` : ''}${event.notes ? `\n\nNotas: ${event.notes}` : ''}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
   };
 
-  const handleMaps = (event: Event) => {
-    if (event.local) {
-      window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.local)}`, '_blank');
+  const handleMaps = (address: string) => {
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+    window.open(url, '_blank');
+  };
+
+  const handleExportPDF = (event: Event) => {
+    const setlist = event.playlistId ? setlists.find(s => s.id === event.playlistId) : null;
+    
+    let content = `EVENTO: ${event.title}\nTipo: ${event.tipo}\nData: ${format(new Date(event.date + 'T00:00:00'), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}\nHorário: ${event.startTime}${event.endTime ? ` - ${event.endTime}` : ''}\n${event.local ? `Local: ${event.local}` : ''}${event.notes ? `\n\nNotas:\n${event.notes}` : ''}`;
+
+    if (setlist) {
+      content += `\n\n${'='.repeat(50)}\nSETLIST: ${setlist.name}\n${'='.repeat(50)}\n\n`;
+      setlist.musicas.forEach((musicaEntry, index) => {
+        const song = songs.find(s => s.id === musicaEntry.songId);
+        if (song) {
+          content += `${index + 1}. ${song.title} - ${song.artist}\n`;
+          content += `   Tom: ${musicaEntry.tomEscolhido || song.tone}`;
+          if (song.howYouPlay) {
+            content += ` | Como tocar: ${song.howYouPlay}`;
+          }
+          content += '\n\n';
+        }
+      });
     }
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `evento-${event.title.replace(/\s+/g, '-').toLowerCase()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Exportação concluída",
+      description: "Arquivo baixado com sucesso",
+    });
   };
 
   const modifiers = {
@@ -100,7 +190,7 @@ export default function Agenda() {
           <h1 className="text-3xl font-bold">Agenda</h1>
           <p className="text-muted-foreground">Gerencie seus eventos e compromissos</p>
         </div>
-        <Button onClick={() => { setEditingEvent(undefined); setFormOpen(true); }}>
+        <Button onClick={() => { setEditingEvent(null); setIsFormOpen(true); }}>
           <Plus className="h-4 w-4 mr-2" />
           Novo Evento
         </Button>
@@ -126,7 +216,7 @@ export default function Agenda() {
         <Card>
           <CardHeader>
             <CardTitle>
-              {selectedDate ? formatDateBR(selectedDateStr) : 'Selecione uma data'}
+              Eventos - {format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -136,15 +226,20 @@ export default function Agenda() {
               </p>
             ) : (
               <div className="space-y-4">
-                {dayEvents.map(event => (
-                  <Card key={event.id} className="relative">
+                {dayEvents.map((event) => {
+                  const Icon = getEventIcon(event.tipo);
+                  const setlist = event.playlistId ? setlists.find(s => s.id === event.playlistId) : null;
+                  const linkedShow = event.linkedShowId ? shows.find(s => s.id === event.linkedShowId) : null;
+                  
+                  return (
+                    <Card key={event.id}>
                     <CardContent className="pt-6">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 space-y-2">
                           <div className="flex items-center gap-2">
                             <Badge className={getEventColor(event.tipo)}>
-                              {getEventIcon(event.tipo)}
-                              <span className="ml-1">{event.tipo}</span>
+                              <Icon className="h-3 w-3 mr-1" />
+                              {event.tipo}
                             </Badge>
                             {event.realizado && (
                               <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">
@@ -156,32 +251,24 @@ export default function Agenda() {
                           
                           <h3 className="font-semibold text-lg">{event.title}</h3>
                           
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Clock className="h-4 w-4" />
-                            <span>{event.startTime}{event.endTime ? ` - ${event.endTime}` : ''}</span>
+                          <div className="text-sm text-muted-foreground space-y-1">
+                            <p><Clock className="h-3 w-3 inline mr-1" />{event.startTime}{event.endTime ? ` - ${event.endTime}` : ''}</p>
+                            {event.local && <p>📍 {event.local}</p>}
+                            {linkedShow && <p>🎵 Show vinculado: {linkedShow.local}</p>}
+                            {event.notes && <p className="mt-2">{event.notes}</p>}
                           </div>
-
-                          {event.local && (
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <MapPin className="h-4 w-4" />
-                              <span>{event.local}</span>
-                            </div>
-                          )}
-
-                          {event.notes && (
-                            <p className="text-sm text-muted-foreground">{event.notes}</p>
-                          )}
                         </div>
                       </div>
 
                       <div className="flex flex-wrap gap-2 mt-4">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => { setEditingEvent(event); setFormOpen(true); }}
-                        >
-                          Editar
-                        </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => { setEditingEvent(event); setIsFormOpen(true); }}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Editar
+                    </Button>
                         
                         <Button
                           size="sm"
@@ -244,13 +331,13 @@ export default function Agenda() {
       </div>
 
       <EventForm
-        open={formOpen}
-        onOpenChange={setFormOpen}
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
         onSubmit={editingEvent ? handleUpdateEvent : handleAddEvent}
-        initialData={editingEvent}
+        initialData={editingEvent || undefined}
       />
 
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <AlertDialog open={!!deletingEventId} onOpenChange={() => setDeletingEventId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Excluir Evento</AlertDialogTitle>
