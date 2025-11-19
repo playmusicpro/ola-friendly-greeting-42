@@ -4,13 +4,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
-import Shows from "./pages/Shows";
 import Financas from "./pages/Financas";
 import Receitas from "./pages/Receitas";
 import Analises from "./pages/Analises";
 import Projeto from "./pages/Projeto";
 import Repertorio from "./pages/Repertorio";
 import Agenda from "./pages/Agenda";
+import ModoShow from "./pages/ModoShow";
 import Desafios from "./pages/Desafios";
 import Presskit from "./pages/Presskit";
 import Flyer from "./pages/Flyer";
@@ -35,13 +35,13 @@ const App = () => (
             <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
               <Routes>
                 <Route path="/" element={<Dashboard />} />
-                <Route path="/shows" element={<Shows />} />
+                <Route path="/agenda" element={<Agenda />} />
+                <Route path="/modo-show/:playlistId" element={<ModoShow />} />
                 <Route path="/financas" element={<Financas />} />
                 <Route path="/receitas" element={<Receitas />} />
                 <Route path="/analises" element={<Analises />} />
                 <Route path="/projeto" element={<Projeto />} />
                 <Route path="/repertorio" element={<Repertorio />} />
-                <Route path="/agenda" element={<Agenda />} />
                 <Route path="/desafios" element={<Desafios />} />
                 <Route path="/desafios/presskit" element={<Presskit />} />
                 <Route path="/desafios/flyer" element={<Flyer />} />

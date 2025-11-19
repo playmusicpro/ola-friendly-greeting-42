@@ -4,11 +4,10 @@ import { NavLink } from "@/components/NavLink";
 const MobileNav = () => {
   const navItems = [
     { icon: Home, label: "Home", path: "/" },
-    { icon: Calendar, label: "Shows", path: "/shows" },
+    { icon: CalendarDays, label: "Agenda", path: "/agenda" },
     { icon: DollarSign, label: "Finanças", path: "/financas" },
     { icon: TrendingUp, label: "Receitas", path: "/receitas" },
     { icon: BarChart3, label: "Análises", path: "/analises" },
-    { icon: CalendarDays, label: "Agenda", path: "/agenda" },
   ];
 
   return (
