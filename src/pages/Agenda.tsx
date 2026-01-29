@@ -16,12 +16,9 @@ import {
   Trash2, 
   Copy, 
   CheckCircle, 
-  MessageSquare, 
   MapPin,
-  Play,
-  FileDown,
-  Link as LinkIcon,
-  Clock
+  Clock,
+  ExternalLink
 } from 'lucide-react';
 import { EventForm } from '@/components/EventForm';
 import { Event } from '@/types';
@@ -29,13 +26,11 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
 
 export default function Agenda() {
   const { events, addEvent, updateEvent, deleteEvent, duplicateEvent, markEventAsRealizado, shows } = useFinancialData();
   const { setlists, songs } = useRepertoire();
   const { toast } = useToast();
-  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
@@ -108,11 +103,6 @@ export default function Agenda() {
     }
   };
 
-  const handleEditClick = (event: Event) => {
-    setEditingEvent(event);
-    setIsFormOpen(true);
-  };
-
   const handleDuplicate = (id: string) => {
     duplicateEvent(id);
     toast({
@@ -134,8 +124,8 @@ export default function Agenda() {
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
   };
 
-  const handleMaps = (address: string) => {
-    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+  const handleMaps = (local: string) => {
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(local)}`;
     window.open(url, '_blank');
   };
 
@@ -205,7 +195,7 @@ export default function Agenda() {
             <Calendar
               mode="single"
               selected={selectedDate}
-              onSelect={setSelectedDate}
+              onSelect={(date) => date && setSelectedDate(date)}
               modifiers={modifiers}
               modifiersClassNames={modifiersClassNames}
               className="rounded-md border"
@@ -228,102 +218,99 @@ export default function Agenda() {
               <div className="space-y-4">
                 {dayEvents.map((event) => {
                   const Icon = getEventIcon(event.tipo);
-                  const setlist = event.playlistId ? setlists.find(s => s.id === event.playlistId) : null;
                   const linkedShow = event.linkedShowId ? shows.find(s => s.id === event.linkedShowId) : null;
                   
                   return (
                     <Card key={event.id}>
-                    <CardContent className="pt-6">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Badge className={getEventColor(event.tipo)}>
-                              <Icon className="h-3 w-3 mr-1" />
-                              {event.tipo}
-                            </Badge>
-                            {event.realizado && (
-                              <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">
-                                <CheckCircle className="h-3 w-3 mr-1" />
-                                Realizado
+                      <CardContent className="pt-6">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 space-y-2">
+                            <div className="flex items-center gap-2">
+                              <Badge className={getEventColor(event.tipo)}>
+                                <Icon className="h-3 w-3 mr-1" />
+                                {event.tipo}
                               </Badge>
-                            )}
-                          </div>
-                          
-                          <h3 className="font-semibold text-lg">{event.title}</h3>
-                          
-                          <div className="text-sm text-muted-foreground space-y-1">
-                            <p><Clock className="h-3 w-3 inline mr-1" />{event.startTime}{event.endTime ? ` - ${event.endTime}` : ''}</p>
-                            {event.local && <p>📍 {event.local}</p>}
-                            {linkedShow && <p>🎵 Show vinculado: {linkedShow.local}</p>}
-                            {event.notes && <p className="mt-2">{event.notes}</p>}
+                              {event.realizado && (
+                                <Badge variant="outline" className="border-green-500/20 bg-green-500/10 text-green-600">
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Realizado
+                                </Badge>
+                              )}
+                            </div>
+                            
+                            <h3 className="font-semibold text-lg">{event.title}</h3>
+                            
+                            <div className="text-sm text-muted-foreground space-y-1">
+                              <p><Clock className="h-3 w-3 inline mr-1" />{event.startTime}{event.endTime ? ` - ${event.endTime}` : ''}</p>
+                              {event.local && <p>📍 {event.local}</p>}
+                              {linkedShow && <p>🎵 Show vinculado: {linkedShow.local}</p>}
+                              {event.notes && <p className="mt-2">{event.notes}</p>}
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div className="flex flex-wrap gap-2 mt-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => { setEditingEvent(event); setIsFormOpen(true); }}
-                    >
-                      <Edit className="h-4 w-4 mr-2" />
-                      Editar
-                    </Button>
-                        
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDuplicate(event.id)}
-                        >
-                          <Copy className="h-3 w-3 mr-1" />
-                          Duplicar
-                        </Button>
-
-                        {!event.realizado && (
+                        <div className="flex flex-wrap gap-2 mt-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => { setEditingEvent(event); setIsFormOpen(true); }}
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Editar
+                          </Button>
+                          
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleMarkRealizado(event.id)}
+                            onClick={() => handleDuplicate(event.id)}
                           >
-                            <CheckCircle className="h-3 w-3 mr-1" />
-                            Marcar Realizado
+                            <Copy className="h-3 w-3 mr-1" />
+                            Duplicar
                           </Button>
-                        )}
 
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleWhatsApp(event)}
-                        >
-                          <ExternalLink className="h-3 w-3 mr-1" />
-                          WhatsApp
-                        </Button>
+                          {!event.realizado && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleMarkRealizado(event.id)}
+                            >
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Marcar Realizado
+                            </Button>
+                          )}
 
-                        {event.local && (
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleMaps(event)}
+                            onClick={() => handleWhatsApp(event)}
                           >
-                            <MapPin className="h-3 w-3 mr-1" />
-                            Maps
+                            <ExternalLink className="h-3 w-3 mr-1" />
+                            WhatsApp
                           </Button>
-                        )}
 
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => {
-                            setEventToDelete(event.id);
-                            setDeleteDialogOpen(true);
-                          }}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                          {event.local && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleMaps(event.local!)}
+                            >
+                              <MapPin className="h-3 w-3 mr-1" />
+                              Maps
+                            </Button>
+                          )}
+
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => setDeletingEventId(event.id)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </CardContent>
