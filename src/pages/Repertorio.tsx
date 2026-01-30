@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Music, Plus, Edit, Trash2, ExternalLink, ChevronUp, ChevronDown, ListMusic, Eye } from "lucide-react";
+import { Music, Plus, Edit, Trash2, ExternalLink, ChevronUp, ChevronDown, ListMusic, Eye, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,10 +34,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ExportShareModal } from "@/components/ExportShareModal";
+import { useSettings } from "@/hooks/useSettings";
 
 const Repertorio = () => {
   const { songs, setlists, addSong, updateSong, deleteSong, updateSongTone, addSetlist, updateSetlist, deleteSetlist, updateSetlistSongTone } = useRepertoire();
   const { toast } = useToast();
+  const { settings } = useSettings();
   const [isSongFormOpen, setIsSongFormOpen] = useState(false);
   const [isSetlistFormOpen, setIsSetlistFormOpen] = useState(false);
   const [editingSong, setEditingSong] = useState<Song | undefined>();
@@ -47,6 +50,13 @@ const Repertorio = () => {
   const [viewingSong, setViewingSong] = useState<Song | null>(null);
   const [viewingSetlist, setViewingSetlist] = useState<Setlist | null>(null);
   const [transposedTone, setTransposedTone] = useState<string | null>(null);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [exportData, setExportData] = useState<{
+    type: 'setlist' | 'song';
+    title: string;
+    content: string;
+    items?: Array<{ title: string; artist: string; tone: string; notes?: string }>;
+  } | null>(null);
 
   const allKeys = getAllKeys();
 
@@ -150,6 +160,35 @@ const Repertorio = () => {
     });
     setTransposedTone(null);
     setViewingSong(null);
+  };
+
+  const handleExportSong = (song: Song) => {
+    setExportData({
+      type: 'song',
+      title: song.title,
+      content: song.cifraText || `${song.title} - ${song.artist}\nTom: ${song.tone}\n\n${song.notes || ''}`,
+    });
+    setExportModalOpen(true);
+  };
+
+  const handleExportSetlist = (setlist: Setlist) => {
+    const setlistItems = setlist.songIds.map(songId => {
+      const song = songs.find(s => s.id === songId);
+      return song ? {
+        title: song.title,
+        artist: song.artist,
+        tone: song.tone,
+        notes: song.notes,
+      } : null;
+    }).filter(Boolean) as Array<{ title: string; artist: string; tone: string; notes?: string }>;
+
+    setExportData({
+      type: 'setlist',
+      title: setlist.name,
+      content: setlistItems.map((item, i) => `${i + 1}. ${item.title} - ${item.artist} (Tom: ${item.tone})`).join('\n'),
+      items: setlistItems,
+    });
+    setExportModalOpen(true);
   };
 
   // Se estiver visualizando detalhes da setlist, mostrar componente específico
@@ -294,6 +333,14 @@ const Repertorio = () => {
                       >
                         <Eye className="h-4 w-4" />
                         Ver
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleExportSetlist(setlist)}
+                        className="gap-2"
+                      >
+                        <Share2 className="h-4 w-4" />
                       </Button>
                       <Button
                         size="sm"
@@ -464,16 +511,24 @@ const Repertorio = () => {
                   </div>
                 )}
 
-                <div className="flex gap-3 pt-4">
+                <div className="flex flex-wrap gap-3 pt-4">
                   {viewingSong.cifraClubLink && (
                     <Button
-                      className="flex-1 gap-2 bg-primary hover:bg-primary/90"
+                      className="gap-2 bg-primary hover:bg-primary/90"
                       onClick={() => window.open(viewingSong.cifraClubLink, '_blank')}
                     >
                       <ExternalLink className="h-4 w-4" />
-                      Abrir no Cifra Club
+                      Cifra Club
                     </Button>
                   )}
+                  <Button
+                    variant="outline"
+                    onClick={() => handleExportSong(viewingSong)}
+                    className="gap-2"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    Exportar
+                  </Button>
                   <Button
                     variant="outline"
                     onClick={() => {
@@ -565,6 +620,22 @@ const Repertorio = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Export/Share Modal */}
+      {exportData && (
+        <ExportShareModal
+          open={exportModalOpen}
+          onOpenChange={(open) => {
+            setExportModalOpen(open);
+            if (!open) setExportData(null);
+          }}
+          type={exportData.type}
+          title={exportData.title}
+          content={exportData.content}
+          items={exportData.items}
+          hotmartLink={settings.hotmartUrl || undefined}
+        />
+      )}
     </div>
   );
 };
