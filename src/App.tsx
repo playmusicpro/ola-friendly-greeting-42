@@ -15,7 +15,7 @@ import Desafios from "./pages/Desafios";
 import Presskit from "./pages/Presskit";
 import Flyer from "./pages/Flyer";
 import Configuracoes from "./pages/Configuracoes";
-import LaunchChecklist from "./pages/LaunchChecklist";
+
 import NotFound from "./pages/NotFound";
 import MobileNav from "./components/MobileNav";
 import MobileHeader from "./components/MobileHeader";
@@ -46,7 +46,7 @@ const App = () => (
                 <Route path="/desafios" element={<Desafios />} />
                 <Route path="/desafios/presskit" element={<Presskit />} />
                 <Route path="/desafios/flyer" element={<Flyer />} />
-                <Route path="/launch" element={<LaunchChecklist />} />
+                
                 <Route path="/configuracoes" element={<Configuracoes />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

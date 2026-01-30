@@ -1,4 +1,4 @@
-import { Home, Calendar, DollarSign, Video, Music, Trophy, Settings, BarChart3, TrendingUp, Rocket } from "lucide-react";
+import { Home, Calendar, DollarSign, Video, Music, Trophy, Settings, BarChart3, TrendingUp } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Separator } from "@/components/ui/separator";
 
@@ -15,7 +15,6 @@ const DesktopSidebar = () => {
 
   const extraNavItems = [
     { icon: Trophy, label: "Desafios Online", path: "/desafios" },
-    { icon: Rocket, label: "Launch Checklist", path: "/launch" },
     { icon: Settings, label: "Configurações", path: "/configuracoes" },
   ];
 
