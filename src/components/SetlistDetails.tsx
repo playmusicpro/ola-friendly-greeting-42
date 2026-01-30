@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Music, Play, ChevronUp, ChevronDown, Maximize2 } from "lucide-react";
+import { ArrowLeft, Music, Play, ChevronUp, ChevronDown, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Song, Setlist } from "@/types";
-import { transposeChord, transposeCifraText, getSemitoneDistance, getAllKeys } from "@/lib/transposeChord";
+import { transposeCifraText, getSemitoneDistance, getAllKeys } from "@/lib/transposeChord";
 import {
   Select,
   SelectContent,
@@ -20,6 +20,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { ExportShareModal } from "@/components/ExportShareModal";
+import { useSettings } from "@/hooks/useSettings";
 
 interface SetlistDetailsProps {
   setlist: Setlist;
@@ -30,8 +32,10 @@ interface SetlistDetailsProps {
 export function SetlistDetails({ setlist, songs, onUpdateSetlistSongTone }: SetlistDetailsProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { settings } = useSettings();
   const [presentationMode, setPresentationMode] = useState(false);
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
 
   const allKeys = getAllKeys();
 
@@ -69,6 +73,15 @@ export function SetlistDetails({ setlist, songs, onUpdateSetlistSongTone }: Setl
     });
   };
 
+  const getExportItems = () => {
+    return orderedSongs.map(({ song, tomEscolhido }) => ({
+      title: song!.title,
+      artist: song!.artist,
+      tone: tomEscolhido || song!.tone,
+      notes: song!.notes,
+    }));
+  };
+
   const currentPresentationSong = orderedSongs[currentSongIndex];
 
   return (
@@ -93,13 +106,23 @@ export function SetlistDetails({ setlist, songs, onUpdateSetlistSongTone }: Setl
           </div>
         </div>
 
-        <Button
-          onClick={() => setPresentationMode(true)}
-          className="gap-2 bg-gold hover:bg-gold/90 text-black"
-        >
-          <Play className="h-4 w-4" />
-          Modo Apresentação
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setExportModalOpen(true)}
+            className="gap-2"
+          >
+            <Share2 className="h-4 w-4" />
+            Exportar
+          </Button>
+          <Button
+            onClick={() => setPresentationMode(true)}
+            className="gap-2 bg-gold hover:bg-gold/90 text-black"
+          >
+            <Play className="h-4 w-4" />
+            Modo Apresentação
+          </Button>
+        </div>
       </div>
 
       {/* Transpor Setlist Inteiro */}
@@ -295,6 +318,17 @@ export function SetlistDetails({ setlist, songs, onUpdateSetlistSongTone }: Setl
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Export/Share Modal */}
+      <ExportShareModal
+        open={exportModalOpen}
+        onOpenChange={setExportModalOpen}
+        type="setlist"
+        title={setlist.name}
+        content={getExportItems().map((item, i) => `${i + 1}. ${item.title} - ${item.artist} (Tom: ${item.tone})`).join('\n')}
+        items={getExportItems()}
+        hotmartLink={settings.hotmartUrl || undefined}
+      />
     </div>
   );
 }
