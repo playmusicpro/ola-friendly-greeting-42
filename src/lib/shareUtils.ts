@@ -71,9 +71,17 @@ export const createWhatsAppLink = (message: string): string => {
 
 /**
  * Opens WhatsApp with pre-filled message
+ * Accepts either WhatsAppShareOptions or a plain string message
  */
-export const shareViaWhatsApp = (options: WhatsAppShareOptions): void => {
-  const message = generateWhatsAppMessage(options);
+export const shareViaWhatsApp = (options: WhatsAppShareOptions | string): void => {
+  let message: string;
+  
+  if (typeof options === 'string') {
+    message = options;
+  } else {
+    message = generateWhatsAppMessage(options);
+  }
+  
   const link = createWhatsAppLink(message);
   window.open(link, '_blank');
 };
