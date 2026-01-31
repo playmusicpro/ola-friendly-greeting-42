@@ -12,8 +12,6 @@ import Repertorio from "./pages/Repertorio";
 import Agenda from "./pages/Agenda";
 import ModoShow from "./pages/ModoShow";
 import Desafios from "./pages/Desafios";
-import Presskit from "./pages/Presskit";
-import Flyer from "./pages/Flyer";
 import Configuracoes from "./pages/Configuracoes";
 
 import NotFound from "./pages/NotFound";
@@ -44,8 +42,6 @@ const App = () => (
                 <Route path="/projeto" element={<Projeto />} />
                 <Route path="/repertorio" element={<Repertorio />} />
                 <Route path="/desafios" element={<Desafios />} />
-                <Route path="/desafios/presskit" element={<Presskit />} />
-                <Route path="/desafios/flyer" element={<Flyer />} />
                 
                 <Route path="/configuracoes" element={<Configuracoes />} />
                 <Route path="*" element={<NotFound />} />

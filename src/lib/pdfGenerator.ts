@@ -221,3 +221,91 @@ export const downloadPDF = (blob: Blob, fileName: string): void => {
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 };
+
+/**
+ * Generates and downloads a Presskit PDF
+ */
+export const generatePresskitPDF = (artistName: string, htmlContent: string): void => {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+  });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 20;
+  const contentWidth = pageWidth - (margin * 2);
+  
+  // Background
+  doc.setFillColor(26, 26, 26);
+  doc.rect(0, 0, pageWidth, pageHeight, 'F');
+
+  // Header accent
+  doc.setFillColor(212, 175, 55);
+  doc.rect(0, 0, pageWidth, 3, 'F');
+
+  // Logo
+  doc.setTextColor(212, 175, 55);
+  doc.setFontSize(28);
+  doc.setFont('helvetica', 'bold');
+  doc.text('🎸 Play Pro', margin, 22);
+
+  // Title
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(22);
+  doc.text(`Presskit - ${artistName}`, margin, 38);
+
+  // Divider
+  doc.setDrawColor(212, 175, 55);
+  doc.setLineWidth(0.5);
+  doc.line(margin, 44, pageWidth - margin, 44);
+
+  // Parse HTML content and render as text
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+  const textContent = tempDiv.textContent || tempDiv.innerText;
+  
+  let yPosition = 55;
+  const lines = textContent.split('\n').filter(line => line.trim());
+  
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  
+  lines.forEach(line => {
+    if (yPosition > pageHeight - 30) {
+      doc.addPage();
+      doc.setFillColor(26, 26, 26);
+      doc.rect(0, 0, pageWidth, pageHeight, 'F');
+      yPosition = 20;
+    }
+    
+    const trimmedLine = line.trim();
+    if (trimmedLine.includes(':')) {
+      // Section header or label
+      doc.setTextColor(212, 175, 55);
+      doc.setFont('helvetica', 'bold');
+    } else {
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'normal');
+    }
+    
+    const splitLines = doc.splitTextToSize(trimmedLine, contentWidth);
+    doc.text(splitLines, margin, yPosition);
+    yPosition += splitLines.length * 6 + 3;
+  });
+
+  // Footer
+  const footerY = pageHeight - 12;
+  doc.setDrawColor(50, 50, 50);
+  doc.line(margin, footerY - 5, pageWidth - margin, footerY - 5);
+  doc.setTextColor(136, 136, 136);
+  doc.setFontSize(9);
+  doc.text(`Gerado em ${new Date().toLocaleDateString('pt-BR')} via Play Pro`, margin, footerY);
+
+  const date = new Date().toISOString().split('T')[0].replace(/-/g, '');
+  const slugName = artistName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').substring(0, 30);
+  const fileName = `PlayPro_Presskit_${slugName}_${date}.pdf`;
+  
+  doc.save(fileName);
+};
