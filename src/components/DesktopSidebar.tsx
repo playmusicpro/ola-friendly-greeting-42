@@ -1,8 +1,11 @@
-import { Home, Calendar, DollarSign, Video, Music, Trophy, Settings, BarChart3, TrendingUp } from "lucide-react";
+import { Home, Calendar, DollarSign, Video, Music, Trophy, Settings, BarChart3, TrendingUp, Shield } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Separator } from "@/components/ui/separator";
+import { useAdmin } from "@/hooks/useAdmin";
 
 const DesktopSidebar = () => {
+  const { isAdmin } = useAdmin();
+
   const mainNavItems = [
     { icon: Home, label: "Painel Inicial", path: "/" },
     { icon: Calendar, label: "Agenda", path: "/agenda" },
@@ -58,6 +61,24 @@ const DesktopSidebar = () => {
               <span>{item.label}</span>
             </NavLink>
           ))}
+
+          {isAdmin && (
+            <>
+              <Separator className="my-4 bg-border/50" />
+              
+              <div className="mb-2 px-4">
+                <p className="text-xs uppercase tracking-wider text-destructive/60 font-semibold">Admin</p>
+              </div>
+              <NavLink
+                to="/admin"
+                className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-muted-foreground hover:bg-destructive/5 hover:text-destructive transition-all"
+                activeClassName="bg-gradient-to-r from-destructive/20 to-destructive/10 text-destructive border-l-4 border-destructive shadow-md"
+              >
+                <Shield className="h-5 w-5" />
+                <span>Painel Admin</span>
+              </NavLink>
+            </>
+          )}
         </nav>
         
         <div className="p-4 border-t border-gold/10">

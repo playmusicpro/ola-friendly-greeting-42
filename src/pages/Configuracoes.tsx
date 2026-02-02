@@ -1,15 +1,18 @@
 import { useState, useEffect } from "react";
-import { User, Music, Bell, HelpCircle, Info, Link, Save, Check } from "lucide-react";
+import { User, Music, Bell, HelpCircle, Info, Link, Save, Check, Shield, AlertTriangle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useSettings } from "@/hooks/useSettings";
+import { useAdmin, enableDemoAdminMode, disableDemoAdminMode } from "@/hooks/useAdmin";
 import { useToast } from "@/hooks/use-toast";
 
 const Configuracoes = () => {
   const { settings, updateSettings, isLoaded } = useSettings();
+  const { isAdmin } = useAdmin();
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
@@ -52,6 +55,14 @@ const Configuracoes = () => {
         description: "Suas alterações foram salvas com sucesso.",
       });
     }, 500);
+  };
+
+  const handleToggleAdmin = () => {
+    if (isAdmin) {
+      disableDemoAdminMode();
+    } else {
+      enableDemoAdminMode();
+    }
   };
 
   return (
@@ -228,6 +239,45 @@ const Configuracoes = () => {
               BRL
             </Button>
           </div>
+        </div>
+      </Card>
+
+      {/* Admin Mode (Demo) */}
+      <Card className="p-6 border-destructive/20">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-3 rounded-lg bg-destructive/10">
+            <Shield className="h-6 w-6 text-destructive" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold">Modo Administrador (Demo)</h2>
+            <p className="text-sm text-muted-foreground">Ativar painel administrativo para testes</p>
+          </div>
+        </div>
+
+        <Alert className="mb-4 bg-destructive/5 border-destructive/20">
+          <AlertTriangle className="h-4 w-4 text-destructive" />
+          <AlertDescription className="text-sm">
+            <strong>Atenção:</strong> Este é um modo de demonstração. Em produção, a autenticação de admin 
+            deve ser feita via servidor com tabela user_roles segura no banco de dados.
+          </AlertDescription>
+        </Alert>
+
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-medium">
+              Status: {isAdmin ? (
+                <span className="text-success">Ativo</span>
+              ) : (
+                <span className="text-muted-foreground">Inativo</span>
+              )}
+            </p>
+          </div>
+          <Button 
+            variant={isAdmin ? "destructive" : "outline"}
+            onClick={handleToggleAdmin}
+          >
+            {isAdmin ? "Desativar Admin" : "Ativar Admin Demo"}
+          </Button>
         </div>
       </Card>
 
