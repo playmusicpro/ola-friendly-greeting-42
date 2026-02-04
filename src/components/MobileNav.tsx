@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, CalendarDays, DollarSign, Music2, Menu, Video, Trophy, User, Settings, X } from "lucide-react";
+import { Home, CalendarDays, DollarSign, Music2, Menu, Video, Trophy, User, Settings, X, Users } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -25,7 +25,7 @@ const MobileNav = () => {
     { icon: Music2, label: "Repertório", path: "/repertorio" },
     { icon: Video, label: "Projeto Audiovisual", path: "/projeto" },
     { icon: Trophy, label: "Desafios", path: "/desafios" },
-    { icon: User, label: "Perfil", path: "/configuracoes" },
+    { icon: Users, label: "Comunidades", path: "/comunidades" },
     { icon: Settings, label: "Configurações", path: "/configuracoes" },
   ];
 
