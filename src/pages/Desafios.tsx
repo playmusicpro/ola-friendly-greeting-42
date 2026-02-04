@@ -1,4 +1,4 @@
-import { FileText, Image, ChevronRight, Trophy, Award } from "lucide-react";
+import { FileText, Image, ChevronRight, Trophy, Award, Camera, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
@@ -57,6 +57,61 @@ const Desafios = () => {
 
       {/* Challenges Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Foto Profissional Challenge - FIRST ITEM */}
+        <Card
+          className="p-8 cursor-pointer transition-all group bg-gradient-to-br from-card to-purple-500/5 hover:border-purple-400/40 hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] md:col-span-2"
+          onClick={() => window.open('https://www.bananaprompts.xyz/', '_blank')}
+        >
+          <div className="flex items-start justify-between mb-6">
+            <div className="p-4 rounded-xl bg-purple-500/10 group-hover:bg-purple-500/20 transition-colors">
+              <Camera className="h-10 w-10 text-purple-400" />
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="border-purple-400/50 text-purple-400">
+                <ExternalLink className="h-3 w-3 mr-1" />
+                Externo
+              </Badge>
+              <ChevronRight className="h-7 w-7 text-muted-foreground group-hover:text-purple-400 transition-colors" />
+            </div>
+          </div>
+          <h2 className="text-2xl font-bold mb-3">Desafio Visual — Foto Profissional</h2>
+          <p className="text-muted-foreground mb-6 leading-relaxed">
+            Gere fotos profissionais, realistas e sem aparência artificial de IA. Um desafio prático para músicos que entendem que imagem é posicionamento e que música também é o negócio da atenção.
+          </p>
+          
+          {/* Tutorial Section */}
+          <div className="p-4 rounded-lg bg-purple-500/5 border border-purple-500/20 mb-6">
+            <h3 className="text-sm font-semibold text-purple-400 mb-3">Como usar:</h3>
+            <ol className="text-sm text-muted-foreground space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="font-bold text-purple-400">1.</span>
+                <span>Escolha um prompt visual no site</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-bold text-purple-400">2.</span>
+                <span>Copie o prompt</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-bold text-purple-400">3.</span>
+                <span>Cole no Gemini (versão gratuita)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-bold text-purple-400">4.</span>
+                <span>Adicione sua foto</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="font-bold text-purple-400">5.</span>
+                <span>Gere sua imagem profissional</span>
+              </li>
+            </ol>
+          </div>
+          
+          <div className="flex items-center gap-2 text-sm text-purple-400 font-semibold">
+            <span>Acessar Desafio</span>
+            <ExternalLink className="h-4 w-4" />
+          </div>
+        </Card>
+
         {/* Presskit Challenge */}
         <Card
           className={`p-8 cursor-pointer transition-all group bg-gradient-to-br from-card to-primary/5 ${
