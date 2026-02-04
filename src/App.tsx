@@ -12,6 +12,7 @@ import Repertorio from "./pages/Repertorio";
 import Agenda from "./pages/Agenda";
 import ModoShow from "./pages/ModoShow";
 import Desafios from "./pages/Desafios";
+import Comunidades from "./pages/Comunidades";
 import Configuracoes from "./pages/Configuracoes";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -55,6 +56,7 @@ const App = () => (
                     <Route path="/projeto" element={<Projeto />} />
                     <Route path="/repertorio" element={<Repertorio />} />
                     <Route path="/desafios" element={<Desafios />} />
+                    <Route path="/comunidades" element={<Comunidades />} />
                     <Route path="/configuracoes" element={<Configuracoes />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
