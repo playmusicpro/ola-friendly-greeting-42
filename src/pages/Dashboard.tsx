@@ -1,13 +1,16 @@
-import { Calendar, DollarSign, TrendingUp, Video, Plus, Wallet, AlertTriangle, Info, Music, Users, GraduationCap, Mic, Clock, CalendarDays } from "lucide-react";
+import { Calendar, DollarSign, TrendingUp, Video, Plus, Wallet, AlertTriangle, Info, Music, Users, GraduationCap, Mic, Clock, CalendarDays, HelpCircle } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useFinancialData } from "@/hooks/useFinancialData";
 import { useRepertoire } from "@/hooks/useRepertoire";
 import { useShowNotifications } from "@/hooks/useShowNotifications";
+import { useOnboarding } from "@/hooks/useOnboarding";
 import { formatDateBR } from "@/lib/dateUtils";
+import { tooltips } from "@/lib/helpContent";
 import { 
   calculateDRE, 
   calculateMonthlyProjection, 
@@ -15,10 +18,21 @@ import {
   formatCurrency,
   formatPercentage 
 } from "@/lib/calculations";
+import Onboarding from "@/components/Onboarding";
+import HelpCenter from "@/components/HelpCenter";
+import { useState } from "react";
 
 const Dashboard = () => {
   const { shows, expenses, fixedExpenses, project, incomes, events } = useFinancialData();
   const { songs, setlists } = useRepertoire();
+  const [showHelpCenter, setShowHelpCenter] = useState(false);
+  
+  // Onboarding
+  const {
+    showOnboarding,
+    setShowOnboarding,
+    completeOnboarding,
+  } = useOnboarding();
   
   // Enable show notifications
   useShowNotifications(shows);
@@ -68,16 +82,45 @@ const Dashboard = () => {
   // Gerar alertas
   const alerts = generateAlerts(shows, dre, nextShowDate);
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="mb-2">
-        <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-gold via-primary to-gold bg-clip-text text-transparent">
-          Painel Inicial
-        </h1>
-        <p className="text-muted-foreground text-lg">
-          Bem-vindo ao seu assistente profissional
-        </p>
-      </div>
+    <>
+      {/* Onboarding Modal */}
+      <Onboarding
+        isOpen={showOnboarding}
+        onComplete={completeOnboarding}
+        onClose={() => setShowOnboarding(false)}
+      />
+      
+      {/* Help Center Modal */}
+      <HelpCenter
+        isOpen={showHelpCenter}
+        onClose={() => setShowHelpCenter(false)}
+      />
+      
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="mb-2 flex items-start justify-between">
+          <div>
+            <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-gold via-primary to-gold bg-clip-text text-transparent">
+              Painel Inicial
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Bem-vindo ao seu assistente profissional
+            </p>
+          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowHelpCenter(true)}
+                className="text-muted-foreground hover:text-primary"
+              >
+                <HelpCircle className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Central de Ajuda</TooltipContent>
+          </Tooltip>
+        </div>
 
       {/* Alertas Inteligentes */}
       {alerts.length > 0 && (
@@ -108,44 +151,79 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <StatCard
-          title="Próximo Show"
-          value={nextShow ? new Date(nextShow.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : 'Nenhum'}
-          icon={Calendar}
-          trend={nextShow ? `${nextShow.local} - ${nextShow.time}` : 'Adicione um show'}
-          variant="default"
-        />
-        <StatCard
-          title="Faturamento Projetado"
-          value={formatCurrency(projection.faturamentoProjetado)}
-          icon={DollarSign}
-          trend="Baseado na média dos últimos 3 meses"
-          variant="gold"
-        />
-        <StatCard
-          title="Resultado do Mês"
-          value={formatCurrency(dre.resultadoOperacional)}
-          icon={Wallet}
-          trend={`Margem: ${formatPercentage(dre.margemFinal)}`}
-          variant={dre.resultadoOperacional >= 0 ? "success" : "default"}
-        />
-        <StatCard
-          title="Projeto AV"
-          value={formatPercentage((project.savedValue / project.totalValue) * 100)}
-          icon={Video}
-          trend={`${formatCurrency(project.savedValue)} de ${formatCurrency(project.totalValue)}`}
-          variant="default"
-        />
-        <StatCard
-          title="Repertório"
-          value={songs.length.toString()}
-          icon={Music}
-          trend={`${setlists.length} setlist(s) criada(s)`}
-          variant="default"
-        />
-      </div>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <StatCard
+                  title="Próximo Show"
+                  value={nextShow ? new Date(nextShow.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : 'Nenhum'}
+                  icon={Calendar}
+                  trend={nextShow ? `${nextShow.local} - ${nextShow.time}` : 'Adicione um show'}
+                  variant="default"
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>{tooltips.dashboard.totalShows}</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <StatCard
+                  title="Faturamento Projetado"
+                  value={formatCurrency(projection.faturamentoProjetado)}
+                  icon={DollarSign}
+                  trend="Baseado na média dos últimos 3 meses"
+                  variant="gold"
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>{tooltips.dashboard.monthlyProjection}</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <StatCard
+                  title="Resultado do Mês"
+                  value={formatCurrency(dre.resultadoOperacional)}
+                  icon={Wallet}
+                  trend={`Margem: ${formatPercentage(dre.margemFinal)}`}
+                  variant={dre.resultadoOperacional >= 0 ? "success" : "default"}
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>{tooltips.dashboard.dre}</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <StatCard
+                  title="Projeto AV"
+                  value={formatPercentage((project.savedValue / project.totalValue) * 100)}
+                  icon={Video}
+                  trend={`${formatCurrency(project.savedValue)} de ${formatCurrency(project.totalValue)}`}
+                  variant="default"
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>Progresso do seu projeto audiovisual</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <StatCard
+                  title="Repertório"
+                  value={songs.length.toString()}
+                  icon={Music}
+                  trend={`${setlists.length} setlist(s) criada(s)`}
+                  variant="default"
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>Seu repertório de músicas e setlists</TooltipContent>
+          </Tooltip>
+        </div>
 
       {/* Próximos Eventos Widget */}
       {upcomingEvents.length > 0 && (
@@ -226,7 +304,8 @@ const Dashboard = () => {
           </div>
         </div>
       </Card>
-    </div>
+      </div>
+    </>
   );
 };
 
