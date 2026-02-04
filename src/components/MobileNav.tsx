@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, CalendarDays, DollarSign, Music2, Menu, Video, Trophy, User, Settings, X, Users } from "lucide-react";
+import { Home, CalendarDays, DollarSign, Music2, Menu, Video, Trophy, Settings, X, Users, HelpCircle } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -9,9 +9,11 @@ import {
   DrawerTitle,
   DrawerClose,
 } from "@/components/ui/drawer";
+import HelpCenter from "@/components/HelpCenter";
 
 const MobileNav = () => {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [showHelpCenter, setShowHelpCenter] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -34,6 +36,11 @@ const MobileNav = () => {
   const handleMoreItemClick = (path: string) => {
     navigate(path);
     setIsMoreOpen(false);
+  };
+
+  const handleHelpClick = () => {
+    setIsMoreOpen(false);
+    setShowHelpCenter(true);
   };
 
   return (
@@ -94,6 +101,15 @@ const MobileNav = () => {
                 <span className="font-medium">{item.label}</span>
               </button>
             ))}
+            
+            {/* Help Button */}
+            <button
+              onClick={handleHelpClick}
+              className="w-full flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 text-muted-foreground hover:bg-primary/5 hover:text-primary mt-2 border-t border-border/50 pt-4"
+            >
+              <HelpCircle className="h-5 w-5" />
+              <span className="font-medium">Central de Ajuda</span>
+            </button>
           </div>
           
           <div className="p-4 pt-2 border-t border-gold/10 mt-2">
@@ -103,6 +119,12 @@ const MobileNav = () => {
           </div>
         </DrawerContent>
       </Drawer>
+      
+      {/* Help Center Modal */}
+      <HelpCenter
+        isOpen={showHelpCenter}
+        onClose={() => setShowHelpCenter(false)}
+      />
     </>
   );
 };

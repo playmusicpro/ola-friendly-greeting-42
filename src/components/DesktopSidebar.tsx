@@ -1,10 +1,14 @@
-import { Home, Calendar, DollarSign, Video, Music, Trophy, Settings, BarChart3, TrendingUp, Shield, Users } from "lucide-react";
+import { Home, Calendar, DollarSign, Video, Music, Trophy, Settings, BarChart3, TrendingUp, Shield, Users, HelpCircle } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Separator } from "@/components/ui/separator";
 import { useAdmin } from "@/hooks/useAdmin";
+import { Button } from "@/components/ui/button";
+import HelpCenter from "@/components/HelpCenter";
+import { useState } from "react";
 
 const DesktopSidebar = () => {
   const { isAdmin } = useAdmin();
+  const [showHelpCenter, setShowHelpCenter] = useState(false);
 
   const mainNavItems = [
     { icon: Home, label: "Painel Inicial", path: "/" },
@@ -82,7 +86,15 @@ const DesktopSidebar = () => {
           )}
         </nav>
         
-        <div className="p-4 border-t border-gold/10">
+        <div className="p-4 border-t border-gold/10 space-y-3">
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-3 text-muted-foreground hover:text-primary"
+            onClick={() => setShowHelpCenter(true)}
+          >
+            <HelpCircle className="h-5 w-5" />
+            <span>Central de Ajuda</span>
+          </Button>
           <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-gold/5 border border-gold/20">
             <p className="text-xs text-muted-foreground text-center">
               <span className="font-semibold text-gold">Play Pro</span> v1.0
@@ -90,6 +102,12 @@ const DesktopSidebar = () => {
           </div>
         </div>
       </div>
+      
+      {/* Help Center Modal */}
+      <HelpCenter
+        isOpen={showHelpCenter}
+        onClose={() => setShowHelpCenter(false)}
+      />
     </aside>
   );
 };
