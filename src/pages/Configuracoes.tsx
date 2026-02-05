@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { User, Music, Bell, HelpCircle, Info, Link, Save, Check, Shield, AlertTriangle } from "lucide-react";
+import { User, Music, Bell, HelpCircle, Info, Save, Check, Shield, AlertTriangle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +21,6 @@ const Configuracoes = () => {
     generoMusical: '',
     cidade: '',
     telefone: '',
-    hotmartUrl: '',
   });
   
   const [isSaving, setIsSaving] = useState(false);
@@ -34,7 +33,6 @@ const Configuracoes = () => {
         generoMusical: settings.generoMusical,
         cidade: settings.cidade,
         telefone: settings.telefone,
-        hotmartUrl: settings.hotmartUrl,
       });
     }
   }, [isLoaded, settings]);
@@ -141,35 +139,6 @@ const Configuracoes = () => {
                 onChange={(e) => handleInputChange('telefone', e.target.value)}
               />
             </div>
-          </div>
-        </div>
-      </Card>
-
-      {/* Hotmart Integration */}
-      <Card className="p-6 shadow-lg border-gold/20">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 rounded-xl bg-gold/10">
-            <Link className="h-6 w-6 text-gold" />
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold">Integração Hotmart</h2>
-            <p className="text-sm text-muted-foreground">Configure o link da sua área de membros</p>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="hotmart">URL da Área de Membros</Label>
-            <Input 
-              id="hotmart" 
-              type="url"
-              placeholder="https://hotmart.com/sua-area-de-membros" 
-              value={formData.hotmartUrl}
-              onChange={(e) => handleInputChange('hotmartUrl', e.target.value)}
-            />
-            <p className="text-xs text-muted-foreground">
-              Este link será incluído nos PDFs exportados e nas mensagens de compartilhamento.
-            </p>
           </div>
         </div>
       </Card>
