@@ -18,6 +18,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminShows from "./pages/admin/AdminShows";
 import AdminLogs from "./pages/admin/AdminLogs";
+ import AdminOps from "./pages/admin/AdminOps";
 
 import NotFound from "./pages/NotFound";
 import MobileNav from "./components/MobileNav";
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/shows" element={<AdminShows />} />
           <Route path="/admin/logs" element={<AdminLogs />} />
+           <Route path="/admin/ops" element={<AdminOps />} />
           
           {/* Main App Routes */}
           <Route path="/*" element={

@@ -7,7 +7,8 @@ import {
   FileText, 
   ArrowLeft,
   Shield,
-  AlertTriangle
+   AlertTriangle,
+   ClipboardCheck
 } from "lucide-react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { cn } from "@/lib/utils";
@@ -24,6 +25,7 @@ const adminNavItems = [
   { icon: Users, label: "Usuários", path: "/admin/users" },
   { icon: Music, label: "Shows", path: "/admin/shows" },
   { icon: FileText, label: "Logs", path: "/admin/logs" },
+   { icon: ClipboardCheck, label: "Operações", path: "/admin/ops" },
 ];
 
 const AdminLayout = ({ children, title }: AdminLayoutProps) => {
