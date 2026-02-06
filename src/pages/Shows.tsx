@@ -89,7 +89,12 @@ const Shows = () => {
       <Card className="p-6 shadow-lg border-primary/10">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gold">Dezembro 2024</h2>
-          <Button variant="outline" size="sm" className="border-gold/30 text-gold hover:bg-gold/10">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="border-gold/30 text-gold hover:bg-gold/10"
+            onClick={() => toast({ title: "Em breve", description: "O calendário completo será disponibilizado em breve." })}
+          >
             Ver Calendário Completo
           </Button>
         </div>

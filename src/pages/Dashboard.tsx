@@ -1,4 +1,5 @@
 import { Calendar, DollarSign, TrendingUp, Video, Plus, Wallet, AlertTriangle, Info, Music, Users, GraduationCap, Mic, Clock, CalendarDays, HelpCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +24,7 @@ import HelpCenter from "@/components/HelpCenter";
 import { useState } from "react";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const { shows, expenses, fixedExpenses, project, incomes, events } = useFinancialData();
   const { songs, setlists } = useRepertoire();
   const [showHelpCenter, setShowHelpCenter] = useState(false);
@@ -262,15 +264,24 @@ const Dashboard = () => {
       <Card className="p-6 shadow-lg border-primary/10">
         <h2 className="text-xl font-semibold mb-4 text-gold">Acesso Rápido</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Button className="h-auto py-6 flex-col gap-3 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-md">
+          <Button 
+            className="h-auto py-6 flex-col gap-3 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-md"
+            onClick={() => navigate('/agenda')}
+          >
             <Plus className="h-7 w-7" />
             <span className="font-semibold">Adicionar Show</span>
           </Button>
-          <Button className="h-auto py-6 flex-col gap-3 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-md">
+          <Button 
+            className="h-auto py-6 flex-col gap-3 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-md"
+            onClick={() => navigate('/financas')}
+          >
             <Plus className="h-7 w-7" />
             <span className="font-semibold">Adicionar Gasto</span>
           </Button>
-          <Button className="h-auto py-6 flex-col gap-3 bg-gold hover:bg-gold/90 text-black rounded-xl shadow-md">
+          <Button 
+            className="h-auto py-6 flex-col gap-3 bg-gold hover:bg-gold/90 text-black rounded-xl shadow-md"
+            onClick={() => navigate('/projeto')}
+          >
             <Plus className="h-7 w-7" />
             <span className="font-semibold">Adicionar Meta</span>
           </Button>
