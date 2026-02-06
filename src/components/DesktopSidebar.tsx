@@ -1,14 +1,23 @@
-import { Home, Calendar, DollarSign, Video, Music, Trophy, Settings, BarChart3, TrendingUp, Shield, Users, HelpCircle } from "lucide-react";
+import { Home, Calendar, DollarSign, Video, Music, Trophy, Settings, BarChart3, TrendingUp, Shield, Users, HelpCircle, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Separator } from "@/components/ui/separator";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import HelpCenter from "@/components/HelpCenter";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const DesktopSidebar = () => {
   const { isAdmin } = useAdmin();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [showHelpCenter, setShowHelpCenter] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
 
   const mainNavItems = [
     { icon: Home, label: "Painel Inicial", path: "/" },
@@ -87,6 +96,15 @@ const DesktopSidebar = () => {
         </nav>
         
         <div className="p-4 border-t border-gold/10 space-y-3">
+          {/* User info */}
+          {user && (
+            <div className="p-3 rounded-xl bg-gradient-to-br from-primary/5 to-gold/5 border border-gold/10">
+              <p className="text-xs text-muted-foreground truncate">
+                {user.email}
+              </p>
+            </div>
+          )}
+          
           <Button
             variant="ghost"
             className="w-full justify-start gap-3 text-muted-foreground hover:text-primary"
@@ -95,6 +113,16 @@ const DesktopSidebar = () => {
             <HelpCircle className="h-5 w-5" />
             <span>Central de Ajuda</span>
           </Button>
+          
+          <Button
+            variant="ghost"
+            className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-5 w-5" />
+            <span>Sair</span>
+          </Button>
+          
           <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-gold/5 border border-gold/20">
             <p className="text-xs text-muted-foreground text-center">
               <span className="font-semibold text-gold">Play Pro</span> v1.0
