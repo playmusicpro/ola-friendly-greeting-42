@@ -9,11 +9,15 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useSettings } from "@/hooks/useSettings";
 import { useAdmin, enableDemoAdminMode, disableDemoAdminMode } from "@/hooks/useAdmin";
 import { useToast } from "@/hooks/use-toast";
+import HelpCenter from "@/components/HelpCenter";
+import Onboarding from "@/components/Onboarding";
+import { useOnboarding } from "@/hooks/useOnboarding";
 
 const Configuracoes = () => {
   const { settings, updateSettings, isLoaded } = useSettings();
   const { isAdmin } = useAdmin();
   const { toast } = useToast();
+  const { openOnboarding, showOnboarding, setShowOnboarding, completeOnboarding } = useOnboarding();
   
   const [formData, setFormData] = useState({
     nomeArtistico: '',
@@ -24,6 +28,7 @@ const Configuracoes = () => {
   });
   
   const [isSaving, setIsSaving] = useState(false);
+  const [showHelpCenter, setShowHelpCenter] = useState(false);
 
   useEffect(() => {
     if (isLoaded) {
@@ -280,16 +285,28 @@ const Configuracoes = () => {
         </div>
 
         <div className="space-y-3">
-          <Button variant="outline" className="w-full justify-start">
+          <Button variant="outline" className="w-full justify-start" onClick={openOnboarding}>
             <Info className="h-4 w-4 mr-2" />
             Tutorial: Como usar o Play Pro
           </Button>
-          <Button variant="outline" className="w-full justify-start">
+          <Button variant="outline" className="w-full justify-start" onClick={() => setShowHelpCenter(true)}>
             <HelpCircle className="h-4 w-4 mr-2" />
             Central de Ajuda
           </Button>
         </div>
       </Card>
+      
+      {/* Modais */}
+      <Onboarding
+        isOpen={showOnboarding}
+        onComplete={completeOnboarding}
+        onClose={() => setShowOnboarding(false)}
+      />
+      
+      <HelpCenter
+        isOpen={showHelpCenter}
+        onClose={() => setShowHelpCenter(false)}
+      />
 
       {/* About */}
       <Card className="p-8 text-center shadow-lg border-gold/20 bg-gradient-to-b from-card to-gold/5">

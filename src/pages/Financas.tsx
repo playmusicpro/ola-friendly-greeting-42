@@ -4,9 +4,18 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFinancialData } from "@/hooks/useFinancialData";
+import { useToast } from "@/hooks/use-toast";
 import { calculateDRE, formatCurrency, formatPercentage } from "@/lib/calculations";
 
 const Financas = () => {
+  const { toast } = useToast();
+  
+  const handleComingSoon = (feature: string) => {
+    toast({
+      title: "Em desenvolvimento",
+      description: `A função "${feature}" será disponibilizada em breve.`,
+    });
+  };
   const { shows, expenses, fixedExpenses, project, incomes } = useFinancialData();
   
   // Calcular totais
@@ -140,7 +149,7 @@ const Financas = () => {
                   <p className="text-xs text-muted-foreground">Gastos com transporte para shows</p>
                 </div>
               </div>
-              <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl">Adicionar Gasto</Button>
+              <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl" onClick={() => handleComingSoon("Adicionar Gasto de Combustível")}>Adicionar Gasto</Button>
             </div>
             
             <div className="space-y-3">
@@ -181,7 +190,7 @@ const Financas = () => {
                   <p className="text-sm text-muted-foreground">Investimento em imagem</p>
                 </div>
               </div>
-              <Button>Adicionar Gasto</Button>
+              <Button onClick={() => handleComingSoon("Adicionar Gasto de Roupas")}>Adicionar Gasto</Button>
             </div>
             
             <div className="space-y-3">
@@ -215,7 +224,7 @@ const Financas = () => {
                   <p className="text-sm text-muted-foreground">Manutenção e acessórios</p>
                 </div>
               </div>
-              <Button>Adicionar Gasto</Button>
+              <Button onClick={() => handleComingSoon("Adicionar Gasto de Equipamentos")}>Adicionar Gasto</Button>
             </div>
             
             <div className="space-y-3">
@@ -256,7 +265,7 @@ const Financas = () => {
                   <p className="text-sm text-muted-foreground">Para projeto audiovisual</p>
                 </div>
               </div>
-              <Button className="bg-gold text-black hover:bg-gold/90">Adicionar</Button>
+              <Button className="bg-gold text-black hover:bg-gold/90" onClick={() => handleComingSoon("Adicionar ao Cofrinho")}>Adicionar</Button>
             </div>
             
             <div className="text-center py-8">
@@ -295,7 +304,7 @@ const Financas = () => {
                   <p className="text-sm text-muted-foreground">Compromissos mensais</p>
                 </div>
               </div>
-              <Button>Adicionar</Button>
+              <Button onClick={() => handleComingSoon("Adicionar Despesa Fixa")}>Adicionar</Button>
             </div>
             
             <div className="space-y-3">

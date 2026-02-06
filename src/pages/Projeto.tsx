@@ -1,14 +1,23 @@
-import { Video, Target, FileText, Plus, Calendar, TrendingUp } from "lucide-react";
+import { Video, Target, FileText, Plus, Calendar, TrendingUp, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useFinancialData } from "@/hooks/useFinancialData";
+import { useToast } from "@/hooks/use-toast";
 import { calculateProjectProgress, formatCurrency, formatPercentage } from "@/lib/calculations";
 
 const Projeto = () => {
   const { project } = useFinancialData();
+  const { toast } = useToast();
   const calc = calculateProjectProgress(project);
+  
+  const handleComingSoon = (feature: string) => {
+    toast({
+      title: "Em desenvolvimento",
+      description: `A função "${feature}" será disponibilizada em breve.`,
+    });
+  };
   const progress = calc.progressPercentual;
 
   return (
@@ -94,7 +103,10 @@ const Projeto = () => {
           )}
         </div>
 
-        <Button className="w-full mt-6 bg-gold text-black hover:bg-gold/90 font-semibold rounded-xl shadow-lg py-6">
+        <Button 
+          className="w-full mt-6 bg-gold text-black hover:bg-gold/90 font-semibold rounded-xl shadow-lg py-6"
+          onClick={() => handleComingSoon("Adicionar ao Cofrinho")}
+        >
           <Plus className="h-5 w-5 mr-2" />
           Adicionar ao Cofrinho
         </Button>
@@ -134,7 +146,7 @@ const Projeto = () => {
               <p className="font-medium">Estúdio</p>
               <p className="text-sm text-muted-foreground">Studio Pro - R$ 3.000 (diária)</p>
             </div>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" onClick={() => handleComingSoon("Adicionar Contato")}>
               <Plus className="h-4 w-4 mr-2" />
               Adicionar Contato
             </Button>
@@ -152,13 +164,15 @@ const Projeto = () => {
           </div>
           <div className="p-4 bg-secondary rounded-lg">
             <p className="font-medium mb-1">Referências Visuais</p>
-            <div className="space-y-1 mt-2">
-              <a href="#" className="text-sm text-primary hover:underline block">
-                → Clipe "Example 1" - Iluminação inspiradora
-              </a>
-              <a href="#" className="text-sm text-primary hover:underline block">
-                → Mood board no Pinterest
-              </a>
+            <div className="space-y-2 mt-2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <ExternalLink className="h-3 w-3" />
+                <span>Clipe "Example 1" - Iluminação inspiradora</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <ExternalLink className="h-3 w-3" />
+                <span>Mood board no Pinterest</span>
+              </div>
             </div>
           </div>
           <Textarea
