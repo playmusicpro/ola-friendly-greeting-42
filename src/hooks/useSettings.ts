@@ -1,5 +1,16 @@
 import { useState, useEffect } from 'react';
 
+interface GoogleCalendarSettings {
+  enabled: boolean;
+  status: 'disconnected' | 'connected' | 'syncing' | 'error';
+  connectedAt?: string;
+  lastSyncAt?: string;
+  defaultCalendarId?: string;
+  syncDirection: 'export_only' | 'import_only' | 'bidirectional';
+  autoSync: boolean;
+  syncIntervalMinutes: number;
+}
+
 interface UserSettings {
   nomeArtistico: string;
   email: string;
@@ -8,9 +19,18 @@ interface UserSettings {
   telefone: string;
   hotmartUrl: string;
   autoBackup: boolean;
+  googleCalendar: GoogleCalendarSettings;
 }
 
 const SETTINGS_KEY = 'playpro_settings';
+
+const defaultGoogleCalendarSettings: GoogleCalendarSettings = {
+  enabled: false,
+  status: 'disconnected',
+  syncDirection: 'export_only',
+  autoSync: false,
+  syncIntervalMinutes: 30,
+};
 
 const defaultSettings: UserSettings = {
   nomeArtistico: '',
@@ -20,6 +40,7 @@ const defaultSettings: UserSettings = {
   telefone: '',
   hotmartUrl: '',
   autoBackup: true,
+  googleCalendar: defaultGoogleCalendarSettings,
 };
 
 export function useSettings() {
