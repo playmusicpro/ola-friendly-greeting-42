@@ -11,6 +11,7 @@ import { useAdmin, enableDemoAdminMode, disableDemoAdminMode } from "@/hooks/use
 import { useToast } from "@/hooks/use-toast";
 import HelpCenter from "@/components/HelpCenter";
 import Onboarding from "@/components/Onboarding";
+import GoogleCalendarSettings from "@/components/GoogleCalendarSettings";
 import { useOnboarding } from "@/hooks/useOnboarding";
 
 const Configuracoes = () => {
@@ -254,6 +255,9 @@ const Configuracoes = () => {
           </Button>
         </div>
       </Card>
+
+      {/* Google Calendar Integration */}
+      <GoogleCalendarSettings />
 
       {/* Notifications */}
       <Card className="p-6">

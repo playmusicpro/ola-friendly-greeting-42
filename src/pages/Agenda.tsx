@@ -26,6 +26,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
+import { GoogleCalendarSyncIndicator } from '@/components/GoogleCalendarSyncIndicator';
 
 export default function Agenda() {
   const { events, addEvent, updateEvent, deleteEvent, duplicateEvent, markEventAsRealizado, shows } = useFinancialData();
@@ -175,15 +176,18 @@ export default function Agenda() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold">Agenda</h1>
           <p className="text-muted-foreground">Gerencie seus eventos e compromissos</p>
         </div>
-        <Button onClick={() => { setEditingEvent(null); setIsFormOpen(true); }}>
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Evento
-        </Button>
+        <div className="flex items-center gap-2">
+          <GoogleCalendarSyncIndicator />
+          <Button onClick={() => { setEditingEvent(null); setIsFormOpen(true); }}>
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Evento
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

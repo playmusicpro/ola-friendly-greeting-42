@@ -135,4 +135,41 @@ export interface Event {
   linkedShowId?: string; // Link to Show document
   playlistId?: string; // Link to Setlist
   realizado: boolean;
+  // Google Calendar sync fields
+  googleEventId?: string; // ID do evento no Google Calendar
+  googleCalendarId?: string; // ID do calendário do Google
+  syncStatus?: 'synced' | 'pending' | 'error' | 'local_only';
+  lastSyncedAt?: string; // ISO timestamp
+}
+
+// Google Calendar Integration Types
+export type GoogleCalendarStatus = 'disconnected' | 'connected' | 'syncing' | 'error';
+
+export interface GoogleCalendarSettings {
+  enabled: boolean;
+  status: GoogleCalendarStatus;
+  connectedAt?: string;
+  lastSyncAt?: string;
+  defaultCalendarId?: string;
+  syncDirection: 'export_only' | 'import_only' | 'bidirectional';
+  autoSync: boolean;
+  syncIntervalMinutes: number;
+}
+
+export interface GoogleCalendarEvent {
+  id: string;
+  summary: string;
+  description?: string;
+  start: { dateTime: string; timeZone?: string };
+  end: { dateTime: string; timeZone?: string };
+  location?: string;
+  status: 'confirmed' | 'tentative' | 'cancelled';
+}
+
+export interface SyncResult {
+  success: boolean;
+  eventsExported: number;
+  eventsImported: number;
+  errors: string[];
+  timestamp: string;
 }
