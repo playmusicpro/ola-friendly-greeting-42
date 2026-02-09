@@ -1,4 +1,4 @@
-import { Calendar, DollarSign, TrendingUp, Video, Plus, Wallet, AlertTriangle, Info, Music, Users, GraduationCap, Mic, Clock, CalendarDays, HelpCircle } from "lucide-react";
+import { Calendar, DollarSign, TrendingUp, Video, Plus, Wallet, AlertTriangle, Info, Music, Users, GraduationCap, Mic, Clock, CalendarDays, HelpCircle, PiggyBank } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import {
 } from "@/lib/calculations";
 import Onboarding from "@/components/Onboarding";
 import HelpCenter from "@/components/HelpCenter";
+import FeatureComingSoon from "@/components/FeatureComingSoon";
 import { useState } from "react";
 
 const Dashboard = () => {
@@ -263,28 +264,54 @@ const Dashboard = () => {
       {/* Quick Actions */}
       <Card className="p-6 shadow-lg border-primary/10">
         <h2 className="text-xl font-semibold mb-4 text-gold">Acesso Rápido</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Button 
-            className="h-auto py-6 flex-col gap-3 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-md"
-            onClick={() => navigate('/agenda')}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <FeatureComingSoon 
+            featureName="Adicionar Show / Novo Evento"
+            customMessage="O módulo de criação de shows e eventos está em desenvolvimento. Em breve você poderá cadastrar shows, ensaios, gravações e muito mais diretamente por aqui."
           >
-            <Plus className="h-7 w-7" />
-            <span className="font-semibold">Adicionar Show</span>
-          </Button>
-          <Button 
-            className="h-auto py-6 flex-col gap-3 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-md"
-            onClick={() => navigate('/financas')}
+            <Button 
+              className="h-auto py-6 flex-col gap-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-md w-full"
+            >
+              <Plus className="h-7 w-7" />
+              <span className="font-semibold">Adicionar Show</span>
+            </Button>
+          </FeatureComingSoon>
+          
+          <FeatureComingSoon 
+            featureName="Adicionar Gastos"
+            customMessage="O módulo de registro de gastos está em desenvolvimento. Em breve você poderá cadastrar despesas, custos fixos e controlar seu fluxo de caixa."
           >
-            <Plus className="h-7 w-7" />
-            <span className="font-semibold">Adicionar Gasto</span>
-          </Button>
-          <Button 
-            className="h-auto py-6 flex-col gap-3 bg-gold hover:bg-gold/90 text-black rounded-xl shadow-md"
-            onClick={() => navigate('/projeto')}
+            <Button 
+              className="h-auto py-6 flex-col gap-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-md w-full"
+            >
+              <Plus className="h-7 w-7" />
+              <span className="font-semibold">Adicionar Gasto</span>
+            </Button>
+          </FeatureComingSoon>
+          
+          <FeatureComingSoon 
+            featureName="Adicionar Meta"
+            customMessage="O módulo de metas financeiras está em desenvolvimento. Em breve você poderá criar objetivos, acompanhar progresso e planejar seus investimentos."
           >
-            <Plus className="h-7 w-7" />
-            <span className="font-semibold">Adicionar Meta</span>
-          </Button>
+            <Button 
+              className="h-auto py-6 flex-col gap-3 bg-gold hover:bg-gold/90 text-black rounded-xl shadow-md w-full"
+            >
+              <Plus className="h-7 w-7" />
+              <span className="font-semibold">Adicionar Meta</span>
+            </Button>
+          </FeatureComingSoon>
+          
+          <FeatureComingSoon 
+            featureName="Adicionar Cofrinho"
+            customMessage="O módulo de cofrinhos está em desenvolvimento. Em breve você poderá criar reservas financeiras para projetos específicos, como clipes, equipamentos ou turnês."
+          >
+            <Button 
+              className="h-auto py-6 flex-col gap-3 bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-xl shadow-md w-full"
+            >
+              <PiggyBank className="h-7 w-7" />
+              <span className="font-semibold">Adicionar Cofrinho</span>
+            </Button>
+          </FeatureComingSoon>
         </div>
       </Card>
 
