@@ -1,65 +1,93 @@
-import { Fuel, Shirt, Music, PiggyBank, Home as HomeIcon, TrendingDown, TrendingUp, AlertTriangle } from "lucide-react";
+import { Fuel, Shirt, Music, PiggyBank, Home as HomeIcon, TrendingDown, TrendingUp, AlertTriangle, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import StatCard from "@/components/StatCard";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
 import { useFinancialData } from "@/hooks/useFinancialData";
 import { useToast } from "@/hooks/use-toast";
 import { calculateDRE, formatCurrency, formatPercentage } from "@/lib/calculations";
+import { ExpenseForm } from "@/components/ExpenseForm";
+import { PiggyBankForm } from "@/components/PiggyBankForm";
+import { PiggyBankTransactionForm } from "@/components/PiggyBankTransactionForm";
+import { formatDateBR } from "@/lib/dateUtils";
+import { useState } from "react";
 
 const Financas = () => {
   const { toast } = useToast();
-  
+  const {
+    shows, expenses, fixedExpenses, incomes,
+    generalExpenses, piggyBanks,
+    addGeneralExpense, deleteGeneralExpense,
+    addPiggyBank, addToPiggyBank, withdrawFromPiggyBank, deletePiggyBank,
+  } = useFinancialData();
+
+  const [showExpenseForm, setShowExpenseForm] = useState(false);
+  const [showPiggyForm, setShowPiggyForm] = useState(false);
+  const [transactionPiggyId, setTransactionPiggyId] = useState<string | null>(null);
+  const [transactionType, setTransactionType] = useState<'deposito' | 'retirada'>('deposito');
+
   const handleComingSoon = (feature: string) => {
-    toast({
-      title: "Em desenvolvimento",
-      description: `A função "${feature}" será disponibilizada em breve.`,
-    });
+    toast({ title: "Em desenvolvimento", description: `A função "${feature}" será disponibilizada em breve.` });
   };
-  const { shows, expenses, fixedExpenses, project, incomes } = useFinancialData();
-  
-  // Calcular totais
+
   const totalGastos = expenses.reduce((sum, exp) => sum + exp.amount, 0);
   const totalFixas = fixedExpenses.reduce((sum, exp) => sum + exp.amount, 0);
-  
-  // Calcular DRE incluindo outras receitas
+  const totalGeneralExpenses = generalExpenses.reduce((sum, e) => sum + e.valor, 0);
+  const totalPiggyBanks = piggyBanks.reduce((sum, pb) => sum + pb.valorAtual, 0);
   const dre = calculateDRE(shows, expenses, fixedExpenses, incomes);
-  
+
+  const selectedPiggy = piggyBanks.find(pb => pb.id === transactionPiggyId);
+
   return (
     <div className="space-y-6">
+      <ExpenseForm
+        open={showExpenseForm}
+        onOpenChange={setShowExpenseForm}
+        onSubmit={(data) => {
+          addGeneralExpense(data);
+          toast({ title: "Gasto registrado!", description: "O gasto foi salvo com sucesso." });
+        }}
+      />
+      <PiggyBankForm
+        open={showPiggyForm}
+        onOpenChange={setShowPiggyForm}
+        onSubmit={(data) => {
+          addPiggyBank(data);
+          toast({ title: "Cofrinho criado!", description: "Seu cofrinho foi salvo." });
+        }}
+      />
+      <PiggyBankTransactionForm
+        open={!!transactionPiggyId}
+        onOpenChange={(open) => { if (!open) setTransactionPiggyId(null); }}
+        onSubmit={(valor) => {
+          if (!transactionPiggyId) return;
+          if (transactionType === 'deposito') {
+            addToPiggyBank(transactionPiggyId, valor);
+            toast({ title: "Depósito realizado!", description: `${formatCurrency(valor)} adicionado.` });
+          } else {
+            withdrawFromPiggyBank(transactionPiggyId, valor);
+            toast({ title: "Retirada realizada!", description: `${formatCurrency(valor)} retirado.` });
+          }
+          setTransactionPiggyId(null);
+        }}
+        tipo={transactionType}
+        piggyBankName={selectedPiggy?.nome || ''}
+      />
+
       {/* Header */}
       <div className="mb-2">
         <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-gold via-primary to-gold bg-clip-text text-transparent">
           Consultor Financeiro
         </h1>
-        <p className="text-muted-foreground text-lg">
-          Acompanhe seus gastos e economias de forma profissional
-        </p>
+        <p className="text-muted-foreground text-lg">Acompanhe seus gastos e economias de forma profissional</p>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatCard
-          title="Total de Gastos"
-          value={formatCurrency(totalGastos)}
-          icon={TrendingDown}
-          trend="Custos operacionais deste mês"
-          variant="default"
-        />
-        <StatCard
-          title="Cofrinho"
-          value={formatCurrency(project.savedValue)}
-          icon={PiggyBank}
-          trend={`${((project.savedValue / project.totalValue) * 100).toFixed(0)}% do seu projeto audiovisual`}
-          variant="gold"
-        />
-        <StatCard
-          title="Despesas Fixas"
-          value={formatCurrency(totalFixas)}
-          icon={HomeIcon}
-          trend="Compromissos recorrentes"
-          variant="default"
-        />
+        <StatCard title="Total de Gastos" value={formatCurrency(totalGastos + totalGeneralExpenses)} icon={TrendingDown} trend={`${generalExpenses.length} gasto(s) registrado(s)`} variant="default" />
+        <StatCard title="Cofrinhos" value={formatCurrency(totalPiggyBanks)} icon={PiggyBank} trend={`${piggyBanks.length} cofrinho(s) ativo(s)`} variant="gold" />
+        <StatCard title="Despesas Fixas" value={formatCurrency(totalFixas)} icon={HomeIcon} trend="Compromissos recorrentes" variant="default" />
       </div>
 
       {/* DRE Simplificado */}
@@ -73,7 +101,6 @@ const Financas = () => {
             <p className="text-xs text-muted-foreground">Demonstrativo de Resultado do Mês</p>
           </div>
         </div>
-        
         <div className="space-y-4">
           <div className="flex items-center justify-between p-4 bg-background/50 rounded-xl border border-border">
             <div>
@@ -82,7 +109,6 @@ const Financas = () => {
             </div>
             <span className="text-2xl font-bold text-success">{formatCurrency(dre.receitaBruta)}</span>
           </div>
-
           <div className="flex items-center justify-between p-4 bg-background/50 rounded-xl border border-border">
             <div>
               <p className="text-sm text-muted-foreground">Custos Diretos</p>
@@ -90,7 +116,6 @@ const Financas = () => {
             </div>
             <span className="text-2xl font-bold text-destructive">-{formatCurrency(dre.custosDirectos)}</span>
           </div>
-
           <div className="flex items-center justify-between p-4 bg-background/50 rounded-xl border border-border">
             <div>
               <p className="text-sm text-muted-foreground">Despesas Fixas</p>
@@ -98,9 +123,7 @@ const Financas = () => {
             </div>
             <span className="text-2xl font-bold text-destructive">-{formatCurrency(dre.despesasFixas)}</span>
           </div>
-
           <div className="h-px bg-gold/20 my-4"></div>
-
           <div className="flex items-center justify-between p-5 bg-gradient-to-r from-primary/10 to-gold/10 rounded-xl border-2 border-gold/30">
             <div>
               <p className="font-semibold text-lg">Resultado Operacional</p>
@@ -110,48 +133,95 @@ const Financas = () => {
               <p className={`text-3xl font-bold ${dre.resultadoOperacional >= 0 ? 'text-success' : 'text-destructive'}`}>
                 {formatCurrency(dre.resultadoOperacional)}
               </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Margem: {formatPercentage(dre.margemFinal)}
-              </p>
+              <p className="text-sm text-muted-foreground mt-1">Margem: {formatPercentage(dre.margemFinal)}</p>
             </div>
           </div>
-
           {dre.margemFinal < 0 && (
             <div className="flex items-center gap-3 p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
               <AlertTriangle className="h-5 w-5 text-destructive" />
-              <p className="text-sm text-destructive font-medium">
-                Atenção: Suas despesas superaram sua receita este mês
-              </p>
+              <p className="text-sm text-destructive font-medium">Atenção: Suas despesas superaram sua receita este mês</p>
             </div>
           )}
         </div>
       </Card>
 
-      {/* Tabs for Categories */}
-      <Tabs defaultValue="combustivel" className="space-y-4">
+      {/* Tabs */}
+      <Tabs defaultValue="gastos" className="space-y-4">
         <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full">
+          <TabsTrigger value="gastos">Gastos</TabsTrigger>
           <TabsTrigger value="combustivel">Combustível</TabsTrigger>
-          <TabsTrigger value="roupas">Roupas</TabsTrigger>
           <TabsTrigger value="equipamentos">Equipamentos</TabsTrigger>
-          <TabsTrigger value="cofrinho">Cofrinho</TabsTrigger>
+          <TabsTrigger value="cofrinho">Cofrinhos</TabsTrigger>
           <TabsTrigger value="fixas">Despesas Fixas</TabsTrigger>
         </TabsList>
+
+        {/* Gastos Gerais */}
+        <TabsContent value="gastos" className="space-y-4">
+          <Card className="p-6 shadow-lg border-primary/10">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-xl bg-primary/10">
+                  <TrendingDown className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold">Gastos Gerais</h2>
+                  <p className="text-xs text-muted-foreground">Todos os gastos registrados</p>
+                </div>
+              </div>
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl gap-2" onClick={() => setShowExpenseForm(true)}>
+                <Plus className="h-4 w-4" />
+                Adicionar Gasto
+              </Button>
+            </div>
+
+            {generalExpenses.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <TrendingDown className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                <p className="text-lg">Nenhum gasto registrado</p>
+                <p className="text-sm mt-2">Clique em "Adicionar Gasto" para começar</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {generalExpenses.map(exp => (
+                  <div key={exp.id} className="flex items-center justify-between p-4 bg-secondary/50 rounded-xl border border-border">
+                    <div>
+                      <p className="font-medium">{exp.descricao}</p>
+                      <p className="text-xs text-muted-foreground">{formatDateBR(exp.data)} • {exp.categoria}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg font-semibold text-destructive">{formatCurrency(exp.valor)}</span>
+                      <Button size="icon" variant="ghost" onClick={() => { deleteGeneralExpense(exp.id); toast({ title: "Gasto removido" }); }}>
+                        <Trash2 className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {generalExpenses.length > 0 && (
+              <div className="mt-6 pt-6 border-t border-gold/20">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Total de gastos gerais</span>
+                  <span className="text-2xl font-bold text-destructive">{formatCurrency(totalGeneralExpenses)}</span>
+                </div>
+              </div>
+            )}
+          </Card>
+        </TabsContent>
 
         <TabsContent value="combustivel" className="space-y-4">
           <Card className="p-6 shadow-lg border-primary/10">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="p-3 rounded-xl bg-primary/10">
-                  <Fuel className="h-6 w-6 text-primary" />
-                </div>
+                <div className="p-3 rounded-xl bg-primary/10"><Fuel className="h-6 w-6 text-primary" /></div>
                 <div>
                   <h2 className="text-xl font-semibold">Combustível</h2>
                   <p className="text-xs text-muted-foreground">Gastos com transporte para shows</p>
                 </div>
               </div>
-              <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl" onClick={() => handleComingSoon("Adicionar Gasto de Combustível")}>Adicionar Gasto</Button>
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl" onClick={() => handleComingSoon("Adicionar Gasto de Combustível")}>Adicionar Gasto</Button>
             </div>
-            
             <div className="space-y-3">
               <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-xl border border-border">
                 <div>
@@ -168,7 +238,6 @@ const Financas = () => {
                 <span className="text-lg font-semibold text-destructive">R$ 210</span>
               </div>
             </div>
-
             <div className="mt-6 pt-6 border-t border-gold/20">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Total do mês em combustível</span>
@@ -178,47 +247,11 @@ const Financas = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="roupas" className="space-y-4">
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-primary/10">
-                  <Shirt className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-semibold">Roupas de Palco</h2>
-                  <p className="text-sm text-muted-foreground">Investimento em imagem</p>
-                </div>
-              </div>
-              <Button onClick={() => handleComingSoon("Adicionar Gasto de Roupas")}>Adicionar Gasto</Button>
-            </div>
-            
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
-                <div>
-                  <p className="font-medium">Camisa social preta</p>
-                  <p className="text-sm text-muted-foreground">5 Dez</p>
-                </div>
-                <span className="text-lg font-semibold text-destructive">R$ 150</span>
-              </div>
-            </div>
-
-            <div className="mt-6 pt-6 border-t border-border">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Total do mês</span>
-                <span className="text-2xl font-bold text-destructive">R$ 150</span>
-              </div>
-            </div>
-          </Card>
-        </TabsContent>
-
         <TabsContent value="equipamentos" className="space-y-4">
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-primary/10">
-                  <Music className="h-6 w-6 text-primary" />
-                </div>
+                <div className="p-3 rounded-lg bg-primary/10"><Music className="h-6 w-6 text-primary" /></div>
                 <div>
                   <h2 className="text-xl font-semibold">Equipamentos</h2>
                   <p className="text-sm text-muted-foreground">Manutenção e acessórios</p>
@@ -226,24 +259,16 @@ const Financas = () => {
               </div>
               <Button onClick={() => handleComingSoon("Adicionar Gasto de Equipamentos")}>Adicionar Gasto</Button>
             </div>
-            
             <div className="space-y-3">
               <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
-                <div>
-                  <p className="font-medium">Jogo de cordas para violão</p>
-                  <p className="text-sm text-muted-foreground">8 Dez</p>
-                </div>
+                <div><p className="font-medium">Jogo de cordas para violão</p><p className="text-sm text-muted-foreground">8 Dez</p></div>
                 <span className="text-lg font-semibold text-destructive">R$ 85</span>
               </div>
               <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
-                <div>
-                  <p className="font-medium">Cabo P10 novo</p>
-                  <p className="text-sm text-muted-foreground">3 Dez</p>
-                </div>
+                <div><p className="font-medium">Cabo P10 novo</p><p className="text-sm text-muted-foreground">3 Dez</p></div>
                 <span className="text-lg font-semibold text-destructive">R$ 45</span>
               </div>
             </div>
-
             <div className="mt-6 pt-6 border-t border-border">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Total do mês</span>
@@ -253,42 +278,76 @@ const Financas = () => {
           </Card>
         </TabsContent>
 
+        {/* Cofrinhos */}
         <TabsContent value="cofrinho" className="space-y-4">
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-gold/10">
-                  <PiggyBank className="h-6 w-6 text-gold" />
-                </div>
+                <div className="p-3 rounded-lg bg-gold/10"><PiggyBank className="h-6 w-6 text-gold" /></div>
                 <div>
-                  <h2 className="text-xl font-semibold">Cofrinho</h2>
-                  <p className="text-sm text-muted-foreground">Para projeto audiovisual</p>
+                  <h2 className="text-xl font-semibold">Cofrinhos</h2>
+                  <p className="text-sm text-muted-foreground">Reservas financeiras</p>
                 </div>
               </div>
-              <Button className="bg-gold text-black hover:bg-gold/90" onClick={() => handleComingSoon("Adicionar ao Cofrinho")}>Adicionar</Button>
-            </div>
-            
-            <div className="text-center py-8">
-              <div className="text-5xl font-bold text-gold mb-2">R$ 3.500</div>
-              <p className="text-muted-foreground">Total guardado</p>
+              <Button className="bg-gold text-accent-foreground hover:bg-gold/90 gap-2" onClick={() => setShowPiggyForm(true)}>
+                <Plus className="h-4 w-4" />
+                Novo Cofrinho
+              </Button>
             </div>
 
-            <div className="mt-6 pt-6 border-t border-border space-y-3">
-              <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
-                <div>
-                  <p className="font-medium">Depósito - Show Casa de Eventos</p>
-                  <p className="text-sm text-muted-foreground">20 Dez</p>
-                </div>
-                <span className="text-lg font-semibold text-gold">+R$ 500</span>
+            {piggyBanks.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <PiggyBank className="h-16 w-16 mx-auto mb-4 opacity-30 text-gold" />
+                <p className="text-lg">Nenhum cofrinho criado</p>
+                <p className="text-sm mt-2">Crie seu primeiro cofrinho para guardar dinheiro</p>
               </div>
-              <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
-                <div>
-                  <p className="font-medium">Depósito - Show Boteco da Esquina</p>
-                  <p className="text-sm text-muted-foreground">10 Dez</p>
+            ) : (
+              <div className="space-y-4">
+                {piggyBanks.map(pb => (
+                  <div key={pb.id} className="p-5 rounded-xl border bg-card">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-lg">{pb.nome}</h3>
+                      <Button size="icon" variant="ghost" onClick={() => { deletePiggyBank(pb.id); toast({ title: "Cofrinho removido" }); }}>
+                        <Trash2 className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                    </div>
+                    <p className="text-3xl font-bold text-gold mb-3">{formatCurrency(pb.valorAtual)}</p>
+                    {pb.objetivo && (
+                      <div className="mb-3">
+                        <Progress value={(pb.valorAtual / pb.objetivo) * 100} className="h-2" />
+                        <p className="text-xs text-muted-foreground mt-1">Objetivo: {formatCurrency(pb.objetivo)} • {formatPercentage((pb.valorAtual / pb.objetivo) * 100)}</p>
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <Button size="sm" className="gap-1" onClick={() => { setTransactionPiggyId(pb.id); setTransactionType('deposito'); }}>
+                        <ArrowUp className="h-3 w-3" /> Depositar
+                      </Button>
+                      <Button size="sm" variant="outline" className="gap-1" onClick={() => { setTransactionPiggyId(pb.id); setTransactionType('retirada'); }}>
+                        <ArrowDown className="h-3 w-3" /> Retirar
+                      </Button>
+                    </div>
+                    {pb.historico.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-border space-y-2">
+                        {pb.historico.slice(-3).map(h => (
+                          <div key={h.id} className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">{formatDateBR(h.data)}</span>
+                            <span className={h.tipo === 'deposito' ? 'text-success' : 'text-destructive'}>
+                              {h.tipo === 'deposito' ? '+' : '-'}{formatCurrency(h.valor)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+                <div className="mt-4 pt-4 border-t border-gold/20">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Total guardado</span>
+                    <span className="text-2xl font-bold text-gold">{formatCurrency(totalPiggyBanks)}</span>
+                  </div>
                 </div>
-                <span className="text-lg font-semibold text-gold">+R$ 300</span>
               </div>
-            </div>
+            )}
           </Card>
         </TabsContent>
 
@@ -296,9 +355,7 @@ const Financas = () => {
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-primary/10">
-                  <HomeIcon className="h-6 w-6 text-primary" />
-                </div>
+                <div className="p-3 rounded-lg bg-primary/10"><HomeIcon className="h-6 w-6 text-primary" /></div>
                 <div>
                   <h2 className="text-xl font-semibold">Despesas Fixas</h2>
                   <p className="text-sm text-muted-foreground">Compromissos mensais</p>
@@ -306,35 +363,21 @@ const Financas = () => {
               </div>
               <Button onClick={() => handleComingSoon("Adicionar Despesa Fixa")}>Adicionar</Button>
             </div>
-            
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
-                <div>
-                  <p className="font-medium">Aluguel</p>
-                  <p className="text-sm text-muted-foreground">Vence dia 10</p>
+              {fixedExpenses.map(exp => (
+                <div key={exp.id} className="flex items-center justify-between p-4 bg-secondary rounded-lg">
+                  <div>
+                    <p className="font-medium">{exp.description}</p>
+                    <p className="text-sm text-muted-foreground">Vence dia {exp.dueDay}</p>
+                  </div>
+                  <span className="text-lg font-semibold text-destructive">{formatCurrency(exp.amount)}</span>
                 </div>
-                <span className="text-lg font-semibold text-destructive">R$ 1.500</span>
-              </div>
-              <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
-                <div>
-                  <p className="font-medium">Pensão alimentícia</p>
-                  <p className="text-sm text-muted-foreground">Vence dia 5</p>
-                </div>
-                <span className="text-lg font-semibold text-destructive">R$ 800</span>
-              </div>
-              <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
-                <div>
-                  <p className="font-medium">Parcela do carro</p>
-                  <p className="text-sm text-muted-foreground">Vence dia 15</p>
-                </div>
-                <span className="text-lg font-semibold text-destructive">R$ 500</span>
-              </div>
+              ))}
             </div>
-
             <div className="mt-6 pt-6 border-t border-border">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Total mensal</span>
-                <span className="text-2xl font-bold text-destructive">R$ 2.800</span>
+                <span className="text-2xl font-bold text-destructive">{formatCurrency(totalFixas)}</span>
               </div>
             </div>
           </Card>
