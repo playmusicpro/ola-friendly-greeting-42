@@ -173,3 +173,38 @@ export interface SyncResult {
   errors: string[];
   timestamp: string;
 }
+
+// MVP Module Types
+
+export interface FinancialGoal {
+  id: string;
+  nome: string;
+  valorMeta: number;
+  periodo: 'mensal' | 'semanal';
+  dataInicio: string;
+  dataFim: string;
+  criadoEm: string;
+}
+
+export interface GeneralExpense {
+  id: string;
+  descricao: string;
+  categoria: string;
+  valor: number;
+  data: string;
+  criadoEm: string;
+}
+
+export interface PiggyBank {
+  id: string;
+  nome: string;
+  valorAtual: number;
+  objetivo?: number;
+  criadoEm: string;
+  historico: Array<{
+    id: string;
+    tipo: 'deposito' | 'retirada';
+    valor: number;
+    data: string;
+  }>;
+}
