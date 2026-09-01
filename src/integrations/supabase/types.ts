@@ -14,24 +14,627 @@ export type Database = {
   }
   public: {
     Tables: {
+      events: {
+        Row: {
+          created_at: string
+          date: string
+          end_time: string | null
+          google_calendar_id: string | null
+          google_event_id: string | null
+          id: string
+          last_synced_at: string | null
+          linked_show_id: string | null
+          local: string | null
+          notes: string | null
+          playlist_id: string | null
+          realizado: boolean
+          start_time: string
+          sync_status: string
+          tipo: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          end_time?: string | null
+          google_calendar_id?: string | null
+          google_event_id?: string | null
+          id?: string
+          last_synced_at?: string | null
+          linked_show_id?: string | null
+          local?: string | null
+          notes?: string | null
+          playlist_id?: string | null
+          realizado?: boolean
+          start_time: string
+          sync_status?: string
+          tipo?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          end_time?: string | null
+          google_calendar_id?: string | null
+          google_event_id?: string | null
+          id?: string
+          last_synced_at?: string | null
+          linked_show_id?: string | null
+          local?: string | null
+          notes?: string | null
+          playlist_id?: string | null
+          realizado?: boolean
+          start_time?: string
+          sync_status?: string
+          tipo?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_linked_show_id_fkey"
+            columns: ["linked_show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          categoria: string
+          created_at: string
+          data: string
+          descricao: string
+          id: string
+          show_id: string | null
+          updated_at: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          categoria?: string
+          created_at?: string
+          data?: string
+          descricao: string
+          id?: string
+          show_id?: string | null
+          updated_at?: string
+          user_id: string
+          valor?: number
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          data?: string
+          descricao?: string
+          id?: string
+          show_id?: string | null
+          updated_at?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_goals: {
+        Row: {
+          created_at: string
+          data_fim: string | null
+          data_inicio: string
+          id: string
+          nome: string
+          periodo: string
+          updated_at: string
+          user_id: string
+          valor_meta: number
+        }
+        Insert: {
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string
+          id?: string
+          nome: string
+          periodo?: string
+          updated_at?: string
+          user_id: string
+          valor_meta?: number
+        }
+        Update: {
+          created_at?: string
+          data_fim?: string | null
+          data_inicio?: string
+          id?: string
+          nome?: string
+          periodo?: string
+          updated_at?: string
+          user_id?: string
+          valor_meta?: number
+        }
+        Relationships: []
+      }
+      fixed_expenses: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          descricao: string
+          dia_vencimento: number
+          id: string
+          updated_at: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          descricao: string
+          dia_vencimento?: number
+          id?: string
+          updated_at?: string
+          user_id: string
+          valor?: number
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string
+          dia_vencimento?: number
+          id?: string
+          updated_at?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: []
+      }
+      incomes: {
+        Row: {
+          categoria: string | null
+          created_at: string
+          data: string
+          descricao: string
+          id: string
+          source: string
+          updated_at: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          categoria?: string | null
+          created_at?: string
+          data?: string
+          descricao: string
+          id?: string
+          source?: string
+          updated_at?: string
+          user_id: string
+          valor?: number
+        }
+        Update: {
+          categoria?: string | null
+          created_at?: string
+          data?: string
+          descricao?: string
+          id?: string
+          source?: string
+          updated_at?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: []
+      }
+      notification_logs: {
+        Row: {
+          created_at: string
+          delivery_status: string
+          error: string | null
+          event_id: string | null
+          event_type: string
+          id: string
+          message_body: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_status?: string
+          error?: string | null
+          event_id?: string | null
+          event_type?: string
+          id?: string
+          message_body?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delivery_status?: string
+          error?: string | null
+          event_id?: string | null
+          event_type?: string
+          id?: string
+          message_body?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notification_settings: {
+        Row: {
+          created_at: string
+          enable_whatsapp: boolean
+          updated_at: string
+          user_id: string
+          whatsapp_number: string | null
+        }
+        Insert: {
+          created_at?: string
+          enable_whatsapp?: boolean
+          updated_at?: string
+          user_id: string
+          whatsapp_number?: string | null
+        }
+        Update: {
+          created_at?: string
+          enable_whatsapp?: boolean
+          updated_at?: string
+          user_id?: string
+          whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
+      piggy_bank_transactions: {
+        Row: {
+          created_at: string
+          data: string
+          id: string
+          piggy_bank_id: string
+          tipo: string
+          updated_at: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          created_at?: string
+          data?: string
+          id?: string
+          piggy_bank_id: string
+          tipo: string
+          updated_at?: string
+          user_id: string
+          valor: number
+        }
+        Update: {
+          created_at?: string
+          data?: string
+          id?: string
+          piggy_bank_id?: string
+          tipo?: string
+          updated_at?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "piggy_bank_transactions_piggy_bank_id_fkey"
+            columns: ["piggy_bank_id"]
+            isOneToOne: false
+            referencedRelation: "piggy_banks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      piggy_banks: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          objetivo: number | null
+          updated_at: string
+          user_id: string
+          valor_atual: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+          objetivo?: number | null
+          updated_at?: string
+          user_id: string
+          valor_atual?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          objetivo?: number | null
+          updated_at?: string
+          user_id?: string
+          valor_atual?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
+          created_at: string
           email: string | null
+          google_calendar_enabled: boolean
+          google_calendar_status: string
+          google_connected_at: string | null
           id: string
           name: string
           plan: string | null
+          updated_at: string
+          whatsapp: string | null
         }
         Insert: {
+          created_at?: string
           email?: string | null
+          google_calendar_enabled?: boolean
+          google_calendar_status?: string
+          google_connected_at?: string | null
           id?: string
           name?: string
           plan?: string | null
+          updated_at?: string
+          whatsapp?: string | null
         }
         Update: {
+          created_at?: string
           email?: string | null
+          google_calendar_enabled?: boolean
+          google_calendar_status?: string
+          google_connected_at?: string | null
           id?: string
           name?: string
           plan?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          saved_value: number
+          total_value: number
+          updated_at: string
+          user_id: string
+          weekly_deposit: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          saved_value?: number
+          total_value?: number
+          updated_at?: string
+          user_id: string
+          weekly_deposit?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          saved_value?: number
+          total_value?: number
+          updated_at?: string
+          user_id?: string
+          weekly_deposit?: number | null
+        }
+        Relationships: []
+      }
+      setlist_songs: {
+        Row: {
+          created_at: string
+          id: string
+          posicao: number
+          setlist_id: string
+          song_id: string
+          tom_escolhido: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          posicao?: number
+          setlist_id: string
+          song_id: string
+          tom_escolhido?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          posicao?: number
+          setlist_id?: string
+          song_id?: string
+          tom_escolhido?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "setlist_songs_setlist_id_fkey"
+            columns: ["setlist_id"]
+            isOneToOne: false
+            referencedRelation: "setlists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "setlist_songs_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "songs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      setlists: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      shows: {
+        Row: {
+          cache: number
+          combustivel: number
+          consumacao: number
+          created_at: string
+          date: string
+          equipamentos: number
+          id: string
+          km_rodados: number
+          local: string
+          num_musicos: number
+          outros_custos: number
+          pagamento_musicos: number
+          pedagio: number
+          realizado: boolean
+          roupas: number
+          time: string | null
+          tipo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cache?: number
+          combustivel?: number
+          consumacao?: number
+          created_at?: string
+          date: string
+          equipamentos?: number
+          id?: string
+          km_rodados?: number
+          local: string
+          num_musicos?: number
+          outros_custos?: number
+          pagamento_musicos?: number
+          pedagio?: number
+          realizado?: boolean
+          roupas?: number
+          time?: string | null
+          tipo?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cache?: number
+          combustivel?: number
+          consumacao?: number
+          created_at?: string
+          date?: string
+          equipamentos?: number
+          id?: string
+          km_rodados?: number
+          local?: string
+          num_musicos?: number
+          outros_custos?: number
+          pagamento_musicos?: number
+          pedagio?: number
+          realizado?: boolean
+          roupas?: number
+          time?: string | null
+          tipo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      songs: {
+        Row: {
+          artist: string | null
+          cifra_club_link: string | null
+          created_at: string
+          how_you_play: string | null
+          id: string
+          notes: string | null
+          title: string
+          tone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          artist?: string | null
+          cifra_club_link?: string | null
+          created_at?: string
+          how_you_play?: string | null
+          id?: string
+          notes?: string | null
+          title: string
+          tone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          artist?: string | null
+          cifra_club_link?: string | null
+          created_at?: string
+          how_you_play?: string | null
+          id?: string
+          notes?: string | null
+          title?: string
+          tone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
         }
         Relationships: []
       }
@@ -40,10 +643,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "owner" | "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -170,6 +780,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["owner", "admin", "user"],
+    },
   },
 } as const
