@@ -61,7 +61,7 @@ const Login = () => {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Entrar</CardTitle>
             <CardDescription className="text-center">
-              Digite seu email para continuar
+              Digite seu email e senha para continuar
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -85,16 +85,41 @@ const Login = () => {
                     autoFocus
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Senha</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Mínimo 6 caracteres"
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setError(null);
+                    }}
+                    className="pl-10"
+                    required
+                    minLength={6}
+                    autoComplete="current-password"
+                  />
+                </div>
                 {error && (
                   <p className="text-sm text-destructive">{error}</p>
                 )}
+                <p className="text-xs text-muted-foreground">
+                  Primeiro acesso? Sua conta é criada automaticamente.
+                </p>
               </div>
 
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isLoading || !email}
+                disabled={isLoading || !email || !password}
               >
+
                 {isLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
