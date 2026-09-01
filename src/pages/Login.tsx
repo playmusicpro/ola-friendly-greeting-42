@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Music, Mail, ArrowRight, Loader2 } from "lucide-react";
+import { Music, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { login } = useAuth();
@@ -21,7 +22,7 @@ const Login = () => {
     setError(null);
     setIsLoading(true);
 
-    const { error: loginError } = await login(email);
+    const { error: loginError } = await login(email, password);
 
     if (loginError) {
       setError(loginError);
@@ -37,6 +38,7 @@ const Login = () => {
     navigate("/", { replace: true });
     setIsLoading(false);
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
