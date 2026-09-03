@@ -1,0 +1,76 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+
+export interface MusicianProfile {
+  id: string;
+  name: string;
+  email: string | null;
+  generoMusical: string | null;
+  cidade: string | null;
+  estado: string | null;
+  tipoMusico: string | null;
+  onboardingCompleted: boolean;
+}
+
+export const useProfile = () => {
+  const { user, isAuthenticated } = useAuth();
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
+    queryKey: ['profile', user?.id],
+    enabled: isAuthenticated && !!user?.id,
+    queryFn: async (): Promise<MusicianProfile | null> => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user!.id)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) return null;
+      return {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        generoMusical: data.genero_musical,
+        cidade: data.cidade,
+        estado: data.estado,
+        tipoMusico: data.tipo_musico,
+        onboardingCompleted: data.onboarding_completed,
+      };
+    },
+  });
+
+  const saveProfile = useMutation({
+    mutationFn: async (values: {
+      name?: string;
+      generoMusical: string;
+      cidade: string;
+      estado: string;
+      tipoMusico: string;
+    }) => {
+      const payload = {
+        id: user!.id,
+        email: user!.email,
+        ...(values.name ? { name: values.name } : {}),
+        genero_musical: values.generoMusical,
+        cidade: values.cidade,
+        estado: values.estado,
+        tipo_musico: values.tipoMusico,
+        onboarding_completed: true,
+      };
+      const { error } = await supabase.from('profiles').upsert(payload, { onConflict: 'id' });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+    },
+  });
+
+  return {
+    profile: query.data ?? null,
+    isLoading: query.isLoading,
+    needsOnboarding: !!query.data && !query.data.onboardingCompleted,
+    saveProfile,
+  };
+};
