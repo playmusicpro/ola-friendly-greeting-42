@@ -367,38 +367,53 @@ export type Database = {
       }
       profiles: {
         Row: {
+          cidade: string | null
           created_at: string
           email: string | null
+          estado: string | null
+          genero_musical: string | null
           google_calendar_enabled: boolean
           google_calendar_status: string
           google_connected_at: string | null
           id: string
           name: string
+          onboarding_completed: boolean
           plan: string | null
+          tipo_musico: string | null
           updated_at: string
           whatsapp: string | null
         }
         Insert: {
+          cidade?: string | null
           created_at?: string
           email?: string | null
+          estado?: string | null
+          genero_musical?: string | null
           google_calendar_enabled?: boolean
           google_calendar_status?: string
           google_connected_at?: string | null
           id?: string
           name?: string
+          onboarding_completed?: boolean
           plan?: string | null
+          tipo_musico?: string | null
           updated_at?: string
           whatsapp?: string | null
         }
         Update: {
+          cidade?: string | null
           created_at?: string
           email?: string | null
+          estado?: string | null
+          genero_musical?: string | null
           google_calendar_enabled?: boolean
           google_calendar_status?: string
           google_connected_at?: string | null
           id?: string
           name?: string
+          onboarding_completed?: boolean
           plan?: string | null
+          tipo_musico?: string | null
           updated_at?: string
           whatsapp?: string | null
         }
