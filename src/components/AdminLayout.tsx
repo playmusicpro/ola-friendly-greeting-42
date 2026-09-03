@@ -7,12 +7,10 @@ import {
   FileText, 
   ArrowLeft,
   Shield,
-   AlertTriangle,
    ClipboardCheck
 } from "lucide-react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { cn } from "@/lib/utils";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface AdminLayoutProps {
@@ -52,15 +50,6 @@ const AdminLayout = ({ children, title }: AdminLayoutProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Security Warning Banner */}
-      <Alert className="rounded-none border-x-0 border-t-0 bg-destructive/10 border-destructive/30">
-        <AlertTriangle className="h-4 w-4 text-destructive" />
-        <AlertDescription className="text-destructive text-sm">
-          <strong>Modo Demo:</strong> Autenticação de admin via localStorage não é segura para produção.
-          Em produção, use autenticação server-side com tabela user_roles no Supabase.
-        </AlertDescription>
-      </Alert>
-
       <div className="flex">
         {/* Admin Sidebar */}
         <aside className="w-64 min-h-[calc(100vh-48px)] bg-card border-r border-border/50">

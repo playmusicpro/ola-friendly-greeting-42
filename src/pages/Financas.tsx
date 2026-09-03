@@ -39,6 +39,11 @@ const Financas = () => {
 
   const selectedPiggy = piggyBanks.find(pb => pb.id === transactionPiggyId);
 
+  const fuelExpenses = generalExpenses.filter(e => e.categoria === 'combustivel');
+  const totalFuel = fuelExpenses.reduce((sum, e) => sum + e.valor, 0);
+  const gearExpenses = generalExpenses.filter(e => e.categoria === 'equipamentos');
+  const totalGear = gearExpenses.reduce((sum, e) => sum + e.valor, 0);
+
   return (
     <div className="space-y-6">
       <ExpenseForm
@@ -220,28 +225,36 @@ const Financas = () => {
                   <p className="text-xs text-muted-foreground">Gastos com transporte para shows</p>
                 </div>
               </div>
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl" onClick={() => handleComingSoon("Adicionar Gasto de Combustível")}>Adicionar Gasto</Button>
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl" onClick={() => setShowExpenseForm(true)}>Adicionar Gasto</Button>
             </div>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-xl border border-border">
-                <div>
-                  <p className="font-medium">Gasolina - Show Bar do Zé</p>
-                  <p className="text-xs text-muted-foreground">15 Dez, 50km rodados</p>
-                </div>
-                <span className="text-lg font-semibold text-destructive">R$ 120</span>
+            {fuelExpenses.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <Fuel className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                <p className="text-lg">Nenhum gasto de combustível registrado</p>
+                <p className="text-sm mt-2">Clique em "Adicionar Gasto" para começar</p>
               </div>
-              <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-xl border border-border">
-                <div>
-                  <p className="font-medium">Pedágio + Gasolina - Casa de Eventos</p>
-                  <p className="text-xs text-muted-foreground">20 Dez, 80km rodados</p>
-                </div>
-                <span className="text-lg font-semibold text-destructive">R$ 210</span>
+            ) : (
+              <div className="space-y-3">
+                {fuelExpenses.map(exp => (
+                  <div key={exp.id} className="flex items-center justify-between p-4 bg-secondary/50 rounded-xl border border-border">
+                    <div>
+                      <p className="font-medium">{exp.descricao}</p>
+                      <p className="text-xs text-muted-foreground">{formatDateBR(exp.data)}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg font-semibold text-destructive">{formatCurrency(exp.valor)}</span>
+                      <Button size="icon" variant="ghost" onClick={() => { deleteGeneralExpense(exp.id); toast({ title: "Gasto removido" }); }}>
+                        <Trash2 className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
+            )}
             <div className="mt-6 pt-6 border-t border-gold/20">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Total do mês em combustível</span>
-                <span className="text-2xl font-bold text-destructive">R$ 330</span>
+                <span className="text-sm text-muted-foreground">Total em combustível</span>
+                <span className="text-2xl font-bold text-destructive">{formatCurrency(totalFuel)}</span>
               </div>
             </div>
           </Card>
@@ -257,22 +270,36 @@ const Financas = () => {
                   <p className="text-sm text-muted-foreground">Manutenção e acessórios</p>
                 </div>
               </div>
-              <Button onClick={() => handleComingSoon("Adicionar Gasto de Equipamentos")}>Adicionar Gasto</Button>
+              <Button onClick={() => setShowExpenseForm(true)}>Adicionar Gasto</Button>
             </div>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
-                <div><p className="font-medium">Jogo de cordas para violão</p><p className="text-sm text-muted-foreground">8 Dez</p></div>
-                <span className="text-lg font-semibold text-destructive">R$ 85</span>
+            {gearExpenses.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <Music className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                <p className="text-lg">Nenhum gasto de equipamentos registrado</p>
+                <p className="text-sm mt-2">Clique em "Adicionar Gasto" para começar</p>
               </div>
-              <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
-                <div><p className="font-medium">Cabo P10 novo</p><p className="text-sm text-muted-foreground">3 Dez</p></div>
-                <span className="text-lg font-semibold text-destructive">R$ 45</span>
+            ) : (
+              <div className="space-y-3">
+                {gearExpenses.map(exp => (
+                  <div key={exp.id} className="flex items-center justify-between p-4 bg-secondary rounded-lg">
+                    <div>
+                      <p className="font-medium">{exp.descricao}</p>
+                      <p className="text-sm text-muted-foreground">{formatDateBR(exp.data)}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg font-semibold text-destructive">{formatCurrency(exp.valor)}</span>
+                      <Button size="icon" variant="ghost" onClick={() => { deleteGeneralExpense(exp.id); toast({ title: "Gasto removido" }); }}>
+                        <Trash2 className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
+            )}
             <div className="mt-6 pt-6 border-t border-border">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Total do mês</span>
-                <span className="text-2xl font-bold text-destructive">R$ 130</span>
+                <span className="text-muted-foreground">Total em equipamentos</span>
+                <span className="text-2xl font-bold text-destructive">{formatCurrency(totalGear)}</span>
               </div>
             </div>
           </Card>

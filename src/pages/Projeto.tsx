@@ -40,8 +40,8 @@ const Projeto = () => {
               <Video className="h-6 w-6 text-gold" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold">{project.name}</h2>
-              <p className="text-sm text-muted-foreground">{project.description}</p>
+              <h2 className="text-xl font-semibold">{project.name || "Seu Projeto Audiovisual"}</h2>
+              <p className="text-sm text-muted-foreground">{project.description || "Defina o objetivo e comece a guardar"}</p>
             </div>
           </div>
           {calc.metaAlcancada && (
@@ -123,7 +123,6 @@ const Projeto = () => {
           <Textarea
             placeholder="Descreva o conceito do clipe, cenas principais, roteiro..."
             className="min-h-[200px] resize-none"
-            defaultValue="Clipe minimalista filmado em estúdio com iluminação dramática. História de superação após término de relacionamento. Cenas intercaladas entre performance e narrativa."
           />
         </Card>
 
@@ -134,17 +133,9 @@ const Projeto = () => {
             <h3 className="text-lg font-semibold">Equipe e Fornecedores</h3>
           </div>
           <div className="space-y-3">
-            <div className="p-3 bg-secondary rounded-lg">
-              <p className="font-medium">Diretor de Fotografia</p>
-              <p className="text-sm text-muted-foreground">João Silva - R$ 2.500</p>
-            </div>
-            <div className="p-3 bg-secondary rounded-lg">
-              <p className="font-medium">Editor</p>
-              <p className="text-sm text-muted-foreground">Maria Santos - R$ 1.500</p>
-            </div>
-            <div className="p-3 bg-secondary rounded-lg">
-              <p className="font-medium">Estúdio</p>
-              <p className="text-sm text-muted-foreground">Studio Pro - R$ 3.000 (diária)</p>
+            <div className="text-center py-8 text-muted-foreground">
+              <Target className="h-12 w-12 mx-auto mb-3 opacity-30" />
+              <p className="text-sm">Nenhum contato cadastrado</p>
             </div>
             <Button variant="outline" className="w-full" onClick={() => handleComingSoon("Adicionar Contato")}>
               <Plus className="h-4 w-4 mr-2" />
@@ -158,23 +149,6 @@ const Projeto = () => {
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Músicas e Referências</h3>
         <div className="space-y-3">
-          <div className="p-4 bg-secondary rounded-lg">
-            <p className="font-medium mb-1">Música Principal</p>
-            <p className="text-sm text-muted-foreground">"Sem Você" - 3:45min - Tom: Am</p>
-          </div>
-          <div className="p-4 bg-secondary rounded-lg">
-            <p className="font-medium mb-1">Referências Visuais</p>
-            <div className="space-y-2 mt-2">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <ExternalLink className="h-3 w-3" />
-                <span>Clipe "Example 1" - Iluminação inspiradora</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <ExternalLink className="h-3 w-3" />
-                <span>Mood board no Pinterest</span>
-              </div>
-            </div>
-          </div>
           <Textarea
             placeholder="Cole aqui links de referência, mood boards, inspirações..."
             className="min-h-[100px] resize-none"
@@ -188,7 +162,6 @@ const Projeto = () => {
         <Textarea
           placeholder="Anote o cronograma de produção, ideias soltas, lembretes importantes..."
           className="min-h-[150px] resize-none"
-          defaultValue="- Pré-produção: Janeiro 2025&#10;- Filmagem: Fevereiro 2025&#10;- Pós-produção: Março 2025&#10;- Lançamento: Abril 2025&#10;&#10;Lembrar: Contratar maquiador e figurinista"
         />
       </Card>
     </div>
