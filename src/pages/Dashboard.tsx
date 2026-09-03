@@ -337,35 +337,6 @@ const Dashboard = () => {
           </Card>
         )}
 
-        {/* Atividade Recente (fallback se sem dados reais) */}
-        {generalExpenses.length === 0 && (
-          <Card className="p-6 shadow-lg">
-            <h2 className="text-xl font-semibold mb-4 text-primary">Atividade Recente</h2>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between py-3 border-b border-border/50">
-                <div>
-                  <p className="font-medium">Show - Boteco da Esquina</p>
-                  <p className="text-xs text-muted-foreground">10 Dez, 21h</p>
-                </div>
-                <span className="text-success font-bold text-lg">+R$ 600</span>
-              </div>
-              <div className="flex items-center justify-between py-3 border-b border-border/50">
-                <div>
-                  <p className="font-medium">Gasto - Cordas de violão</p>
-                  <p className="text-xs text-muted-foreground">8 Dez</p>
-                </div>
-                <span className="text-destructive font-bold text-lg">-R$ 85</span>
-              </div>
-              <div className="flex items-center justify-between py-3">
-                <div>
-                  <p className="font-medium">Show - Casa de Eventos</p>
-                  <p className="text-xs text-muted-foreground">5 Dez, 20h</p>
-                </div>
-                <span className="text-success font-bold text-lg">+R$ 1.200</span>
-              </div>
-            </div>
-          </Card>
-        )}
       </div>
     </>
   );
