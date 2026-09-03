@@ -70,7 +70,7 @@ export const useProfile = () => {
   return {
     profile: query.data ?? null,
     isLoading: query.isLoading,
-    needsOnboarding: !!query.data && !query.data.onboardingCompleted,
+    needsOnboarding: query.isSuccess && (!query.data || !query.data.onboardingCompleted),
     saveProfile,
   };
 };
