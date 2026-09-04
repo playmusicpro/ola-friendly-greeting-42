@@ -1,10 +1,26 @@
-import { ExternalLink, Users, BookOpen, Sparkles, ArrowRight } from "lucide-react";
+import { ExternalLink, Users, BookOpen, Sparkles, ArrowRight, MessageCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const Comunidades = () => {
   const communities = [
     {
+      id: "whatsapp",
+      name: "Comunidade PLAY MUSIC PRO no WhatsApp",
+      platform: "WhatsApp",
+      description: `O ponto de encontro diário dos músicos PLAY MUSIC PRO.
+
+Aqui é onde a troca acontece em tempo real: contatos, oportunidades, dúvidas, bastidores e networking direto com quem também vive de música.
+
+Entre, se apresente e comece a jogar o jogo junto com a galera.`,
+      link: "https://chat.whatsapp.com/GiPcr5DgYXy25KjBiyTFIi",
+      icon: MessageCircle,
+      gradient: "from-success via-success/80 to-gold",
+      buttonText: "Entrar na Comunidade do WhatsApp",
+      highlight: "Networking em tempo real",
+    },
+    {
+
       id: "hotmart",
       name: "Comunidade PLAY MUSIC PRO",
       platform: "Hotmart",
