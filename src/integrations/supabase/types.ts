@@ -422,9 +422,12 @@ export type Database = {
       projects: {
         Row: {
           created_at: string
+          cronograma: string | null
           description: string | null
           id: string
           name: string
+          referencias: string | null
+          roteiro: string | null
           saved_value: number
           total_value: number
           updated_at: string
@@ -433,9 +436,12 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          cronograma?: string | null
           description?: string | null
           id?: string
           name: string
+          referencias?: string | null
+          roteiro?: string | null
           saved_value?: number
           total_value?: number
           updated_at?: string
@@ -444,9 +450,12 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          cronograma?: string | null
           description?: string | null
           id?: string
           name?: string
+          referencias?: string | null
+          roteiro?: string | null
           saved_value?: number
           total_value?: number
           updated_at?: string
