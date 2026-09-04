@@ -14,10 +14,14 @@ export interface Show {
   equipamentos: number;
   outrosCustos: number;
   pagamentoMusicos: number;
+  realizado?: boolean;
 }
 
 export interface ShowCalculations {
   totalGastos: number;
+  /** Faturamento líquido do show (receita bruta - custos) */
+  faturamentoReal: number;
+  /** @deprecated use faturamentoReal */
   lucroReal: number;
   margemPercentual: number;
   valeuAPena: boolean;
@@ -46,6 +50,9 @@ export interface Project {
   totalValue: number;
   savedValue: number;
   weeklyDeposit?: number;
+  roteiro?: string;
+  referencias?: string;
+  cronograma?: string;
 }
 
 export interface ProjectCalculations {

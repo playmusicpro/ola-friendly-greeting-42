@@ -8,7 +8,8 @@ import {
   Project,
   Expense,
   FixedExpense,
-  Income
+  Income,
+  FinancialGoal
 } from '@/types';
 
 export function calculateShow(show: Show): ShowCalculations {
@@ -21,14 +22,15 @@ export function calculateShow(show: Show): ShowCalculations {
     show.pagamentoMusicos + 
     show.outrosCustos;
 
-  const lucroReal = show.cache - totalGastos;
-  const margemPercentual = show.cache > 0 ? (lucroReal / show.cache) * 100 : 0;
-  const valeuAPena = lucroReal > 0;
+  const faturamentoReal = show.cache - totalGastos;
+  const margemPercentual = show.cache > 0 ? (faturamentoReal / show.cache) * 100 : 0;
+  const valeuAPena = faturamentoReal > 0;
   const precoMedioCombustivel = show.kmRodados > 0 ? show.combustivel / show.kmRodados : 0;
 
   return {
     totalGastos,
-    lucroReal,
+    faturamentoReal,
+    lucroReal: faturamentoReal,
     margemPercentual,
     valeuAPena,
     precoMedioCombustivel,
@@ -173,10 +175,16 @@ export interface ShowDRE {
   showId: string;
   titulo: string;
   data: string;
+  /** Receita bruta (cachê contratado) */
   receita: number;
+  /** Custos totais do evento (combustível, cachê da equipe, etc.) */
   custo: number;
+  /** Faturamento real = receita bruta - custos */
+  faturamento: number;
+  /** @deprecated use faturamento */
   lucro: number;
   margem: number;
+  realizado: boolean;
 }
 
 export function calculateShowDRE(show: Show): ShowDRE {
@@ -187,8 +195,10 @@ export function calculateShowDRE(show: Show): ShowDRE {
     data: show.date,
     receita: show.cache,
     custo: calc.totalGastos,
-    lucro: calc.lucroReal,
+    faturamento: calc.faturamentoReal,
+    lucro: calc.faturamentoReal,
     margem: calc.margemPercentual,
+    realizado: !!show.realizado,
   };
 }
 
@@ -210,21 +220,24 @@ export function getShowsAnalysis(
   // Calcular DRE para cada show
   const items = filteredShows.map(calculateShowDRE);
 
-  // Top 5 mais lucrativos
-  const topMost = [...items]
-    .sort((a, b) => b.lucro - a.lucro)
-    .slice(0, 5);
+  // Ranking por faturamento real (receita - custos) e, em empate, por margem
+  const byFaturamento = (a: ShowDRE, b: ShowDRE) =>
+    b.faturamento - a.faturamento || b.margem - a.margem;
 
-  // Top 5 menos lucrativos
-  const topLeast = [...items]
-    .sort((a, b) => a.lucro - b.lucro)
-    .slice(0, 5);
+  const topMost = [...items].sort(byFaturamento).slice(0, 5);
+  const topLeast = [...items].sort((a, b) => byFaturamento(b, a)).slice(0, 5);
+
+  const receitaBrutaTotal = items.reduce((sum, i) => sum + i.receita, 0);
+  const custoTotal = items.reduce((sum, i) => sum + i.custo, 0);
+  const faturamentoTotal = receitaBrutaTotal - custoTotal;
+  const margemMedia = receitaBrutaTotal > 0 ? (faturamentoTotal / receitaBrutaTotal) * 100 : 0;
 
   // Dados para gráfico
   const chartData = items.map((item) => ({
     name: item.titulo,
     receita: item.receita,
     custo: item.custo,
+    faturamento: item.faturamento,
   }));
 
   return {
@@ -232,5 +245,129 @@ export function getShowsAnalysis(
     topMost,
     topLeast,
     chartData,
+    receitaBrutaTotal,
+    custoTotal,
+    faturamentoTotal,
+    margemMedia,
   };
+}
+
+/* ------------------------------------------------------------------ */
+/* Períodos, metas e projeção                                          */
+/* ------------------------------------------------------------------ */
+
+const toISODate = (d: Date) => d.toISOString().split('T')[0];
+
+/** Intervalo (YYYY-MM-DD) do período atual: semana (seg-dom) ou mês corrente. */
+export function getPeriodRange(
+  periodo: 'mensal' | 'semanal',
+  reference: Date = new Date()
+): { start: string; end: string } {
+  const ref = new Date(reference.getFullYear(), reference.getMonth(), reference.getDate());
+
+  if (periodo === 'semanal') {
+    const day = ref.getDay(); // 0 = domingo
+    const diffToMonday = day === 0 ? -6 : 1 - day;
+    const start = new Date(ref);
+    start.setDate(ref.getDate() + diffToMonday);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6);
+    return { start: toISODate(start), end: toISODate(end) };
+  }
+
+  const start = new Date(ref.getFullYear(), ref.getMonth(), 1);
+  const end = new Date(ref.getFullYear(), ref.getMonth() + 1, 0);
+  return { start: toISODate(start), end: toISODate(end) };
+}
+
+const inRange = (date: string, start: string, end: string) => date >= start && date <= end;
+
+export interface GoalProgress {
+  meta: number;
+  realizado: number;
+  restante: number;
+  progressoPercentual: number;
+  concluida: boolean;
+  periodo: 'mensal' | 'semanal';
+  start: string;
+  end: string;
+}
+
+/**
+ * Progresso de uma meta considerando apenas shows finalizados no período
+ * (faturamento real = cachê - custos) somados às outras receitas do período.
+ */
+export function calculateGoalProgress(
+  goal: FinancialGoal,
+  shows: Show[],
+  incomes: Income[] = [],
+  reference: Date = new Date()
+): GoalProgress {
+  const periodo = goal.periodo === 'semanal' ? 'semanal' : 'mensal';
+  const { start, end } = getPeriodRange(periodo, reference);
+
+  const faturamentoShows = shows
+    .filter((s) => s.realizado && inRange(s.date, start, end))
+    .reduce((sum, s) => sum + calculateShow(s).faturamentoReal, 0);
+
+  const outrasReceitas = incomes
+    .filter((i) => inRange(i.date, start, end))
+    .reduce((sum, i) => sum + i.amount, 0);
+
+  const realizado = faturamentoShows + outrasReceitas;
+  const meta = goal.valorMeta || 0;
+  const progressoPercentual = meta > 0 ? Math.min(100, (realizado / meta) * 100) : 0;
+
+  return {
+    meta,
+    realizado,
+    restante: Math.max(0, meta - realizado),
+    progressoPercentual,
+    concluida: meta > 0 && realizado >= meta,
+    periodo,
+    start,
+    end,
+  };
+}
+
+/**
+ * Faturamento projetado: média mensal do faturamento real dos últimos 3 meses
+ * (shows finalizados) + faturamento previsto dos shows já agendados no mês atual.
+ */
+export function calculateProjectedRevenue(
+  shows: Show[],
+  reference: Date = new Date()
+): { faturamentoProjetado: number; mediaMensal: number; previstoMesAtual: number } {
+  const inicioJanela = new Date(reference.getFullYear(), reference.getMonth() - 2, 1);
+  const inicio = toISODate(inicioJanela);
+  const hoje = toISODate(reference);
+  const { start: inicioMes, end: fimMes } = getPeriodRange('mensal', reference);
+
+  const realizados = shows.filter(
+    (s) => s.realizado && s.date >= inicio && s.date <= hoje
+  );
+  const totalRealizado = realizados.reduce(
+    (sum, s) => sum + calculateShow(s).faturamentoReal,
+    0
+  );
+  const mediaMensal = totalRealizado / 3;
+
+  const previstoMesAtual = shows
+    .filter((s) => !s.realizado && inRange(s.date, inicioMes, fimMes) && s.date >= hoje)
+    .reduce((sum, s) => sum + calculateShow(s).faturamentoReal, 0);
+
+  return {
+    faturamentoProjetado: mediaMensal + previstoMesAtual,
+    mediaMensal,
+    previstoMesAtual,
+  };
+}
+
+/** Próximo show futuro ainda não finalizado. */
+export function getNextShow(shows: Show[], reference: Date = new Date()): Show | null {
+  const hoje = toISODate(reference);
+  const futuros = shows
+    .filter((s) => !s.realizado && s.date >= hoje)
+    .sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
+  return futuros[0] ?? null;
 }
