@@ -1,4 +1,4 @@
-import { Video, Target, FileText, Plus, Calendar, TrendingUp, ExternalLink } from "lucide-react";
+import { Video, Target, FileText, Plus, Calendar } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
