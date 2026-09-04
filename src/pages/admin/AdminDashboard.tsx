@@ -68,10 +68,10 @@ const AdminDashboard = () => {
   const totalGeneros = countBy(profiles, (r) => r.genero_musical).length;
 
   const stats = [
-    { label: "Usuários", value: totalUsuarios, icon: Users, tone: "primary" },
-    { label: "Perfis completos", value: perfisCompletos, icon: UserCheck, tone: "success" },
-    { label: "Cidades", value: totalCidades, icon: MapPin, tone: "gold" },
-    { label: "Gêneros musicais", value: totalGeneros, icon: Music, tone: "primary" },
+    { label: "Usuários", value: totalUsuarios, icon: Users, bg: "bg-primary/10", fg: "text-primary" },
+    { label: "Perfis completos", value: perfisCompletos, icon: UserCheck, bg: "bg-success/10", fg: "text-success" },
+    { label: "Cidades", value: totalCidades, icon: MapPin, bg: "bg-gold/10", fg: "text-gold" },
+    { label: "Gêneros musicais", value: totalGeneros, icon: Music, bg: "bg-primary/10", fg: "text-primary" },
   ];
 
   return (
@@ -87,8 +87,8 @@ const AdminDashboard = () => {
                   </p>
                   <p className="text-2xl font-bold">{isLoading ? "—" : s.value}</p>
                 </div>
-                <div className={`p-3 rounded-xl bg-${s.tone}/10`}>
-                  <s.icon className={`h-5 w-5 text-${s.tone}`} />
+                <div className={`p-3 rounded-xl ${s.bg}`}>
+                  <s.icon className={`h-5 w-5 ${s.fg}`} />
                 </div>
               </div>
             </CardContent>
