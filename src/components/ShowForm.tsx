@@ -28,6 +28,7 @@ const showSchema = z.object({
   equipamentos: z.number().min(0, "Valor não pode ser negativo"),
   outrosCustos: z.number().min(0, "Valor não pode ser negativo"),
   pagamentoMusicos: z.number().min(0, "Valor não pode ser negativo"),
+  realizado: z.boolean().default(false),
 });
 
 type ShowFormData = z.infer<typeof showSchema>;
