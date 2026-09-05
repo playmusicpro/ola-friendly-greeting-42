@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Loader2, Music2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ interface Props {
 const MusicianProfileGate = ({ children }: Props) => {
   const { needsOnboarding, isLoading, saveProfile, profile } = useProfile();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     name: "",
     generoMusical: "",
@@ -69,14 +71,17 @@ const MusicianProfileGate = ({ children }: Props) => {
         tipoMusico: form.tipoMusico,
       });
       toast({ title: "Perfil criado!", description: "Bem-vindo ao Play Pro." });
-    } catch {
+      navigate("/", { replace: true });
+    } catch (err: any) {
+      console.error("[MusicianProfileGate] falha ao salvar perfil:", err);
       toast({
         title: "Não foi possível salvar",
-        description: "Tente novamente em instantes.",
+        description: err?.message || "Tente novamente em instantes.",
         variant: "destructive",
       });
     }
   };
+
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center py-6">
