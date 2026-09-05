@@ -542,7 +542,8 @@ export function useFinancialData() {
     isLoading:
       showsQ.isLoading || expensesQ.isLoading || incomesQ.isLoading || eventsQ.isLoading,
 
-    addShow, updateShow, deleteShow, duplicateShow,
+    addShow, updateShow, deleteShow, duplicateShow, markShowRealizado,
+    saveProject, depositToProject, withdrawFromProject,
     addIncome, updateIncome, deleteIncome,
     updateNotificationSettings,
     addEvent, updateEvent, deleteEvent, duplicateEvent, markEventAsRealizado,
