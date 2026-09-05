@@ -26,7 +26,10 @@ export const useProfile = () => {
         .select('*')
         .eq('id', user!.id)
         .maybeSingle();
-      if (error) throw error;
+      if (error) {
+        console.error('[useProfile] erro ao carregar perfil:', error);
+        throw error;
+      }
       if (!data) return null;
       return {
         id: data.id,
@@ -49,9 +52,11 @@ export const useProfile = () => {
       estado: string;
       tipoMusico: string;
     }) => {
+      if (!user?.id) throw new Error('Sessão expirada. Faça login novamente.');
+
       const payload = {
-        id: user!.id,
-        email: user!.email,
+        id: user.id,
+        email: user.email ?? null,
         ...(values.name ? { name: values.name } : {}),
         genero_musical: values.generoMusical,
         cidade: values.cidade,
@@ -59,10 +64,37 @@ export const useProfile = () => {
         tipo_musico: values.tipoMusico,
         onboarding_completed: true,
       };
-      const { error } = await supabase.from('profiles').upsert(payload, { onConflict: 'id' });
-      if (error) throw error;
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .upsert(payload, { onConflict: 'id' })
+        .select()
+        .maybeSingle();
+
+      if (error) {
+        console.error('[useProfile] erro ao salvar perfil:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          payload,
+        });
+        throw error;
+      }
+      return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Atualiza o estado local imediatamente (onboarding concluído)
+      queryClient.setQueryData(['profile', user?.id], (prev: MusicianProfile | null | undefined) => ({
+        id: user!.id,
+        name: (data as any)?.name ?? prev?.name ?? '',
+        email: (data as any)?.email ?? prev?.email ?? null,
+        generoMusical: (data as any)?.genero_musical ?? prev?.generoMusical ?? null,
+        cidade: (data as any)?.cidade ?? prev?.cidade ?? null,
+        estado: (data as any)?.estado ?? prev?.estado ?? null,
+        tipoMusico: (data as any)?.tipo_musico ?? prev?.tipoMusico ?? null,
+        onboardingCompleted: true,
+      }));
       queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
     },
   });
