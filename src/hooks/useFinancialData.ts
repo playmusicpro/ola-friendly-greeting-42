@@ -146,16 +146,21 @@ const toGoal = (r: any): FinancialGoal => ({
 
 const toProject = (r: any): Project => ({
   id: r.id,
-  name: r.name,
+  name: r.name ?? '',
   description: r.description ?? '',
   totalValue: num(r.total_value),
   savedValue: num(r.saved_value),
   weeklyDeposit: r.weekly_deposit != null ? num(r.weekly_deposit) : undefined,
+  roteiro: r.roteiro ?? '',
+  referencias: r.referencias ?? '',
+  cronograma: r.cronograma ?? '',
 });
 
 const EMPTY_PROJECT: Project = {
-  id: '', name: 'Nenhum projeto', description: '', totalValue: 0, savedValue: 0,
+  id: '', name: '', description: '', totalValue: 0, savedValue: 0,
+  roteiro: '', referencias: '', cronograma: '',
 };
+
 
 /* ------------------------------------------------------------------ */
 
@@ -311,13 +316,59 @@ export function useFinancialData() {
       await req(supabase.from('shows').delete().eq('id', id));
     }, 'shows', 'events');
 
+  const markShowRealizado = (id: string, realizado = true) =>
+    run('atualizar status do show', async () => {
+      await req(supabase.from('shows').update({ realizado }).eq('id', id));
+      // Mantém o evento vinculado em sincronia, quando existir
+      const linked = (eventsQ.data ?? []).find((e) => e.linkedShowId === id);
+      if (linked) {
+        await req(supabase.from('events').update({ realizado }).eq('id', linked.id));
+      }
+    }, 'shows', 'events', 'financial_goals');
+
   const duplicateShow = (id: string) => {
     const original = (showsQ.data ?? []).find((s) => s.id === id);
     if (!original) return;
     const { id: _drop, ...rest } = original;
-    addShow({ ...rest, local: `${original.local} (cópia)` });
+    addShow({ ...rest, realizado: false, local: `${original.local} (cópia)` });
     return { ...original, local: `${original.local} (cópia)` };
   };
+
+  /* Projeto Audiovisual */
+  const saveProject = (data: Partial<Omit<Project, 'id'>>) =>
+    run('salvar projeto', async () => {
+      const current = projectQ.data ?? EMPTY_PROJECT;
+      const payload = {
+        user_id: userId!,
+        name: data.name ?? current.name ?? '',
+        description: data.description ?? current.description ?? '',
+        total_value: data.totalValue ?? current.totalValue ?? 0,
+        saved_value: data.savedValue ?? current.savedValue ?? 0,
+        weekly_deposit: data.weeklyDeposit ?? current.weeklyDeposit ?? null,
+        roteiro: data.roteiro ?? current.roteiro ?? '',
+        referencias: data.referencias ?? current.referencias ?? '',
+        cronograma: data.cronograma ?? current.cronograma ?? '',
+      };
+      if (current.id) {
+        await req(supabase.from('projects').update(payload).eq('id', current.id));
+      } else {
+        await req(supabase.from('projects').insert(payload));
+      }
+    }, 'projects');
+
+  const moveProjectSavings = (valor: number, tipo: 'deposito' | 'retirada') =>
+    run(tipo === 'deposito' ? 'depositar no cofrinho do projeto' : 'retirar do cofrinho do projeto', async () => {
+      const current = projectQ.data ?? EMPTY_PROJECT;
+      if (!current.id) throw new Error('Crie o projeto antes de movimentar o cofrinho.');
+      const novoValor = tipo === 'deposito'
+        ? current.savedValue + valor
+        : Math.max(0, current.savedValue - valor);
+      await req(supabase.from('projects').update({ saved_value: novoValor }).eq('id', current.id));
+    }, 'projects');
+
+  const depositToProject = (valor: number) => moveProjectSavings(valor, 'deposito');
+  const withdrawFromProject = (valor: number) => moveProjectSavings(valor, 'retirada');
+
 
   /* Receitas */
   const addIncome = (data: Omit<Income, 'id'>) =>
