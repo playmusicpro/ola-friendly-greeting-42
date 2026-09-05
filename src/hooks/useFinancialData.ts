@@ -29,6 +29,7 @@ const toShow = (r: any): Show => ({
   equipamentos: num(r.equipamentos),
   outrosCustos: num(r.outros_custos),
   pagamentoMusicos: num(r.pagamento_musicos),
+  realizado: !!r.realizado,
 });
 
 const fromShow = (s: Omit<Show, 'id'>, userId: string) => ({
@@ -47,6 +48,7 @@ const fromShow = (s: Omit<Show, 'id'>, userId: string) => ({
   equipamentos: s.equipamentos,
   outros_custos: s.outrosCustos,
   pagamento_musicos: s.pagamentoMusicos,
+  realizado: !!s.realizado,
 });
 
 const toGeneralExpense = (r: any): GeneralExpense => ({
