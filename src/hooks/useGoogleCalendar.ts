@@ -155,36 +155,16 @@ export function useGoogleCalendar(): UseGoogleCalendarReturn {
     return { success: true, googleEventId: mockGoogleEventId };
   }, [isConnected, toast]);
 
-  // Import events (mock)
+  // Importação real: exige credenciais OAuth do Google configuradas
   const importEvents = useCallback(async (): Promise<GoogleCalendarEvent[]> => {
-    if (!isConnected) {
-      return [];
-    }
-
-    // MOCK: Retorna eventos simulados para demonstração
-    // Em produção, buscará da API do Google
-    const mockEvents: GoogleCalendarEvent[] = [
-      {
-        id: 'mock_google_1',
-        summary: 'Show no Bar do João',
-        description: 'Show acústico',
-        start: { dateTime: new Date(Date.now() + 86400000 * 3).toISOString() },
-        end: { dateTime: new Date(Date.now() + 86400000 * 3 + 10800000).toISOString() },
-        location: 'Bar do João - Centro',
-        status: 'confirmed',
-      },
-      {
-        id: 'mock_google_2',
-        summary: 'Ensaio banda',
-        start: { dateTime: new Date(Date.now() + 86400000 * 5).toISOString() },
-        end: { dateTime: new Date(Date.now() + 86400000 * 5 + 7200000).toISOString() },
-        status: 'confirmed',
-      },
-    ];
-    
-    setPendingImports(mockEvents);
-    return mockEvents;
-  }, [isConnected]);
+    toast({
+      title: "Importação indisponível",
+      description:
+        "A importação de eventos exige a autorização da sua conta Google. Conecte o Google Agenda para liberar.",
+    });
+    setPendingImports([]);
+    return [];
+  }, [toast]);
 
   // Confirm import
   const confirmImport = useCallback((events: GoogleCalendarEvent[]) => {

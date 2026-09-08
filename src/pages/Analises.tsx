@@ -112,11 +112,9 @@ const Analises = () => {
         <Card className="p-6 border-gold/20">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Receita Total</p>
+              <p className="text-sm text-muted-foreground mb-1">Receita Bruta Total</p>
               <p className="text-3xl font-bold text-success">
-                {formatCurrency(
-                  analysis.items.reduce((sum, item) => sum + item.receita, 0)
-                )}
+                {formatCurrency(analysis.receitaBrutaTotal)}
               </p>
             </div>
             <TrendingUp className="h-8 w-8 text-success" />
@@ -125,11 +123,12 @@ const Analises = () => {
         <Card className="p-6 border-gold/20">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Lucro Total</p>
+              <p className="text-sm text-muted-foreground mb-1">Faturamento Total</p>
               <p className="text-3xl font-bold text-gold">
-                {formatCurrency(
-                  analysis.items.reduce((sum, item) => sum + item.lucro, 0)
-                )}
+                {formatCurrency(analysis.faturamentoTotal)}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Margem média: {formatPercentage(analysis.margemMedia)}
               </p>
             </div>
             <TrendingDown className="h-8 w-8 text-gold" />
@@ -161,8 +160,9 @@ const Analises = () => {
                 formatter={(value: number) => formatCurrency(value)}
               />
               <Legend />
-              <Bar dataKey="receita" fill="hsl(var(--success))" name="Receita" />
+              <Bar dataKey="receita" fill="hsl(var(--success))" name="Receita bruta" />
               <Bar dataKey="custo" fill="hsl(var(--destructive))" name="Custo" />
+              <Bar dataKey="faturamento" fill="hsl(var(--primary))" name="Faturamento" />
             </RechartsBarChart>
           </ResponsiveContainer>
         </Card>
@@ -170,14 +170,14 @@ const Analises = () => {
 
       {/* Rankings */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top 5 Mais Lucrativos */}
+        {/* Top 5 Mais Rentáveis */}
         <Card className="p-6 shadow-lg border-success/20 bg-gradient-to-br from-success/5 to-success/10">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-3 rounded-xl bg-success/10">
               <TrendingUp className="h-6 w-6 text-success" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold">Top 5 Mais Lucrativos</h2>
+              <h2 className="text-xl font-semibold">Top 5 Mais Rentáveis</h2>
               <p className="text-xs text-muted-foreground">Shows com melhor resultado</p>
             </div>
           </div>
@@ -218,9 +218,9 @@ const Analises = () => {
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Lucro</p>
+                      <p className="text-xs text-muted-foreground">Faturamento</p>
                       <p className="font-semibold text-gold">
-                        {formatCurrency(show.lucro)}
+                        {formatCurrency(show.faturamento)}
                       </p>
                     </div>
                     <div>
@@ -234,14 +234,14 @@ const Analises = () => {
           </div>
         </Card>
 
-        {/* Top 5 Menos Lucrativos */}
+        {/* Top 5 Menos Rentáveis */}
         <Card className="p-6 shadow-lg border-destructive/20 bg-gradient-to-br from-destructive/5 to-destructive/10">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-3 rounded-xl bg-destructive/10">
               <TrendingDown className="h-6 w-6 text-destructive" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold">Top 5 Menos Lucrativos</h2>
+              <h2 className="text-xl font-semibold">Top 5 Menos Rentáveis</h2>
               <p className="text-xs text-muted-foreground">Shows que precisam de atenção</p>
             </div>
           </div>
@@ -280,13 +280,13 @@ const Analises = () => {
                       <p className="font-semibold">{formatCurrency(show.receita)}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Lucro</p>
+                      <p className="text-xs text-muted-foreground">Faturamento</p>
                       <p
                         className={`font-semibold ${
-                          show.lucro < 0 ? "text-destructive" : "text-gold"
+                          show.faturamento < 0 ? "text-destructive" : "text-gold"
                         }`}
                       >
-                        {formatCurrency(show.lucro)}
+                        {formatCurrency(show.faturamento)}
                       </p>
                     </div>
                     <div>
@@ -346,13 +346,13 @@ const Analises = () => {
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Lucro</p>
+                    <p className="text-xs text-muted-foreground mb-1">Faturamento</p>
                     <p
                       className={`font-semibold ${
-                        show.lucro < 0 ? "text-destructive" : "text-gold"
+                        show.faturamento < 0 ? "text-destructive" : "text-gold"
                       }`}
                     >
-                      {formatCurrency(show.lucro)}
+                      {formatCurrency(show.faturamento)}
                     </p>
                   </div>
                   <div>

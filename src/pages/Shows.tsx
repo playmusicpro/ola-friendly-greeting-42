@@ -1,4 +1,4 @@
-import { Calendar as CalendarIcon, MapPin, DollarSign, Plus, TrendingUp, Fuel, Edit, Trash2 } from "lucide-react";
+import { Calendar as CalendarIcon, MapPin, DollarSign, Plus, TrendingUp, Fuel, Edit, Trash2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const Shows = () => {
-  const { shows, addShow, updateShow, deleteShow } = useFinancialData();
+  const { shows, addShow, updateShow, deleteShow, markShowRealizado } = useFinancialData();
   const { toast } = useToast();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingShow, setEditingShow] = useState<Show | undefined>();
@@ -59,6 +59,17 @@ const Shows = () => {
   const handleEditClick = (show: Show) => {
     setEditingShow(show);
     setIsFormOpen(true);
+  };
+
+  const handleToggleRealizado = (show: Show) => {
+    const novo = !show.realizado;
+    markShowRealizado(show.id, novo);
+    toast({
+      title: novo ? "Show finalizado!" : "Show reaberto",
+      description: novo
+        ? "O faturamento deste show já conta nas suas metas."
+        : "O show voltou para a lista de agendados.",
+    });
   };
 
   return (
@@ -137,9 +148,12 @@ const Shows = () => {
                 <div className="flex flex-col gap-6">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
+                      <div className="flex items-center gap-3 mb-3 flex-wrap">
                         <h3 className="text-xl font-bold">{show.local}</h3>
                         <Badge variant="outline" className="border-primary/30 text-primary">{show.tipo}</Badge>
+                        {show.realizado && (
+                          <Badge className="bg-success text-white border-success">Finalizado</Badge>
+                        )}
                       </div>
                       <div className="flex flex-col gap-2 text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
@@ -165,7 +179,16 @@ const Shows = () => {
                       </div>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap justify-end">
+                      <Button
+                        size="sm"
+                        variant={show.realizado ? "outline" : "default"}
+                        onClick={() => handleToggleRealizado(show)}
+                        className={show.realizado ? "gap-2" : "gap-2 bg-success hover:bg-success/90 text-white"}
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                        {show.realizado ? "Reabrir" : "Marcar finalizado"}
+                      </Button>
                       <Button
                         size="sm"
                         variant="outline"
@@ -189,8 +212,8 @@ const Shows = () => {
 
                   <div className="flex flex-col md:flex-row gap-6 items-center w-full">
                     <div className="text-center p-4 bg-success/10 rounded-xl border border-success/20 flex-1">
-                      <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Lucro Real</p>
-                      <p className="text-2xl md:text-3xl font-bold text-success">{formatCurrency(calc.lucroReal)}</p>
+                      <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Faturamento Real</p>
+                      <p className="text-2xl md:text-3xl font-bold text-success">{formatCurrency(calc.faturamentoReal)}</p>
                     </div>
                     <div className="text-center p-4 bg-primary/10 rounded-xl border border-primary/20 flex-1">
                       <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Margem</p>
