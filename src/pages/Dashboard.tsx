@@ -15,10 +15,12 @@ import { formatDateBR } from "@/lib/dateUtils";
 import { tooltips } from "@/lib/helpContent";
 import { 
   calculateDRE, 
-  calculateMonthlyProjection, 
   generateAlerts,
   formatCurrency,
-  formatPercentage 
+  formatPercentage,
+  getNextShow,
+  calculateProjectedRevenue,
+  calculateGoalProgress
 } from "@/lib/calculations";
 import Onboarding from "@/components/Onboarding";
 import HelpCenter from "@/components/HelpCenter";
@@ -80,8 +82,8 @@ const Dashboard = () => {
   };
   
   const dre = calculateDRE(shows, expenses, fixedExpenses, incomes);
-  const projection = calculateMonthlyProjection(shows);
-  const nextShow = shows.length > 0 ? shows[0] : null;
+  const projection = calculateProjectedRevenue(shows, now);
+  const nextShow = getNextShow(shows, now);
   const nextShowDate = nextShow ? new Date(nextShow.date) : undefined;
   const alerts = generateAlerts(shows, dre, nextShowDate);
 
@@ -93,9 +95,10 @@ const Dashboard = () => {
   const totalPiggyBanks = piggyBanks.reduce((sum, pb) => sum + pb.valorAtual, 0);
 
   const activeGoal = goals.length > 0 ? goals[goals.length - 1] : null;
-  const goalProgress = activeGoal
-    ? Math.min(100, (dre.receitaBruta / activeGoal.valorMeta) * 100)
-    : 0;
+  const activeGoalProgress = activeGoal
+    ? calculateGoalProgress(activeGoal, shows, incomes, now)
+    : null;
+  const goalProgress = activeGoalProgress?.progressoPercentual ?? 0;
 
   const handleAddEvent = (data: { nomeEvento: string; dataEvento: string; horaEvento: string; local?: string; valorPrevisto?: number; observacoes?: string }) => {
     addEvent({
@@ -163,7 +166,7 @@ const Dashboard = () => {
           <Tooltip>
             <TooltipTrigger asChild>
               <div>
-                <StatCard title="Faturamento Projetado" value={formatCurrency(projection.faturamentoProjetado)} icon={DollarSign} trend="Baseado na média dos últimos 3 meses" variant="gold" />
+                <StatCard title="Faturamento Projetado" value={formatCurrency(projection.faturamentoProjetado)} icon={DollarSign} trend="Média dos shows finalizados + shows já agendados" variant="gold" />
               </div>
             </TooltipTrigger>
             <TooltipContent>{tooltips.dashboard.monthlyProjection}</TooltipContent>
@@ -206,10 +209,13 @@ const Dashboard = () => {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">{formatCurrency(dre.receitaBruta)} de {formatCurrency(activeGoal.valorMeta)}</span>
+                <span className="text-muted-foreground">{formatCurrency(activeGoalProgress?.realizado ?? 0)} de {formatCurrency(activeGoal.valorMeta)}</span>
                 <span className="font-semibold text-gold">{formatPercentage(goalProgress)}</span>
               </div>
               <Progress value={goalProgress} className="h-3" />
+              <p className="text-xs text-muted-foreground">
+                Faltam {formatCurrency(activeGoalProgress?.restante ?? 0)} • considera shows finalizados no período
+              </p>
             </div>
           </Card>
         )}
@@ -316,7 +322,7 @@ const Dashboard = () => {
             <h2 className="text-xl font-semibold mb-4 text-gold">Metas Financeiras</h2>
             <div className="space-y-3">
               {goals.map(goal => {
-                const progress = Math.min(100, (dre.receitaBruta / goal.valorMeta) * 100);
+                const gp = calculateGoalProgress(goal, shows, incomes, now);
                 return (
                   <div key={goal.id} className="p-4 rounded-xl border bg-card">
                     <div className="flex items-center justify-between mb-2">
@@ -328,8 +334,8 @@ const Dashboard = () => {
                         </Button>
                       </div>
                     </div>
-                    <Progress value={progress} className="h-2 mb-1" />
-                    <p className="text-xs text-muted-foreground">{formatPercentage(progress)} • {formatCurrency(dre.receitaBruta)} / {formatCurrency(goal.valorMeta)}</p>
+                    <Progress value={gp.progressoPercentual} className="h-2 mb-1" />
+                    <p className="text-xs text-muted-foreground">{formatPercentage(gp.progressoPercentual)} • {formatCurrency(gp.realizado)} / {formatCurrency(goal.valorMeta)}</p>
                   </div>
                 );
               })}
