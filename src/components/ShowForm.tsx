@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, DollarSign } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { TrendingUp, DollarSign, Users } from "lucide-react";
 import { Show } from "@/types";
 import { calculateShow, formatCurrency, formatPercentage } from "@/lib/calculations";
 import { useEffect, useState } from "react";
@@ -65,6 +66,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
       equipamentos: 0,
       outrosCustos: 0,
       pagamentoMusicos: 0,
+      realizado: false,
     },
   });
 
@@ -199,18 +201,39 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
                 )}
               </div>
 
-              <div>
-                <Label htmlFor="numMusicos">Número de Músicos *</Label>
+              <div className="md:col-span-2 p-4 rounded-xl border-2 border-gold/40 bg-gold/5">
+                <Label htmlFor="numMusicos" className="flex items-center gap-2 text-base font-semibold text-gold">
+                  <Users className="h-4 w-4" />
+                  Quantidade de Músicos *
+                </Label>
+                <p className="text-xs text-muted-foreground mt-1 mb-2">
+                  Inclua você e todos os músicos que sobem ao palco neste show
+                </p>
                 <Input
                   id="numMusicos"
                   type="number"
+                  min={1}
                   placeholder="1"
                   {...register("numMusicos", { valueAsNumber: true })}
-                  className="mt-1"
+                  className="max-w-[160px] text-lg font-semibold"
                 />
                 {errors.numMusicos && (
                   <p className="text-xs text-destructive mt-1">{errors.numMusicos.message}</p>
                 )}
+              </div>
+
+              <div className="md:col-span-2 flex items-center justify-between p-4 rounded-xl border border-border bg-background/50">
+                <div>
+                  <Label htmlFor="realizado" className="text-base font-semibold">Show finalizado</Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Marque quando o show já aconteceu — ele passa a contar nas suas metas
+                  </p>
+                </div>
+                <Switch
+                  id="realizado"
+                  checked={!!watchedValues.realizado}
+                  onCheckedChange={(checked) => setValue("realizado", checked)}
+                />
               </div>
             </div>
           </div>
@@ -219,7 +242,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gold">Gastos do Show</h3>
             <p className="text-xs text-muted-foreground">
-              Preencha todos os custos relacionados ao show para calcular o lucro real
+              Preencha todos os custos relacionados ao show para calcular o faturamento real
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -298,7 +321,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
               </div>
 
               <div>
-                <Label htmlFor="pagamentoMusicos">Pagamento de Músicos (R$)</Label>
+                <Label htmlFor="pagamentoMusicos">Cachê da Equipe/Músicos (R$)</Label>
                 <Input
                   id="pagamentoMusicos"
                   type="number"
@@ -307,6 +330,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
                   {...register("pagamentoMusicos", { valueAsNumber: true })}
                   className="mt-1"
                 />
+                <p className="text-xs text-muted-foreground mt-1">Total pago aos demais músicos e equipe</p>
               </div>
 
               <div>
@@ -333,7 +357,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
               </div>
 
               <div className="text-center p-4 bg-success/10 rounded-xl border border-success/20">
-                <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Lucro Real</p>
+                <p className="text-xs text-muted-foreground mb-1 uppercase tracking-wide">Faturamento Real</p>
                 <p className="text-2xl font-bold text-success">{formatCurrency(calculations.lucroReal)}</p>
               </div>
 
