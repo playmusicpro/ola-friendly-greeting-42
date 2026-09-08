@@ -112,11 +112,9 @@ const Analises = () => {
         <Card className="p-6 border-gold/20">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Receita Total</p>
+              <p className="text-sm text-muted-foreground mb-1">Receita Bruta Total</p>
               <p className="text-3xl font-bold text-success">
-                {formatCurrency(
-                  analysis.items.reduce((sum, item) => sum + item.receita, 0)
-                )}
+                {formatCurrency(analysis.receitaBrutaTotal)}
               </p>
             </div>
             <TrendingUp className="h-8 w-8 text-success" />
@@ -127,9 +125,10 @@ const Analises = () => {
             <div>
               <p className="text-sm text-muted-foreground mb-1">Faturamento Total</p>
               <p className="text-3xl font-bold text-gold">
-                {formatCurrency(
-                  analysis.items.reduce((sum, item) => sum + item.lucro, 0)
-                )}
+                {formatCurrency(analysis.faturamentoTotal)}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Margem média: {formatPercentage(analysis.margemMedia)}
               </p>
             </div>
             <TrendingDown className="h-8 w-8 text-gold" />
@@ -161,8 +160,9 @@ const Analises = () => {
                 formatter={(value: number) => formatCurrency(value)}
               />
               <Legend />
-              <Bar dataKey="receita" fill="hsl(var(--success))" name="Receita" />
+              <Bar dataKey="receita" fill="hsl(var(--success))" name="Receita bruta" />
               <Bar dataKey="custo" fill="hsl(var(--destructive))" name="Custo" />
+              <Bar dataKey="faturamento" fill="hsl(var(--primary))" name="Faturamento" />
             </RechartsBarChart>
           </ResponsiveContainer>
         </Card>
