@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -38,6 +39,28 @@ const Login = () => {
     navigate("/", { replace: true });
     setIsLoading(false);
   };
+
+  const [isSendingReset, setIsSendingReset] = useState(false);
+  const handleForgot = async () => {
+    const clean = email.toLowerCase().trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean)) {
+      setError("Digite seu email no campo acima para receber o link de recuperação.");
+      return;
+    }
+    setIsSendingReset(true);
+    const { error: resetErr } = await supabase.auth.resetPasswordForEmail(clean, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setIsSendingReset(false);
+    if (resetErr) {
+      console.error("[Login] resetPasswordForEmail error:", resetErr);
+      const m = resetErr.message.toLowerCase();
+      setError(m.includes("rate") ? "Muitas tentativas. Aguarde alguns minutos." : "Não foi possível enviar o email. Tente novamente.");
+      return;
+    }
+    toast({ title: "Email enviado!", description: "Confira sua caixa de entrada para redefinir a senha." });
+  };
+
 
 
   return (
@@ -109,9 +132,19 @@ const Login = () => {
                 {error && (
                   <p className="text-sm text-destructive">{error}</p>
                 )}
-                <p className="text-xs text-muted-foreground">
-                  Primeiro acesso? Sua conta é criada automaticamente.
-                </p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs text-muted-foreground">
+                    Primeiro acesso? Sua conta é criada automaticamente.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleForgot}
+                    disabled={isSendingReset}
+                    className="text-xs font-medium text-primary hover:underline whitespace-nowrap disabled:opacity-50"
+                  >
+                    {isSendingReset ? "Enviando..." : "Esqueci minha senha"}
+                  </button>
+                </div>
               </div>
 
               <Button
