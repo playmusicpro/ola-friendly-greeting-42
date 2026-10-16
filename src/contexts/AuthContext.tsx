@@ -28,6 +28,8 @@ const mapUser = (u: SupabaseUser | null | undefined): AuthUser | null =>
 
 const translateError = (message: string): string => {
   const m = message.toLowerCase();
+  if (m.includes('email logins are disabled') || m.includes('email_provider_disabled') || m.includes('signups not allowed'))
+    return 'Login por email está desativado no servidor. O administrador precisa ativar o provedor Email no Supabase.';
   if (m.includes('invalid login credentials')) return 'Email ou senha incorretos.';
   if (m.includes('email not confirmed')) return 'Confirme seu email antes de entrar.';
   if (m.includes('password should be at least')) return 'A senha deve ter no mínimo 6 caracteres.';
