@@ -1,0 +1,4 @@
+- [ ] Conectar Repertório ao Supabase (pendente: migração anterior cancelada; retomada após Administração).
+- [ ] Migrar Administração: métricas, usuários, shows, logs e operações para dados reais.
+- [ ] Garantir acesso administrativo validado pelo Supabase.
+- [ ] Executar testes e verificar compilação; acesso autenticado externo não disponível para teste ponta a ponta.
