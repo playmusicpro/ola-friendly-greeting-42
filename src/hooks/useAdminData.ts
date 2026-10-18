@@ -21,9 +21,9 @@ export function useAdminRows<T extends AdminTable>(table: T) {
       const rows: Row<T>[] = [];
       for (let offset = 0; ; offset += 500) {
         const { data, error } = await supabase.from(table).select('*')
-          .order('id').range(offset, offset + 499);
+          .order('id').range(offset, offset + 499).returns<Row<T>[]>();
         if (error) throw error;
-        const page = (data ?? []) as Row<T>[];
+        const page = data ?? [];
         rows.push(...page);
         if (page.length < 500) break;
       }
