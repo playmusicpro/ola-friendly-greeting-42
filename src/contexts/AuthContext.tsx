@@ -24,7 +24,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const isValidEmail = (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const mapUser = (u: SupabaseUser | null | undefined): AuthUser | null =>
-  u ? { id: u.id, email: u.email ?? '', role: 'owner' } : null;
+  u ? { id: u.id, email: u.email ?? '', role: 'user' } : null;
 
 const translateError = (message: string): string => {
   const m = message.toLowerCase();

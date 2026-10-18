@@ -1,0 +1,4 @@
+- Administrative routes mount data pages only after the server-backed role check; database RLS remains authoritative for every request.
+- Administrative queries use user-scoped query keys and paginated reads so cached cross-account data and the default row limit do not distort reports.
+- Operational state is persisted in admin_operations; immutable database-trigger audit entries contain identifiers and actions, not profile contents or credentials.
+- Admin show reports use the shared typed analytics helper and distinguish completed financial results from scheduled shows.

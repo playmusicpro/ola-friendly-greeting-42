@@ -14,7 +14,8 @@ export const useAdmin = () => {
     enabled: isAuthenticated && !!user?.id,
     staleTime: 5 * 60 * 1000,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('is_admin', { _user_id: user!.id });
+      if (!user?.id) return false;
+      const { data, error } = await supabase.rpc('is_admin', { _user_id: user.id });
       if (error) throw error;
       return !!data;
     },

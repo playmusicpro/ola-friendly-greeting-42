@@ -28,6 +28,7 @@ import MobileNav from "./components/MobileNav";
 import MobileHeader from "./components/MobileHeader";
 import DesktopSidebar from "./components/DesktopSidebar";
 import MusicianProfileGate from "./components/MusicianProfileGate";
+import AdminRoute from "./components/AdminRoute";
 
 const queryClient = new QueryClient();
 
@@ -92,27 +93,27 @@ const App = () => (
             {/* Admin Routes - Protected */}
             <Route path="/admin" element={
               <ProtectedRoute>
-                <AdminDashboard />
+                <AdminRoute><AdminDashboard /></AdminRoute>
               </ProtectedRoute>
             } />
             <Route path="/admin/users" element={
               <ProtectedRoute>
-                <AdminUsers />
+                <AdminRoute><AdminUsers /></AdminRoute>
               </ProtectedRoute>
             } />
             <Route path="/admin/shows" element={
               <ProtectedRoute>
-                <AdminShows />
+                <AdminRoute><AdminShows /></AdminRoute>
               </ProtectedRoute>
             } />
             <Route path="/admin/logs" element={
               <ProtectedRoute>
-                <AdminLogs />
+                <AdminRoute><AdminLogs /></AdminRoute>
               </ProtectedRoute>
             } />
             <Route path="/admin/ops" element={
               <ProtectedRoute>
-                <AdminOps />
+                <AdminRoute><AdminOps /></AdminRoute>
               </ProtectedRoute>
             } />
             
