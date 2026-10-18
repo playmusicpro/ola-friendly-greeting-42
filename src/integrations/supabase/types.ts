@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          id: string
+          record_id: string
+          resource: string
+          subject_user_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          record_id: string
+          resource: string
+          subject_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          record_id?: string
+          resource?: string
+          subject_user_id?: string | null
+        }
+        Relationships: []
+      }
+      admin_operations: {
+        Row: {
+          created_at: string
+          description: string
+          frequency: string | null
+          id: string
+          kind: string
+          last_completed_at: string | null
+          notes: string
+          responsible: string
+          status: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          frequency?: string | null
+          id: string
+          kind: string
+          last_completed_at?: string | null
+          notes?: string
+          responsible?: string
+          status?: string
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          frequency?: string | null
+          id?: string
+          kind?: string
+          last_completed_at?: string | null
+          notes?: string
+          responsible?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           created_at: string
