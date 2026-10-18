@@ -12,10 +12,26 @@ import {
   Settings,
   Filter
 } from "lucide-react";
-import { LogEntry, generateMockLogs } from "@/types/admin";
+import type { LogEntry } from "@/types/admin";
+import { useAdminRows } from "@/hooks/useAdminData";
+import { AdminDataState } from "@/components/AdminDataState";
 
 const AdminLogs = () => {
-  const [logs] = useState<LogEntry[]>(generateMockLogs());
+  const notifications = useAdminRows('notification_logs');
+  const audits = useAdminRows('admin_audit_logs');
+  const logs: LogEntry[] = [
+    ...(notifications.data ?? []).map((row): LogEntry => ({
+      id: row.id, type: row.delivery_status === 'failed' ? 'error' : 'whatsapp',
+      message: row.message_body ?? `Notificação ${row.event_type}`, userId: row.user_id,
+      timestamp: row.created_at, details: row.error ?? undefined,
+      status: row.delivery_status === 'sent' ? 'success' : row.delivery_status === 'failed' ? 'failed' : 'pending',
+    })),
+    ...(audits.data ?? []).map((row): LogEntry => ({
+      id: row.id, type: 'system', message: `${row.resource}: ${row.action === 'INSERT' ? 'criação' : row.action === 'UPDATE' ? 'alteração' : 'exclusão'}`,
+      userName: row.actor_id ?? 'Sistema', timestamp: row.created_at, status: 'success',
+      details: `Registro: ${row.record_id}`,
+    })),
+  ].sort((a, b) => b.timestamp.localeCompare(a.timestamp));
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<LogEntry['type'] | 'all'>('all');
 
@@ -75,6 +91,7 @@ const AdminLogs = () => {
 
   return (
     <AdminLayout title="Logs do Sistema">
+      <AdminDataState loading={notifications.isLoading || audits.isLoading} error={notifications.error || audits.error} retry={() => { void notifications.refetch(); void audits.refetch(); }} />
       {/* Filters */}
       <Card className="mb-6">
         <CardContent className="p-4">

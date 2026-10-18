@@ -1,7 +1,7 @@
 import AdminLayout from "@/components/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useAdminRows } from "@/hooks/useAdminData";
+import { AdminDataState } from "@/components/AdminDataState";
 import { Users, MapPin, Music, UserCheck } from "lucide-react";
 import {
   ChartContainer,
@@ -45,16 +45,8 @@ const EmptyChart = () => (
 );
 
 const AdminDashboard = () => {
-  const { data: profiles = [], isLoading } = useQuery({
-    queryKey: ["admin-profiles-metrics"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("cidade, estado, genero_musical, tipo_musico, onboarding_completed");
-      if (error) throw error;
-      return (data ?? []) as ProfileRow[];
-    },
-  });
+  const query = useAdminRows('profiles');
+  const { data: profiles = [], isLoading } = query;
 
   const generos = countBy(profiles, (r) => r.genero_musical).slice(0, 8);
   const cidades = countBy(profiles, (r) =>
@@ -76,6 +68,7 @@ const AdminDashboard = () => {
 
   return (
     <AdminLayout title="Visão Geral">
+      <AdminDataState loading={isLoading} error={query.error} retry={query.refetch} />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {stats.map((s) => (
           <Card key={s.label} className="border-primary/20">
