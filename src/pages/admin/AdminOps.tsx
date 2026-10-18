@@ -1,4 +1,6 @@
  import { useState } from "react";
+ import { useAdminOperations } from "@/hooks/useAdminData";
+ import { AdminDataState } from "@/components/AdminDataState";
  import AdminLayout from "@/components/AdminLayout";
  import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
  import { Badge } from "@/components/ui/badge";
@@ -76,7 +78,7 @@
    {
      id: 'security',
      title: 'Regras de Segurança Revisadas',
-     description: 'Firebase/Supabase security rules validadas',
+     description: 'Políticas de acesso do Supabase validadas',
      status: 'pending',
      responsible: 'Security Lead',
      notes: '',
@@ -176,58 +178,68 @@
  const getStatusBadge = (status: ChecklistStatus) => {
    switch (status) {
      case 'approved':
-       return <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Aprovado</Badge>;
+       return <Badge className="bg-success/20 text-success border-success/30">Aprovado</Badge>;
      case 'blocked':
        return <Badge className="bg-destructive/20 text-destructive border-destructive/30">Bloqueado</Badge>;
      default:
-       return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Pendente</Badge>;
+       return <Badge className="bg-gold/20 text-gold border-gold/30">Pendente</Badge>;
    }
  };
  
  const getFrequencyBadge = (frequency: string) => {
    switch (frequency) {
      case 'weekly':
-       return <Badge variant="outline" className="text-blue-400 border-blue-500/30">Semanal</Badge>;
+       return <Badge variant="outline" className="text-primary border-primary/30">Semanal</Badge>;
      case 'monthly':
-       return <Badge variant="outline" className="text-purple-400 border-purple-500/30">Mensal</Badge>;
+       return <Badge variant="outline" className="text-gold border-gold/30">Mensal</Badge>;
      case 'quarterly':
-       return <Badge variant="outline" className="text-orange-400 border-orange-500/30">Trimestral</Badge>;
+       return <Badge variant="outline" className="text-muted-foreground border-border">Trimestral</Badge>;
      default:
        return null;
    }
  };
  
  const AdminOps = () => {
-   const [checklist, setChecklist] = useState<ChecklistItem[]>(initialChecklist);
- 
+   const operations = useAdminOperations();
+   const [draftNotes, setDraftNotes] = useState<Record<string, string>>({});
+   const checklist: ChecklistItem[] = (operations.data ?? []).filter(row => row.kind === 'checklist').map(row => ({
+     id: row.id, title: row.title, description: row.description,
+     status: row.status === 'approved' ? 'approved' : row.status === 'blocked' ? 'blocked' : 'pending',
+     responsible: row.responsible, notes: row.notes,
+     icon: initialChecklist.find(item => item.id === row.id)?.icon ?? CheckCircle2,
+   }));
+   const tasks = (operations.data ?? []).filter(row => row.kind === 'maintenance');
    const updateStatus = (id: string, status: ChecklistStatus) => {
-     setChecklist(prev => 
-       prev.map(item => item.id === id ? { ...item, status } : item)
-     );
+     const row = operations.data?.find(item => item.id === id);
+     if (row) void operations.save([{ ...row, status, notes: draftNotes[id] ?? row.notes }]).catch(() => {});
    };
- 
-   const updateNotes = (id: string, notes: string) => {
-     setChecklist(prev => 
-       prev.map(item => item.id === id ? { ...item, notes } : item)
-     );
+   const saveNotes = (id: string) => {
+     const row = operations.data?.find(item => item.id === id);
+     if (row) void operations.save([{ ...row, notes: draftNotes[id] ?? row.notes }]).catch(() => {});
    };
- 
+   const initialize = () => void operations.save([
+     ...initialChecklist.map(({ icon, ...item }) => ({ ...item, kind: 'checklist' })),
+     ...maintenanceTasks.map(({ icon, lastCompleted, ...task }) => ({ ...task, kind: 'maintenance' })),
+   ]).catch(() => {});
+
    const approvedCount = checklist.filter(item => item.status === 'approved').length;
    const blockedCount = checklist.filter(item => item.status === 'blocked').length;
    const pendingCount = checklist.filter(item => item.status === 'pending').length;
  
    return (
      <AdminLayout title="Operações & Lançamento">
+       <AdminDataState loading={operations.isLoading} error={operations.error} retry={operations.refetch} />
+       {!operations.isLoading && !operations.error && operations.data?.length === 0 && <div className="mb-6 space-y-3"><p className="text-muted-foreground">Nenhuma operação registrada.</p><Button onClick={initialize} disabled={operations.isSaving}>Criar checklist e plano de manutenção</Button></div>}
        {/* Launch Readiness Summary */}
        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
          <Card className="bg-card border-border/50">
            <CardContent className="p-4">
              <div className="flex items-center gap-3">
-               <div className="p-2 rounded-lg bg-green-500/10">
-                 <CheckCircle2 className="h-5 w-5 text-green-400" />
+               <div className="p-2 rounded-lg bg-success/10">
+                 <CheckCircle2 className="h-5 w-5 text-success" />
                </div>
                <div>
-                 <p className="text-2xl font-bold text-green-400">{approvedCount}</p>
+                 <p className="text-2xl font-bold text-success">{approvedCount}</p>
                  <p className="text-xs text-muted-foreground">Aprovados</p>
                </div>
              </div>
@@ -237,11 +249,11 @@
          <Card className="bg-card border-border/50">
            <CardContent className="p-4">
              <div className="flex items-center gap-3">
-               <div className="p-2 rounded-lg bg-yellow-500/10">
-                 <Clock className="h-5 w-5 text-yellow-400" />
+               <div className="p-2 rounded-lg bg-gold/10">
+                 <Clock className="h-5 w-5 text-gold" />
                </div>
                <div>
-                 <p className="text-2xl font-bold text-yellow-400">{pendingCount}</p>
+                 <p className="text-2xl font-bold text-gold">{pendingCount}</p>
                  <p className="text-xs text-muted-foreground">Pendentes</p>
                </div>
              </div>
@@ -269,7 +281,7 @@
                  <Activity className="h-5 w-5 text-primary" />
                </div>
                <div>
-                 <p className="text-2xl font-bold">{Math.round((approvedCount / checklist.length) * 100)}%</p>
+                 <p className="text-2xl font-bold">{checklist.length ? Math.round((approvedCount / checklist.length) * 100) : 0}%</p>
                  <p className="text-xs text-muted-foreground">Progresso</p>
                </div>
              </div>
@@ -332,10 +344,11 @@
                      </div>
                      <Textarea
                        placeholder="Notas de validação..."
-                       value={item.notes}
-                       onChange={(e) => updateNotes(item.id, e.target.value)}
+                       value={draftNotes[item.id] ?? item.notes}
+                       onChange={(e) => setDraftNotes(prev => ({ ...prev, [item.id]: e.target.value }))}
                        className="mt-2 text-sm min-h-[60px]"
                      />
+                     <Button size="sm" variant="outline" disabled={operations.isSaving} onClick={() => saveNotes(item.id)}>Salvar notas</Button>
                    </div>
                  </div>
                </div>
@@ -357,13 +370,13 @@
                </CardDescription>
              </CardHeader>
              <CardContent className="space-y-3">
-               {maintenanceTasks.map((task) => (
+               {tasks.map((task) => (
                  <div 
                    key={task.id} 
                    className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/30"
                  >
                    <div className="flex items-center gap-3">
-                     <task.icon className="h-4 w-4 text-muted-foreground" />
+                     <Calendar className="h-4 w-4 text-muted-foreground" />
                      <div>
                        <p className="text-sm font-medium">{task.title}</p>
                        <p className="text-xs text-muted-foreground">
@@ -371,7 +384,11 @@
                        </p>
                      </div>
                    </div>
-                   {getFrequencyBadge(task.frequency)}
+                   <div className="space-y-2 text-right">
+                     {getFrequencyBadge(task.frequency ?? '')}
+                     <p className="text-xs text-muted-foreground">{task.last_completed_at ? new Date(task.last_completed_at).toLocaleString('pt-BR') : 'Não executada'}</p>
+                     <Button size="sm" variant="outline" disabled={operations.isSaving} onClick={() => void operations.save([{ ...task, last_completed_at: new Date().toISOString(), status: 'approved' }]).catch(() => {})}>Registrar conclusão</Button>
+                   </div>
                  </div>
                ))}
              </CardContent>

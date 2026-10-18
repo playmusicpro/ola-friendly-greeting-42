@@ -21,11 +21,25 @@ import {
   CreditCard,
   AlertTriangle
 } from "lucide-react";
-import { AdminUser, generateMockUsers } from "@/types/admin";
+import { useAdminRows } from "@/hooks/useAdminData";
+import { AdminDataState } from "@/components/AdminDataState";
+import { summarizeAdminShows } from "@/lib/adminAnalytics";
+import { supabase } from "@/integrations/supabase/client";
+
+type AdminUser = { id: string; name: string; email: string; plan: string; status: string; createdAt: string; showsCount: number; totalRevenue: number; lastLoginAt: string | null; premiumExpiresAt: string | null };
 import { useToast } from "@/hooks/use-toast";
 
 const AdminUsers = () => {
-  const [users] = useState<AdminUser[]>(generateMockUsers());
+  const profilesQuery = useAdminRows('profiles');
+  const showsQuery = useAdminRows('shows');
+  const users: AdminUser[] = (profilesQuery.data ?? []).map(profile => ({
+    id: profile.id, name: profile.name, email: profile.email ?? '',
+    plan: profile.plan === 'default: free' ? 'free' : profile.plan ?? 'Não informado',
+    status: profile.onboarding_completed ? 'Perfil completo' : 'Perfil pendente',
+    createdAt: profile.created_at, lastLoginAt: null, premiumExpiresAt: null,
+    showsCount: (showsQuery.data ?? []).filter(show => show.user_id === profile.id).length,
+    totalRevenue: summarizeAdminShows((showsQuery.data ?? []).filter(show => show.user_id === profile.id)).net,
+  }));
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [showRevokeDialog, setShowRevokeDialog] = useState(false);
@@ -65,25 +79,24 @@ const AdminUsers = () => {
     }
   };
 
-  const handleResetPassword = () => {
-    toast({
-      title: "E-mail enviado",
-      description: `Link de redefinição enviado para ${selectedUser?.email}`,
+  const handleResetPassword = async () => {
+    if (!selectedUser?.email) return;
+    const { error } = await supabase.auth.resetPasswordForEmail(selectedUser.email, {
+      redirectTo: `${window.location.origin}/reset-password`,
     });
+    toast({ title: error ? 'Não foi possível enviar' : 'Solicitação enviada',
+      description: error ? error.message : 'O Supabase processou a solicitação de redefinição.',
+      variant: error ? 'destructive' : 'default' });
   };
 
   const handleRevokeSubscription = () => {
-    toast({
-      title: "Assinatura revogada",
-      description: `Assinatura de ${selectedUser?.name} foi cancelada`,
-      variant: "destructive"
-    });
+    toast({ title: 'Cancelamento indisponível', description: 'O cancelamento exige integração de cobrança com Stripe.', variant: 'destructive' });
     setShowRevokeDialog(false);
-    setSelectedUser(null);
   };
 
   return (
     <AdminLayout title="Gerenciamento de Usuários">
+      <AdminDataState loading={profilesQuery.isLoading || showsQuery.isLoading} error={profilesQuery.error || showsQuery.error} retry={() => { void profilesQuery.refetch(); void showsQuery.refetch(); }} />
       {/* Search */}
       <Card className="mb-6">
         <CardContent className="p-4">
@@ -111,14 +124,15 @@ const AdminUsers = () => {
                 <tr className="border-b border-border/50">
                   <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Usuário</th>
                   <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Plano</th>
-                  <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Status</th>
+                  <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Perfil</th>
                   <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Shows</th>
-                  <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Receita</th>
+                  <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Faturamento</th>
                   <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Último Acesso</th>
                   <th className="text-center py-3 px-4 text-xs font-medium text-muted-foreground uppercase">Ações</th>
                 </tr>
               </thead>
               <tbody>
+                {!profilesQuery.isLoading && !profilesQuery.error && filteredUsers.length === 0 && <tr><td colSpan={7} className="py-6 text-muted-foreground">Nenhum usuário encontrado.</td></tr>}
                 {filteredUsers.map((user) => (
                   <tr key={user.id} className="border-b border-border/30 hover:bg-muted/30">
                     <td className="py-3 px-4">
@@ -134,13 +148,13 @@ const AdminUsers = () => {
                     </td>
                     <td className="py-3 px-4">
                       <Badge variant={getStatusBadgeVariant(user.status)} className="capitalize">
-                        {user.status === 'active' ? 'Ativo' : user.status === 'inactive' ? 'Inativo' : 'Suspenso'}
+                        {user.status}
                       </Badge>
                     </td>
                     <td className="py-3 px-4 text-right font-medium">{user.showsCount}</td>
                     <td className="py-3 px-4 text-right font-medium">{formatCurrency(user.totalRevenue)}</td>
                     <td className="py-3 px-4 text-muted-foreground">
-                      {new Date(user.lastLoginAt).toLocaleDateString('pt-BR')}
+                      {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString('pt-BR') : 'Não registrado'}
                     </td>
                     <td className="py-3 px-4 text-center">
                       <Button
@@ -190,7 +204,7 @@ const AdminUsers = () => {
                   </Badge>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Status</p>
+                  <p className="text-xs text-muted-foreground">Perfil</p>
                   <Badge variant={getStatusBadgeVariant(selectedUser.status)} className="capitalize">
                     {selectedUser.status}
                   </Badge>
@@ -207,7 +221,7 @@ const AdminUsers = () => {
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">Último acesso</p>
                   <p className="font-medium">
-                    {new Date(selectedUser.lastLoginAt).toLocaleDateString('pt-BR')}
+                    {selectedUser.lastLoginAt ? new Date(selectedUser.lastLoginAt).toLocaleDateString('pt-BR') : 'Não registrado'}
                   </p>
                 </div>
                 <div className="space-y-1">
@@ -220,7 +234,7 @@ const AdminUsers = () => {
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
                     <DollarSign className="h-3 w-3" />
-                    Receita Total
+                    Faturamento Real
                   </p>
                   <p className="font-medium">{formatCurrency(selectedUser.totalRevenue)}</p>
                 </div>
@@ -271,7 +285,7 @@ const AdminUsers = () => {
             </DialogTitle>
             <DialogDescription>
               Tem certeza que deseja revogar a assinatura de <strong>{selectedUser?.name}</strong>?
-              Esta ação irá cancelar o plano via Stripe e o usuário será movido para o plano Free.
+              O cancelamento via Stripe ainda não está conectado; nenhuma assinatura será alterada.
             </DialogDescription>
           </DialogHeader>
           <div className="flex gap-2 justify-end pt-4">
