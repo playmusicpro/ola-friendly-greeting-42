@@ -1,6 +1,9 @@
-import { Calendar, DollarSign, TrendingUp, Video, Plus, Wallet, AlertTriangle, Info, Music, Users, GraduationCap, Mic, Clock, CalendarDays, HelpCircle, PiggyBank, Target, Trash2 } from "lucide-react";
+import { Calendar, DollarSign, TrendingUp, Video, Plus, Wallet, AlertTriangle, Info, Music, Users, GraduationCap, Mic, Clock, CalendarDays, HelpCircle, PiggyBank, Target, Trash2, ArrowUpRight, MapPin, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import StatCard from "@/components/StatCard";
+import { useProfile } from "@/hooks/useProfile";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import DashboardTrend from "@/components/DashboardTrend";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +36,10 @@ import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { profile } = useProfile();
+  const { session } = useAuth();
+  const displayName = profile?.name?.trim() || "Músico";
+  const avatarUrl = session?.user.user_metadata?.avatar_url;
   const { toast } = useToast();
   const {
     shows, expenses, fixedExpenses, project, incomes, events,
@@ -86,6 +93,15 @@ const Dashboard = () => {
   const nextShow = getNextShow(shows, now);
   const nextShowDate = nextShow ? new Date(nextShow.date) : undefined;
   const alerts = generateAlerts(shows, dre, nextShowDate);
+  const monthlyTrends = Array.from({ length: 6 }, (_, index) => {
+    const reference = new Date(now.getFullYear(), now.getMonth() - 5 + index, 1);
+    const month = `${reference.getFullYear()}-${String(reference.getMonth() + 1).padStart(2, '0')}`;
+    return {
+      projection: calculateProjectedRevenue(shows, reference).faturamentoProjetado,
+      result: calculateDRE(shows.filter(show => show.date.startsWith(month)), expenses.filter(expense => expense.date.startsWith(month)), fixedExpenses, incomes.filter(income => income.date.startsWith(month))).resultadoOperacional,
+    };
+  });
+  const projectedPercentage = projection.mediaMensal !== 0 ? ((projection.faturamentoProjetado - projection.mediaMensal) / Math.abs(projection.mediaMensal)) * 100 : null;
 
   // MVP calculations
   const totalGeneralExpenses = generalExpenses
@@ -122,79 +138,57 @@ const Dashboard = () => {
       <PiggyBankForm open={showPiggyForm} onOpenChange={setShowPiggyForm} onSubmit={(data) => { addPiggyBank(data); toast({ title: "Cofrinho criado!", description: "Seu cofrinho foi salvo com sucesso." }); }} />
       <EventQuickForm open={showEventForm} onOpenChange={setShowEventForm} onSubmit={handleAddEvent} />
       
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="mb-2 flex items-start justify-between">
-          <div>
-            <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-gold via-primary to-gold bg-clip-text text-transparent">
-              Painel Inicial
-            </h1>
-            <p className="text-muted-foreground text-lg">Bem-vindo ao seu assistente profissional</p>
-          </div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={() => setShowHelpCenter(true)} className="text-muted-foreground hover:text-primary">
-                <HelpCircle className="h-5 w-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Central de Ajuda</TooltipContent>
-          </Tooltip>
+      <div className="dashboard-content space-y-5">
+        <header className="flex items-center gap-3 pb-1">
+          <Avatar className="dashboard-avatar h-11 w-11 shrink-0">
+            {typeof avatarUrl === 'string' && <AvatarImage src={avatarUrl} alt={displayName} />}
+            <AvatarFallback className="bg-secondary text-gold text-sm font-semibold">{displayName.split(' ').slice(0, 2).map(part => part[0]).join('').toUpperCase()}</AvatarFallback>
+          </Avatar>
+          <h1 className="text-lg font-medium min-w-0 truncate">Olá, <span className="font-semibold">{displayName.split(' ')[0]}</span></h1>
+        </header>
+
+        <Card className="dashboard-next-show overflow-hidden">
+          <CardContent className="p-5 sm:p-7">
+            <div className="flex items-center justify-between gap-3 mb-5">
+              <div className="flex items-center gap-2 text-gold text-sm font-medium"><Calendar className="h-4 w-4" />Próximo Show</div>
+              <Badge variant="outline" className="border-gold/20 bg-gold/5 text-gold text-xs">{nextShow ? 'Agendado' : 'Sua agenda'}</Badge>
+            </div>
+            <div className="flex items-end justify-between gap-4">
+              <div className="min-w-0">
+                <h2 className="text-2xl sm:text-3xl font-semibold break-words">{nextShow?.local || 'O palco espera por você'}</h2>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-sm text-muted-foreground">
+                  {nextShow ? <><span className="flex items-center gap-1.5"><CalendarDays className="h-4 w-4" />{formatDateBR(nextShow.date)}</span>{nextShow.time && <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" />{nextShow.time}</span>}</> : <span>Nenhum show agendado</span>}
+                </div>
+              </div>
+              <Button variant="ghost" size="icon" aria-label={nextShow ? 'Ver próximo show' : 'Adicionar show'} className="shrink-0 rounded-full border border-gold/20 text-gold" onClick={() => nextShow ? navigate('/agenda') : setShowEventForm(true)}>{nextShow ? <ArrowUpRight className="h-5 w-5" /> : <Plus className="h-5 w-5" />}</Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-2 gap-3 sm:gap-5">
+          <Card className="min-w-0 overflow-hidden">
+            <CardContent className="p-4 sm:p-5">
+              <div className="flex items-center gap-2 text-muted-foreground"><TrendingUp className="h-4 w-4 shrink-0 text-primary" /><h2 className="text-xs sm:text-sm font-medium">Faturamento Projetado</h2></div>
+              <p className="dashboard-financial-value mt-4 font-semibold tabular-nums">{formatCurrency(projection.faturamentoProjetado)}</p>
+              <Badge variant="outline" className="mt-3 border-primary/20 bg-primary/10 text-primary text-[10px] sm:text-xs">{projectedPercentage === null ? 'Sem base anterior' : `${projectedPercentage > 0 ? '+' : ''}${formatPercentage(projectedPercentage)} vs. média`}</Badge>
+              <DashboardTrend values={monthlyTrends.map(point => point.projection)} label="Tendência do faturamento projetado em seis meses" tone="blue" />
+            </CardContent>
+          </Card>
+          <Card className="min-w-0 overflow-hidden">
+            <CardContent className="p-4 sm:p-5">
+              <div className="flex items-center gap-2 text-muted-foreground"><Wallet className="h-4 w-4 shrink-0 text-gold" /><h2 className="text-xs sm:text-sm font-medium">Resultado do Mês</h2></div>
+              <p className="dashboard-financial-value mt-4 font-semibold tabular-nums">{formatCurrency(dre.resultadoOperacional)}</p>
+              <Badge variant="outline" className="mt-3 border-gold/20 bg-gold/5 text-gold text-[10px] sm:text-xs">{formatPercentage(dre.margemFinal)} de margem</Badge>
+              <DashboardTrend values={monthlyTrends.map(point => point.result)} label="Tendência dos resultados em seis meses" tone="gold" />
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Alertas */}
-        {alerts.length > 0 && (
-          <div className="space-y-3">
-            {alerts.map((alert) => (
-              <Alert key={alert.id} className={alert.type === 'danger' ? 'border-destructive/50 bg-destructive/10' : alert.type === 'warning' ? 'border-yellow-500/50 bg-yellow-500/10' : 'border-primary/50 bg-primary/10'}>
-                {alert.type === 'danger' ? <AlertTriangle className="h-4 w-4 text-destructive" /> : alert.type === 'warning' ? <AlertTriangle className="h-4 w-4 text-yellow-500" /> : <Info className="h-4 w-4 text-primary" />}
-                <AlertDescription className="font-medium">{alert.message}</AlertDescription>
-              </Alert>
-            ))}
-          </div>
-        )}
+        {alerts.length > 0 && <div className="space-y-3">{alerts.map(alert => <Alert key={alert.id} className={alert.type === 'danger' ? 'border-destructive/30 bg-destructive/5' : 'border-gold/20 bg-gold/5'}><AlertTriangle className="h-4 w-4" /><AlertDescription>{alert.message}</AlertDescription></Alert>)}</div>}
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <StatCard title="Próximo Show" value={nextShow ? new Date(nextShow.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : 'Nenhum'} icon={Calendar} trend={nextShow ? `${nextShow.local} - ${nextShow.time}` : 'Adicione um show'} variant="default" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>{tooltips.dashboard.totalShows}</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <StatCard title="Faturamento Projetado" value={formatCurrency(projection.faturamentoProjetado)} icon={DollarSign} trend="Média dos shows finalizados + shows já agendados" variant="gold" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>{tooltips.dashboard.monthlyProjection}</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <StatCard title="Resultado do Mês" value={formatCurrency(dre.resultadoOperacional)} icon={Wallet} trend={`Margem: ${formatPercentage(dre.margemFinal)}`} variant={dre.resultadoOperacional >= 0 ? "success" : "default"} />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>{tooltips.dashboard.dre}</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <StatCard title="Gastos do Mês" value={formatCurrency(totalGeneralExpenses)} icon={TrendingUp} trend={`${generalExpenses.length} registro(s)`} variant="default" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>Total de gastos registrados neste mês</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div>
-                <StatCard title="Reservas" value={formatCurrency(totalPiggyBanks)} icon={PiggyBank} trend={`${piggyBanks.length} cofrinho(s)`} variant="gold" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>Total guardado em cofrinhos</TooltipContent>
-          </Tooltip>
+        <div className="grid grid-cols-2 gap-3 sm:gap-5">
+          <Card><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 text-sm text-muted-foreground"><DollarSign className="h-4 w-4" />Gastos do Mês</div><p className="dashboard-financial-value mt-2 font-semibold">{formatCurrency(totalGeneralExpenses)}</p></CardContent></Card>
+          <Card><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 text-sm text-muted-foreground"><PiggyBank className="h-4 w-4 text-gold" />Reservas</div><p className="dashboard-financial-value mt-2 font-semibold text-gold">{formatCurrency(totalPiggyBanks)}</p></CardContent></Card>
         </div>
 
         {/* Meta Ativa */}
@@ -254,7 +248,7 @@ const Dashboard = () => {
         {/* Quick Actions */}
         <Card className="p-6 shadow-lg border-primary/10">
           <h2 className="text-xl font-semibold mb-4 text-gold">Acesso Rápido</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="dashboard-quick-actions grid grid-cols-2 lg:grid-cols-4 gap-3">
             <Button onClick={() => setShowEventForm(true)} className="h-auto py-6 flex-col gap-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-md w-full">
               <Plus className="h-7 w-7" />
               <span className="font-semibold">Adicionar Show</span>

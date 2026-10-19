@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, CalendarDays, DollarSign, Music2, Menu, Video, Trophy, Settings, X, Users, HelpCircle } from "lucide-react";
+import { Home, CalendarDays, DollarSign, Music2, Menu, Video, Trophy, Settings, X, Users, HelpCircle, Play } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -9,6 +9,8 @@ import {
   DrawerTitle,
   DrawerClose,
 } from "@/components/ui/drawer";
+import { Button } from "@/components/ui/button";
+import { useRepertoire } from "@/hooks/useRepertoire";
 import HelpCenter from "@/components/HelpCenter";
 
 const MobileNav = () => {
@@ -16,6 +18,8 @@ const MobileNav = () => {
   const [showHelpCenter, setShowHelpCenter] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const isDashboard = location.pathname === "/";
+  const { setlists } = useRepertoire();
 
   const mainNavItems = [
     { icon: Home, label: "Painel", path: "/" },
@@ -45,7 +49,11 @@ const MobileNav = () => {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 bg-black border-t border-gold/20 z-50 md:hidden shadow-[0_-4px_20px_rgba(212,175,55,0.1)]">
+      {isDashboard ? <nav aria-label="Navegação do Painel" className="dashboard-dock fixed z-50 left-1/2 -translate-x-1/2 bottom-5">
+        <Button variant="ghost" className="dashboard-dock-tab" onClick={() => navigate('/')} aria-current="page"><Home className="h-5 w-5" /><span>Início</span></Button>
+        <Button className="dashboard-play" size="icon" aria-label="Abrir Modo Show" title="Abrir Modo Show" onClick={() => navigate(setlists[0] ? `/modo-show/${setlists[0].id}` : '/repertorio')}><Play className="h-7 w-7 fill-current" /></Button>
+        <Button variant="ghost" className="dashboard-dock-tab" onClick={() => setIsMoreOpen(true)}><Menu className="h-5 w-5" /><span>Menu</span></Button>
+      </nav> : <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-gold/20 z-50 md:hidden shadow-lg">
         <div className="flex items-center justify-around py-3">
           {mainNavItems.map((item) => (
             <NavLink
@@ -60,7 +68,7 @@ const MobileNav = () => {
           ))}
           
           {/* Botão Mais */}
-          <button
+          <Button variant="ghost"
             onClick={() => setIsMoreOpen(true)}
             className={`flex flex-col items-center gap-1 px-4 py-2 transition-all duration-200 ${
               isMoreActive ? "text-gold scale-110" : "text-muted-foreground"
@@ -68,9 +76,9 @@ const MobileNav = () => {
           >
             <Menu className="h-6 w-6" />
             <span className="text-[10px] font-semibold tracking-wide">Mais</span>
-          </button>
+          </Button>
         </div>
-      </nav>
+      </nav>}
 
       {/* Drawer do menu "Mais" */}
       <Drawer open={isMoreOpen} onOpenChange={setIsMoreOpen}>
@@ -79,16 +87,16 @@ const MobileNav = () => {
             <div className="flex items-center justify-between">
               <DrawerTitle className="text-lg font-bold text-gold">Menu</DrawerTitle>
               <DrawerClose asChild>
-                <button className="text-muted-foreground hover:text-foreground transition-colors">
+                <Button variant="ghost" className="text-muted-foreground hover:text-foreground transition-colors">
                   <X className="h-5 w-5" />
-                </button>
+                </Button>
               </DrawerClose>
             </div>
           </DrawerHeader>
           
           <div className="p-4 space-y-2">
-            {moreNavItems.map((item) => (
-              <button
+            {(isDashboard ? [...mainNavItems.filter(item => item.path !== "/"), ...moreNavItems] : moreNavItems).map((item) => (
+              <Button variant="ghost"
                 key={item.path + item.label}
                 onClick={() => handleMoreItemClick(item.path)}
                 className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 ${
@@ -99,17 +107,17 @@ const MobileNav = () => {
               >
                 <item.icon className="h-5 w-5" />
                 <span className="font-medium">{item.label}</span>
-              </button>
+              </Button>
             ))}
             
             {/* Help Button */}
-            <button
+            <Button variant="ghost"
               onClick={handleHelpClick}
               className="w-full flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 text-muted-foreground hover:bg-primary/5 hover:text-primary mt-2 border-t border-border/50 pt-4"
             >
               <HelpCircle className="h-5 w-5" />
               <span className="font-medium">Central de Ajuda</span>
-            </button>
+            </Button>
           </div>
           
           <div className="p-4 pt-2 border-t border-gold/10 mt-2">
