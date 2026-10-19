@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Login from "./pages/Login";
@@ -49,11 +49,12 @@ const LoginRoute = () => {
 
 // Main app layout with sidebar and navigation
 const AppLayout = () => {
+  const isDashboard = useLocation().pathname === "/";
   return (
-    <div className="min-h-screen flex w-full bg-background">
+    <div className={`min-h-screen flex w-full bg-background ${isDashboard ? "dashboard-stage" : ""}`}>
       <DesktopSidebar />
-      <MobileHeader />
-      <main className="flex-1 md:ml-64 pt-16 md:pt-0 pb-20 md:pb-0">
+      {!isDashboard && <MobileHeader />}
+      <main className={`flex-1 min-w-0 md:ml-64 ${isDashboard ? "pt-0 pb-32" : "pt-16 md:pt-0 pb-20 md:pb-0"}`}>
         <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
           <MusicianProfileGate>
           <Routes>
