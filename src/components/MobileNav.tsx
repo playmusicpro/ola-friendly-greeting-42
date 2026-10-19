@@ -51,7 +51,7 @@ const MobileNav = () => {
         <Button variant="ghost" className="dashboard-dock-tab" onClick={() => navigate('/')} aria-current="page"><Home className="h-5 w-5" /><span>Início</span></Button>
         <Button className="dashboard-play" size="icon" aria-label="Abrir Modo Show" title="Abrir Modo Show" onClick={() => navigate('/repertorio')}><Play className="h-7 w-7 fill-current" /></Button>
         <Button variant="ghost" className="dashboard-dock-tab" onClick={() => setIsMoreOpen(true)}><Menu className="h-5 w-5" /><span>Menu</span></Button>
-      </nav> : <nav className="fixed bottom-0 left-0 right-0 bg-black border-t border-gold/20 z-50 md:hidden shadow-[0_-4px_20px_rgba(212,175,55,0.1)]">
+      </nav> : <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-gold/20 z-50 md:hidden shadow-lg">
         <div className="flex items-center justify-around py-3">
           {mainNavItems.map((item) => (
             <NavLink

@@ -46,6 +46,19 @@ All colors MUST be HSL.
     --gradient-gold: linear-gradient(135deg, hsl(45 75% 53%) 0%, hsl(45 85% 45%) 100%);
     --shadow-glow: 0 0 30px hsla(220, 100%, 50%, 0.3);
     --shadow-card: 0 4px 20px hsla(0, 0%, 0%, 0.5);
+    --stage: 240 24% 5%;
+    --stage-blue: 229 75% 30%;
+    --stage-violet: 266 65% 27%;
+    --glass: 235 20% 15%;
+    --glass-border: 230 20% 75%;
+    --neon-blue: 211 100% 57%;
+    --neon-violet: 270 100% 65%;
+    --stage-light: linear-gradient(120deg, hsl(var(--stage-blue) / 0.22), transparent 45%), linear-gradient(240deg, hsl(var(--stage-violet) / 0.2), transparent 55%);
+    --glass-surface: linear-gradient(135deg, hsl(var(--glass) / 0.78), hsl(var(--glass) / 0.38));
+    --glass-shadow: 0 12px 36px hsl(var(--background) / 0.25), inset 0 1px 0 hsl(var(--foreground) / 0.04);
+    --play-gradient: linear-gradient(135deg, hsl(var(--neon-blue)), hsl(var(--neon-violet)));
+    --play-shadow: 0 0 24px hsl(var(--neon-blue) / 0.35), 0 8px 24px hsl(var(--neon-violet) / 0.35);
+    --avatar-shadow: 0 0 12px hsl(var(--gold) / 0.15);
   }
 
   /* High Contrast Mode */
@@ -79,6 +92,101 @@ All colors MUST be HSL.
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border-width: 0;
+  }
+}
+
+@layer components {
+  .dashboard-stage {
+    background-color: hsl(var(--stage));
+    background-image: var(--stage-light);
+    background-attachment: fixed;
+  }
+  .dashboard-content {
+    max-width: 1000px;
+    margin-inline: auto;
+    letter-spacing: 0;
+  }
+  .dashboard-content > .rounded-lg,
+  .dashboard-content > .grid > .rounded-lg {
+    border-radius: 24px;
+    border-color: hsl(var(--glass-border) / 0.12);
+    background: var(--glass-surface);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+  .dashboard-content .dashboard-next-show {
+    border-radius: 28px;
+    border-color: hsl(var(--glass-border) / 0.2);
+    background: var(--glass-surface);
+    min-height: 180px;
+  }
+  .dashboard-avatar {
+    border: 1px solid hsl(var(--gold));
+    padding: 3px;
+    box-shadow: var(--avatar-shadow);
+  }
+  .dashboard-avatar img { border-radius: 50%; }
+  .dashboard-financial-value {
+    font-size: 24px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+  .dashboard-quick-actions > button {
+    background: hsl(var(--glass) / 0.55);
+    border: 1px solid hsl(var(--glass-border) / 0.1);
+    color: hsl(var(--gold));
+    box-shadow: none;
+    border-radius: 18px;
+    padding: 20px 8px;
+    white-space: normal;
+  }
+  .dashboard-quick-actions > button:hover { background: hsl(var(--glass) / 0.95); }
+  .dashboard-dock {
+    width: min(340px, calc(100% - 40px));
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-inline: 22px;
+    border-radius: 28px;
+    border: 1px solid hsl(var(--glass-border) / 0.2);
+    background: hsl(var(--glass) / 0.7);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    box-shadow: var(--glass-shadow);
+    margin-bottom: env(safe-area-inset-bottom);
+  }
+  .dashboard-dock .dashboard-dock-tab {
+    width: 64px;
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: hsl(var(--gold));
+    font-size: 11px;
+    background: transparent;
+  }
+  .dashboard-dock .dashboard-play {
+    position: absolute;
+    left: 50%;
+    top: -18px;
+    transform: translateX(-50%);
+    height: 66px;
+    width: 66px;
+    border-radius: 50%;
+    border: 1px solid hsl(var(--foreground) / 0.3);
+    color: hsl(var(--primary-foreground));
+    background: var(--play-gradient);
+    box-shadow: var(--play-shadow);
+    transition: filter 180ms ease, translate 180ms ease;
+  }
+  .dashboard-play:hover { filter: brightness(1.12); translate: 0 -2px; }
+  @media (max-width: 380px) {
+    .dashboard-financial-value { font-size: 19px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dashboard-play { transition: none; }
   }
 }
 
