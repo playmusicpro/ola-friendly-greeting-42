@@ -1,3 +1,4 @@
+- [ ] Redesenhar Painel: cabeçalho compacto, cards em vidro, financeiros lado a lado e Dock flutuante; validar em telas pequenas e grandes.
 - [ ] Conectar Repertório ao Supabase — bloqueado: migração cancelada antes da execução; usuário informou conclusão e priorizou Administração.
 - [x] Migrar Administração: métricas, usuários, shows, logs e operações para dados reais.
 - [x] Garantir acesso administrativo validado pelo Supabase.
