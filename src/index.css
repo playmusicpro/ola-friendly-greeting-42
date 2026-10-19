@@ -185,6 +185,9 @@ All colors MUST be HSL.
   @media (max-width: 380px) {
     .dashboard-financial-value { font-size: 19px; }
   }
+  @media (min-width: 768px) {
+    .dashboard-dock { left: calc(50% + 128px); }
+  }
   @media (prefers-reduced-motion: reduce) {
     .dashboard-play { transition: none; }
   }

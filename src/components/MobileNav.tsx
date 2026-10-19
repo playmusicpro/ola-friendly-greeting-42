@@ -10,6 +10,7 @@ import {
   DrawerClose,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
+import { useRepertoire } from "@/hooks/useRepertoire";
 import HelpCenter from "@/components/HelpCenter";
 
 const MobileNav = () => {
@@ -18,6 +19,7 @@ const MobileNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isDashboard = location.pathname === "/";
+  const { setlists } = useRepertoire();
 
   const mainNavItems = [
     { icon: Home, label: "Painel", path: "/" },
@@ -47,9 +49,9 @@ const MobileNav = () => {
 
   return (
     <>
-      {isDashboard ? <nav aria-label="Navegação do Painel" className="dashboard-dock fixed z-50 left-1/2 -translate-x-1/2 bottom-5 md:hidden">
+      {isDashboard ? <nav aria-label="Navegação do Painel" className="dashboard-dock fixed z-50 left-1/2 -translate-x-1/2 bottom-5">
         <Button variant="ghost" className="dashboard-dock-tab" onClick={() => navigate('/')} aria-current="page"><Home className="h-5 w-5" /><span>Início</span></Button>
-        <Button className="dashboard-play" size="icon" aria-label="Abrir Modo Show" title="Abrir Modo Show" onClick={() => navigate('/repertorio')}><Play className="h-7 w-7 fill-current" /></Button>
+        <Button className="dashboard-play" size="icon" aria-label="Abrir Modo Show" title="Abrir Modo Show" onClick={() => navigate(setlists[0] ? `/modo-show/${setlists[0].id}` : '/repertorio')}><Play className="h-7 w-7 fill-current" /></Button>
         <Button variant="ghost" className="dashboard-dock-tab" onClick={() => setIsMoreOpen(true)}><Menu className="h-5 w-5" /><span>Menu</span></Button>
       </nav> : <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-gold/20 z-50 md:hidden shadow-lg">
         <div className="flex items-center justify-around py-3">
