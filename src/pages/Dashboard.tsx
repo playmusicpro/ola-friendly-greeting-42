@@ -4,6 +4,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import DashboardTrend from "@/components/DashboardTrend";
+import concertImage from "@/assets/dashboard-concert.jpg";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -144,24 +145,26 @@ const Dashboard = () => {
             {typeof avatarUrl === 'string' && <AvatarImage src={avatarUrl} alt={displayName} />}
             <AvatarFallback className="bg-secondary text-gold text-sm font-semibold">{displayName.split(' ').slice(0, 2).map(part => part[0]).join('').toUpperCase()}</AvatarFallback>
           </Avatar>
-          <h1 className="text-lg font-medium min-w-0 truncate">Olá, <span className="font-semibold">{displayName.split(' ')[0]}</span></h1>
+          <h1 className="text-base font-bold min-w-0 truncate">Olá, <span>{displayName.split(' ')[0].toUpperCase()}</span></h1>
         </header>
 
-        <Card className="dashboard-next-show overflow-hidden">
-          <CardContent className="p-5 sm:p-7">
+        <Card className="dashboard-next-show relative overflow-hidden">
+          <div className="dashboard-show-art" aria-hidden="true"><img src={concertImage} width={1024} height={768} alt="" /><CalendarDays className="dashboard-calendar-lit" /></div>
+          <CardContent className="relative z-10 p-5 sm:p-7">
             <div className="flex items-center justify-between gap-3 mb-5">
               <div className="flex items-center gap-2 text-gold text-sm font-medium"><Calendar className="h-4 w-4" />Próximo Show</div>
               <Badge variant="outline" className="border-gold/20 bg-gold/5 text-gold text-xs">{nextShow ? 'Agendado' : 'Sua agenda'}</Badge>
             </div>
             <div className="flex items-end justify-between gap-4">
               <div className="min-w-0">
-                <h2 className="text-2xl sm:text-3xl font-semibold break-words">{nextShow?.local || 'O palco espera por você'}</h2>
+                <h2 className="dashboard-show-title text-2xl sm:text-3xl font-semibold break-words">{nextShow?.local || 'O palco espera por você'}</h2>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-sm text-muted-foreground">
                   {nextShow ? <><span className="flex items-center gap-1.5"><CalendarDays className="h-4 w-4" />{formatDateBR(nextShow.date)}</span>{nextShow.time && <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" />{nextShow.time}</span>}</> : <span>Nenhum show agendado</span>}
                 </div>
               </div>
               <Button variant="ghost" size="icon" aria-label={nextShow ? 'Ver próximo show' : 'Adicionar show'} className="shrink-0 rounded-full border border-gold/20 text-gold" onClick={() => nextShow ? navigate('/agenda') : setShowEventForm(true)}>{nextShow ? <ArrowUpRight className="h-5 w-5" /> : <Plus className="h-5 w-5" />}</Button>
             </div>
+            <Button variant="outline" className="dashboard-itinerary mt-5 gap-2 text-xs" onClick={() => navigate('/agenda')}>Ver Roteiro do Show<ChevronRight className="h-4 w-4" /></Button>
           </CardContent>
         </Card>
 
@@ -170,16 +173,16 @@ const Dashboard = () => {
             <CardContent className="p-4 sm:p-5">
               <div className="flex items-center gap-2 text-muted-foreground"><TrendingUp className="h-4 w-4 shrink-0 text-primary" /><h2 className="text-xs sm:text-sm font-medium">Faturamento Projetado</h2></div>
               <p className="dashboard-financial-value mt-4 font-semibold tabular-nums">{formatCurrency(projection.faturamentoProjetado)}</p>
-              <Badge variant="outline" className="mt-3 border-primary/20 bg-primary/10 text-primary text-[10px] sm:text-xs">{projectedPercentage === null ? 'Sem base anterior' : `${projectedPercentage > 0 ? '+' : ''}${formatPercentage(projectedPercentage)} vs. média`}</Badge>
-              <DashboardTrend values={monthlyTrends.map(point => point.projection)} label="Tendência do faturamento projetado em seis meses" tone="blue" />
+              <Badge variant="outline" className={`dashboard-status mt-3 text-[10px] sm:text-xs ${projectedPercentage !== null && projectedPercentage > 0 ? 'dashboard-status-positive' : 'dashboard-status-blue'}`}>{projectedPercentage === null ? 'Sem base anterior' : `${projectedPercentage > 0 ? '+' : ''}${formatPercentage(projectedPercentage)} vs. média`}</Badge>
+              <DashboardTrend values={monthlyTrends.map(point => point.projection)} label="Tendência do faturamento projetado em seis meses" tone="gold" />
             </CardContent>
           </Card>
           <Card className="min-w-0 overflow-hidden">
             <CardContent className="p-4 sm:p-5">
               <div className="flex items-center gap-2 text-muted-foreground"><Wallet className="h-4 w-4 shrink-0 text-gold" /><h2 className="text-xs sm:text-sm font-medium">Resultado do Mês</h2></div>
               <p className="dashboard-financial-value mt-4 font-semibold tabular-nums">{formatCurrency(dre.resultadoOperacional)}</p>
-              <Badge variant="outline" className="mt-3 border-gold/20 bg-gold/5 text-gold text-[10px] sm:text-xs">{formatPercentage(dre.margemFinal)} de margem</Badge>
-              <DashboardTrend values={monthlyTrends.map(point => point.result)} label="Tendência dos resultados em seis meses" tone="gold" />
+              <Badge variant="outline" className={`dashboard-status mt-3 text-[10px] sm:text-xs ${dre.margemFinal > 0 ? 'dashboard-status-positive' : 'dashboard-status-blue'}`}>{formatPercentage(dre.margemFinal)} de margem</Badge>
+              <DashboardTrend values={monthlyTrends.map(point => point.result)} label="Tendência dos resultados em seis meses" tone="blue" />
             </CardContent>
           </Card>
         </div>
