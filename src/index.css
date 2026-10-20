@@ -66,6 +66,7 @@ All colors MUST be HSL.
     --itinerary-border: linear-gradient(120deg, hsl(var(--neon-blue) / 0.65), hsl(var(--foreground) / 0.12), hsl(var(--gold) / 0.45));
     --module-overlay: linear-gradient(90deg, hsl(var(--stage) / 0.82), hsl(var(--stage) / 0.32)), linear-gradient(0deg, hsl(var(--stage) / 0.8), transparent 65%);
     --module-text-shadow: 0 1px 4px hsl(var(--stage));
+    --artwork-muted-foreground: 230 15% 80%;
   }
 
   /* High Contrast Mode */
@@ -127,6 +128,24 @@ All colors MUST be HSL.
   .module-navigation:hover { border-color: hsl(var(--gold) / 0.4); color: hsl(var(--foreground)); }
   .module-navigation[aria-current="page"] { border-color: hsl(var(--gold) / 0.65); color: hsl(var(--gold)); }
   .module-menu { max-height: min(65dvh, 650px); }
+  .thematic-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: var(--glass-surface);
+    border-color: hsl(var(--glass-border) / 0.2);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    text-shadow: var(--module-text-shadow);
+    --muted-foreground: var(--artwork-muted-foreground);
+  }
+  .thematic-card > :not(.module-artwork) { position: relative; z-index: 1; }
+  .thematic-card .module-artwork img { width: 85%; }
+  .thematic-tab { position: relative; isolation: isolate; overflow: hidden; text-shadow: var(--module-text-shadow); color: hsl(var(--foreground)); }
+  .thematic-tab[data-state="active"] { color: hsl(var(--gold)); border: 1px solid hsl(var(--gold) / 0.45); box-shadow: var(--glass-shadow); }
+  .thematic-tab .module-artwork img { width: 100%; }
+  .financial-tabs { height: auto; gap: 4px; }
   .dashboard-stage {
     background-color: hsl(var(--stage));
     background-image: var(--stage-light);

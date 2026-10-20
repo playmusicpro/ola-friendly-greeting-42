@@ -170,7 +170,8 @@ const Dashboard = () => {
         </Card>
 
         <div className="grid grid-cols-2 gap-3 sm:gap-5">
-          <Card className="min-w-0 overflow-hidden">
+          <Card className="thematic-card min-w-0 overflow-hidden">
+            <ModuleArtwork module="/analises" />
             <CardContent className="p-4 sm:p-5">
               <div className="flex items-center gap-2 text-muted-foreground"><TrendingUp className="h-4 w-4 shrink-0 text-primary" /><h2 className="text-xs sm:text-sm font-medium">Faturamento Projetado</h2></div>
               <p className="dashboard-financial-value mt-4 font-semibold tabular-nums">{formatCurrency(projection.faturamentoProjetado)}</p>
@@ -178,7 +179,8 @@ const Dashboard = () => {
               <DashboardTrend values={monthlyTrends.map(point => point.projection)} label="Tendência do faturamento projetado em seis meses" tone="gold" />
             </CardContent>
           </Card>
-          <Card className="min-w-0 overflow-hidden">
+          <Card className="thematic-card min-w-0 overflow-hidden">
+            <ModuleArtwork module="/financas" />
             <CardContent className="p-4 sm:p-5">
               <div className="flex items-center gap-2 text-muted-foreground"><Wallet className="h-4 w-4 shrink-0 text-gold" /><h2 className="text-xs sm:text-sm font-medium">Resultado do Mês</h2></div>
               <p className="dashboard-financial-value mt-4 font-semibold tabular-nums">{formatCurrency(dre.resultadoOperacional)}</p>
@@ -191,8 +193,8 @@ const Dashboard = () => {
         {alerts.length > 0 && <div className="space-y-3">{alerts.map(alert => <Alert key={alert.id} className={alert.type === 'danger' ? 'border-destructive/30 bg-destructive/5' : 'border-gold/20 bg-gold/5'}><AlertTriangle className="h-4 w-4" /><AlertDescription>{alert.message}</AlertDescription></Alert>)}</div>}
 
         <div className="grid grid-cols-2 gap-3 sm:gap-5">
-          <Card><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 text-sm text-muted-foreground"><DollarSign className="h-4 w-4" />Gastos do Mês</div><p className="dashboard-financial-value mt-2 font-semibold">{formatCurrency(totalGeneralExpenses)}</p></CardContent></Card>
-          <Card><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 text-sm text-muted-foreground"><PiggyBank className="h-4 w-4 text-gold" />Reservas</div><p className="dashboard-financial-value mt-2 font-semibold text-gold">{formatCurrency(totalPiggyBanks)}</p></CardContent></Card>
+          <Card className="thematic-card"><ModuleArtwork module="/receitas" /><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 text-sm text-muted-foreground"><DollarSign className="h-4 w-4 shrink-0 text-gold" />Gastos do Mês</div><p className="dashboard-financial-value mt-2 font-semibold">{formatCurrency(totalGeneralExpenses)}</p></CardContent></Card>
+          <Card className="thematic-card"><ModuleArtwork module="savings" /><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 text-sm text-muted-foreground"><PiggyBank className="h-4 w-4 shrink-0 text-gold" />Reservas</div><p className="dashboard-financial-value mt-2 font-semibold text-gold">{formatCurrency(totalPiggyBanks)}</p></CardContent></Card>
         </div>
 
         {/* Meta Ativa */}
@@ -220,10 +222,11 @@ const Dashboard = () => {
 
         {/* Próximos Eventos */}
         {upcomingEvents.length > 0 && (
-          <Card>
+          <Card className="thematic-card">
+            <ModuleArtwork module="show" />
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <CalendarDays className="h-5 w-5" />
+                <CalendarDays className="h-5 w-5 shrink-0 text-gold" />
                 Próximos Eventos
               </CardTitle>
             </CardHeader>

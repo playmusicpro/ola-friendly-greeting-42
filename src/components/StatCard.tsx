@@ -1,5 +1,6 @@
 import { LucideIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import ModuleArtwork from "@/components/ModuleArtwork";
 
 interface StatCardProps {
   title: string;
@@ -7,9 +8,10 @@ interface StatCardProps {
   icon: LucideIcon;
   trend?: string;
   variant?: "default" | "gold" | "success";
+  artwork?: string;
 }
 
-const StatCard = ({ title, value, icon: Icon, trend, variant = "default" }: StatCardProps) => {
+const StatCard = ({ title, value, icon: Icon, trend, variant = "default", artwork }: StatCardProps) => {
   const variantStyles = {
     default: "border-primary/20 hover:shadow-[0_0_20px_rgba(0,86,255,0.2)]",
     gold: "border-gold/20 hover:shadow-[0_0_20px_rgba(212,175,55,0.2)]",
@@ -23,7 +25,8 @@ const StatCard = ({ title, value, icon: Icon, trend, variant = "default" }: Stat
   };
 
   return (
-    <Card className={`p-5 border ${variantStyles[variant]} transition-all duration-300 shadow-lg`}>
+    <Card className={`p-5 border ${variantStyles[variant]} transition-all duration-300 shadow-lg ${artwork ? 'thematic-card' : ''}`}>
+      {artwork && <ModuleArtwork module={artwork} />}
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2 font-semibold">{title}</p>
