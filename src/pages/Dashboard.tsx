@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import DashboardTrend from "@/components/DashboardTrend";
 import concertImage from "@/assets/dashboard-concert.jpg";
+import ModuleArtwork from "@/components/ModuleArtwork";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -252,19 +253,23 @@ const Dashboard = () => {
         <Card className="p-6 shadow-lg border-primary/10">
           <h2 className="text-xl font-semibold mb-4 text-gold">Acesso Rápido</h2>
           <div className="dashboard-quick-actions grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <Button onClick={() => setShowEventForm(true)} className="h-auto py-6 flex-col gap-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-md w-full">
+            <Button onClick={() => setShowEventForm(true)} className="module-navigation h-auto py-6 flex-col gap-3 w-full">
+              <ModuleArtwork module="show" />
               <Plus className="h-7 w-7" />
               <span className="font-semibold">Adicionar Show</span>
             </Button>
-            <Button onClick={() => setShowExpenseForm(true)} className="h-auto py-6 flex-col gap-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-md w-full">
+            <Button onClick={() => setShowExpenseForm(true)} className="module-navigation h-auto py-6 flex-col gap-3 w-full">
+              <ModuleArtwork module="/financas" />
               <Plus className="h-7 w-7" />
               <span className="font-semibold">Adicionar Gasto</span>
             </Button>
-            <Button onClick={() => setShowGoalForm(true)} className="h-auto py-6 flex-col gap-3 bg-gold hover:bg-gold/90 text-accent-foreground rounded-xl shadow-md w-full">
+            <Button onClick={() => setShowGoalForm(true)} className="module-navigation h-auto py-6 flex-col gap-3 w-full">
+              <ModuleArtwork module="/analises" />
               <Plus className="h-7 w-7" />
               <span className="font-semibold">Adicionar Meta</span>
             </Button>
-            <Button onClick={() => setShowPiggyForm(true)} className="h-auto py-6 flex-col gap-3 bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-xl shadow-md w-full">
+            <Button onClick={() => setShowPiggyForm(true)} className="module-navigation h-auto py-6 flex-col gap-3 w-full">
+              <ModuleArtwork module="savings" />
               <PiggyBank className="h-7 w-7" />
               <span className="font-semibold">Adicionar Cofrinho</span>
             </Button>

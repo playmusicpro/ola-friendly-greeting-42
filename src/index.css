@@ -64,6 +64,8 @@ All colors MUST be HSL.
     --avatar-shadow: 0 0 16px hsl(var(--stage-amber) / 0.3);
     --avatar-ring: linear-gradient(135deg, hsl(var(--stage-amber)), hsl(var(--gold)), hsl(var(--stage-amber)));
     --itinerary-border: linear-gradient(120deg, hsl(var(--neon-blue) / 0.65), hsl(var(--foreground) / 0.12), hsl(var(--gold) / 0.45));
+    --module-overlay: linear-gradient(90deg, hsl(var(--stage) / 0.82), hsl(var(--stage) / 0.32)), linear-gradient(0deg, hsl(var(--stage) / 0.8), transparent 65%);
+    --module-text-shadow: 0 1px 4px hsl(var(--stage));
   }
 
   /* High Contrast Mode */
@@ -101,6 +103,30 @@ All colors MUST be HSL.
 }
 
 @layer components {
+  .module-navigation {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: 56px;
+    height: auto;
+    border: 1px solid hsl(var(--glass-border) / 0.2);
+    border-radius: 18px;
+    background: var(--glass-surface);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    color: hsl(var(--foreground));
+    text-shadow: var(--module-text-shadow);
+    white-space: normal;
+  }
+  .module-navigation > svg { flex-shrink: 0; color: hsl(var(--stage-amber)); }
+  .module-navigation > span:not(.module-artwork) { position: relative; text-align: left; }
+  .module-artwork { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+  .module-artwork img { position: absolute; inset: 0 0 0 auto; width: 75%; height: 100%; object-fit: cover; object-position: right center; opacity: 0.48; mask-image: linear-gradient(90deg, transparent, hsl(var(--background)) 75%); }
+  .module-artwork::after { content: ''; position: absolute; inset: 0; background: var(--module-overlay); }
+  .module-navigation:hover { border-color: hsl(var(--gold) / 0.4); color: hsl(var(--foreground)); }
+  .module-navigation[aria-current="page"] { border-color: hsl(var(--gold) / 0.65); color: hsl(var(--gold)); }
+  .module-menu { max-height: min(65dvh, 650px); }
   .dashboard-stage {
     background-color: hsl(var(--stage));
     background-image: var(--stage-light);
@@ -139,15 +165,15 @@ All colors MUST be HSL.
     overflow-wrap: anywhere;
   }
   .dashboard-quick-actions > button {
-    background: hsl(var(--glass) / 0.55);
+    background: var(--glass-surface);
     border: 1px solid hsl(var(--glass-border) / 0.1);
     color: hsl(var(--gold));
-    box-shadow: none;
+    box-shadow: var(--glass-shadow);
     border-radius: 18px;
     padding: 20px 8px;
     white-space: normal;
   }
-  .dashboard-quick-actions > button:hover { background: hsl(var(--glass) / 0.95); }
+  .dashboard-quick-actions > button:hover { border-color: hsl(var(--gold) / 0.4); }
   .dashboard-dock {
     width: min(340px, calc(100% - 40px));
     height: 72px;
