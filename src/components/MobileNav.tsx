@@ -98,11 +98,8 @@ const MobileNav = () => {
               <Button variant="ghost"
                 key={item.path + item.label}
                 onClick={() => handleMoreItemClick(item.path)}
-                className={`module-navigation w-full flex items-center justify-start gap-4 px-4 py-4 rounded-xl transition-all duration-200 ${
-                  location.pathname === item.path
-                    ? "bg-gradient-to-r from-primary/20 to-gold/10 text-gold border-l-4 border-gold"
-                    : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
-                }`}
+                aria-current={location.pathname === item.path ? 'page' : undefined}
+                className="module-navigation w-full flex items-center justify-start gap-4 px-4 py-4 rounded-xl transition-all duration-200"
               >
                 <ModuleArtwork module={item.path} />
                 <item.icon className="h-5 w-5" />
