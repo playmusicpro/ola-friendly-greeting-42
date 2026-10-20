@@ -10,7 +10,7 @@ import {
   DrawerClose,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { useRepertoire } from "@/hooks/useRepertoire";
+import ModuleArtwork from "@/components/ModuleArtwork";
 import HelpCenter from "@/components/HelpCenter";
 
 const MobileNav = () => {
@@ -19,7 +19,6 @@ const MobileNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isDashboard = location.pathname === "/";
-  const { setlists } = useRepertoire();
 
   const mainNavItems = [
     { icon: Home, label: "Painel", path: "/" },
@@ -51,7 +50,7 @@ const MobileNav = () => {
     <>
       {isDashboard ? <nav aria-label="Navegação do Painel" className="dashboard-dock fixed z-50 left-1/2 -translate-x-1/2 bottom-5">
         <Button variant="ghost" className="dashboard-dock-tab" onClick={() => navigate('/')} aria-current="page"><Home className="h-5 w-5" /><span>Início</span></Button>
-        <Button className="dashboard-play" size="icon" aria-label="Abrir Modo Show" title="Abrir Modo Show" onClick={() => navigate(setlists[0] ? `/modo-show/${setlists[0].id}` : '/repertorio')}><Play className="h-7 w-7 fill-current" /></Button>
+        <Button className="dashboard-play" size="icon" aria-label="Abrir Finanças" title="Abrir Finanças" onClick={() => navigate('/financas')}><Play className="h-7 w-7 fill-current" /></Button>
         <Button variant="ghost" className="dashboard-dock-tab" onClick={() => setIsMoreOpen(true)}><Menu className="h-5 w-5" /><span>Menu</span></Button>
       </nav> : <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-gold/20 z-50 md:hidden shadow-lg">
         <div className="flex items-center justify-around py-3">
@@ -94,17 +93,18 @@ const MobileNav = () => {
             </div>
           </DrawerHeader>
           
-          <div className="p-4 space-y-2">
+          <div className="module-menu p-4 space-y-2 overflow-y-auto">
             {(isDashboard ? [...mainNavItems.filter(item => item.path !== "/"), ...moreNavItems] : moreNavItems).map((item) => (
               <Button variant="ghost"
                 key={item.path + item.label}
                 onClick={() => handleMoreItemClick(item.path)}
-                className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 ${
+                className={`module-navigation w-full flex items-center justify-start gap-4 px-4 py-4 rounded-xl transition-all duration-200 ${
                   location.pathname === item.path
                     ? "bg-gradient-to-r from-primary/20 to-gold/10 text-gold border-l-4 border-gold"
                     : "text-muted-foreground hover:bg-primary/5 hover:text-primary"
                 }`}
               >
+                <ModuleArtwork module={item.path} />
                 <item.icon className="h-5 w-5" />
                 <span className="font-medium">{item.label}</span>
               </Button>
@@ -113,8 +113,9 @@ const MobileNav = () => {
             {/* Help Button */}
             <Button variant="ghost"
               onClick={handleHelpClick}
-              className="w-full flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 text-muted-foreground hover:bg-primary/5 hover:text-primary mt-2 border-t border-border/50 pt-4"
+              className="module-navigation w-full flex items-center justify-start gap-4 px-4 py-4 rounded-xl transition-all duration-200 mt-2"
             >
+              <ModuleArtwork module="help" />
               <HelpCircle className="h-5 w-5" />
               <span className="font-medium">Central de Ajuda</span>
             </Button>

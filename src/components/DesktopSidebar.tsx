@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import HelpCenter from "@/components/HelpCenter";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ModuleArtwork from "@/components/ModuleArtwork";
 
 const DesktopSidebar = () => {
   const { isAdmin } = useAdmin();
@@ -51,9 +52,10 @@ const DesktopSidebar = () => {
             <NavLink
               key={item.path}
               to={item.path}
-              className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-muted-foreground hover:bg-primary/5 hover:text-primary transition-all"
+              className="module-navigation flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all"
               activeClassName="bg-gradient-to-r from-primary/20 to-gold/10 text-gold border-l-4 border-gold shadow-md"
             >
+              <ModuleArtwork module={item.path} />
               <item.icon className="h-5 w-5" />
               <span>{item.label}</span>
             </NavLink>
@@ -68,9 +70,10 @@ const DesktopSidebar = () => {
             <NavLink
               key={item.path}
               to={item.path}
-              className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-muted-foreground hover:bg-gold/5 hover:text-gold transition-all"
+              className="module-navigation flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all"
               activeClassName="bg-gradient-to-r from-gold/20 to-primary/10 text-gold border-l-4 border-gold shadow-md"
             >
+              <ModuleArtwork module={item.path} />
               <item.icon className="h-5 w-5" />
               <span>{item.label}</span>
             </NavLink>
@@ -107,9 +110,10 @@ const DesktopSidebar = () => {
           
           <Button
             variant="ghost"
-            className="w-full justify-start gap-3 text-muted-foreground hover:text-primary"
+            className="module-navigation w-full justify-start gap-3"
             onClick={() => setShowHelpCenter(true)}
           >
+            <ModuleArtwork module="help" />
             <HelpCircle className="h-5 w-5" />
             <span>Central de Ajuda</span>
           </Button>
