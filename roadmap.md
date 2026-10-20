@@ -1,3 +1,4 @@
+- [ ] Direcionar Play para Finanças e aplicar imagens temáticas aos botões de módulos com acabamento do Show.
 - [x] Refinar profundidade visual do Painel conforme arquivo enviado: luzes, vidro, imagem de show, gráficos e Dock iluminados.
 - [x] Redesenhar Painel: cabeçalho compacto, cards em vidro, financeiros lado a lado e Dock flutuante; compilação e testes aprovados.
 - [ ] Validar visualmente o Painel em telas pequenas e grandes — bloqueado: Supabase externo sem sessão de teste disponível.
