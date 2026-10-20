@@ -1,5 +1,6 @@
 import { Fuel, Shirt, Music, PiggyBank, Home as HomeIcon, TrendingDown, TrendingUp, AlertTriangle, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import StatCard from "@/components/StatCard";
+import ModuleArtwork from "@/components/ModuleArtwork";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -90,13 +91,14 @@ const Financas = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatCard title="Total de Gastos" value={formatCurrency(totalGastos + totalGeneralExpenses)} icon={TrendingDown} trend={`${generalExpenses.length} gasto(s) registrado(s)`} variant="default" />
-        <StatCard title="Cofrinhos" value={formatCurrency(totalPiggyBanks)} icon={PiggyBank} trend={`${piggyBanks.length} cofrinho(s) ativo(s)`} variant="gold" />
-        <StatCard title="Despesas Fixas" value={formatCurrency(totalFixas)} icon={HomeIcon} trend="Compromissos recorrentes" variant="default" />
+        <StatCard title="Total de Gastos" value={formatCurrency(totalGastos + totalGeneralExpenses)} icon={TrendingDown} trend={`${generalExpenses.length} gasto(s) registrado(s)`} variant="default" artwork="/receitas" />
+        <StatCard title="Cofrinhos" value={formatCurrency(totalPiggyBanks)} icon={PiggyBank} trend={`${piggyBanks.length} cofrinho(s) ativo(s)`} variant="gold" artwork="savings" />
+        <StatCard title="Despesas Fixas" value={formatCurrency(totalFixas)} icon={HomeIcon} trend="Compromissos recorrentes" variant="default" artwork="/agenda" />
       </div>
 
       {/* DRE Simplificado */}
-      <Card className="p-6 shadow-lg border-gold/20 bg-gradient-to-br from-primary/5 to-gold/5">
+      <Card className="thematic-card p-6 border-gold/20">
+        <ModuleArtwork module="/financas" />
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 rounded-xl bg-gold/10">
             <TrendingUp className="h-6 w-6 text-gold" />
@@ -152,17 +154,18 @@ const Financas = () => {
 
       {/* Tabs */}
       <Tabs defaultValue="gastos" className="space-y-4">
-        <TabsList className="grid grid-cols-2 md:grid-cols-5 w-full">
-          <TabsTrigger value="gastos">Gastos</TabsTrigger>
+        <TabsList className="financial-tabs grid grid-cols-2 md:grid-cols-5 w-full">
+          <TabsTrigger className="thematic-tab" value="gastos"><ModuleArtwork module="/receitas" />Gastos</TabsTrigger>
           <TabsTrigger value="combustivel">Combustível</TabsTrigger>
           <TabsTrigger value="equipamentos">Equipamentos</TabsTrigger>
-          <TabsTrigger value="cofrinho">Cofrinhos</TabsTrigger>
-          <TabsTrigger value="fixas">Despesas Fixas</TabsTrigger>
+          <TabsTrigger className="thematic-tab" value="cofrinho"><ModuleArtwork module="savings" />Cofrinhos</TabsTrigger>
+          <TabsTrigger className="thematic-tab" value="fixas"><ModuleArtwork module="/agenda" />Despesas Fixas</TabsTrigger>
         </TabsList>
 
         {/* Gastos Gerais */}
         <TabsContent value="gastos" className="space-y-4">
-          <Card className="p-6 shadow-lg border-primary/10">
+          <Card className="thematic-card p-6 border-primary/10">
+            <ModuleArtwork module="/receitas" />
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="p-3 rounded-xl bg-primary/10">
@@ -307,7 +310,8 @@ const Financas = () => {
 
         {/* Cofrinhos */}
         <TabsContent value="cofrinho" className="space-y-4">
-          <Card className="p-6">
+          <Card className="thematic-card p-6">
+            <ModuleArtwork module="savings" />
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="p-3 rounded-lg bg-gold/10"><PiggyBank className="h-6 w-6 text-gold" /></div>
@@ -379,7 +383,8 @@ const Financas = () => {
         </TabsContent>
 
         <TabsContent value="fixas" className="space-y-4">
-          <Card className="p-6">
+          <Card className="thematic-card p-6">
+            <ModuleArtwork module="/agenda" />
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="p-3 rounded-lg bg-primary/10"><HomeIcon className="h-6 w-6 text-primary" /></div>
