@@ -3,4 +3,4 @@
 - Operational state is persisted in admin_operations; immutable database-trigger audit entries contain identifiers and actions, not profile contents or credentials.
 - Admin show reports use the shared typed analytics helper and distinguish completed financial results from scheduled shows.
 - Scope the dashboard visual theme and navigation exception to the home route so other pages retain their established layout; dashboard trend charts use actual financial records without placeholder trends.
-- Use shared ModuleArtwork for module navigation and dashboard quick actions so thematic photography keeps one consistent overlay and glass treatment.
+- Use shared ModuleArtwork for module navigation, dashboard quick actions, and themed financial/event cards so photography keeps one consistent overlay and glass treatment; StatCard artwork is opt-in.
