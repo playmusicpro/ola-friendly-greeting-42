@@ -1,8 +1,7 @@
 import { Calendar, DollarSign, TrendingUp, Video, Plus, Wallet, AlertTriangle, Info, Music, Users, GraduationCap, Mic, Clock, CalendarDays, HelpCircle, PiggyBank, Target, Trash2, ArrowUpRight, MapPin, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
-import { useAuth } from "@/contexts/AuthContext";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import ProfileAvatar from "@/components/ProfileAvatar";
 import DashboardTrend from "@/components/DashboardTrend";
 import concertImage from "@/assets/dashboard-concert.jpg";
 import ModuleArtwork from "@/components/ModuleArtwork";
@@ -39,9 +38,7 @@ import { useToast } from "@/hooks/use-toast";
 const Dashboard = () => {
   const navigate = useNavigate();
   const { profile } = useProfile();
-  const { session } = useAuth();
   const displayName = profile?.name?.trim() || "Músico";
-  const avatarUrl = session?.user.user_metadata?.avatar_url;
   const { toast } = useToast();
   const {
     shows, expenses, fixedExpenses, project, incomes, events,
@@ -142,10 +139,7 @@ const Dashboard = () => {
       
       <div className="dashboard-content space-y-5">
         <header className="flex items-center gap-3 pb-1">
-          <Avatar className="dashboard-avatar h-11 w-11 shrink-0">
-            {typeof avatarUrl === 'string' && <AvatarImage src={avatarUrl} alt={displayName} />}
-            <AvatarFallback className="bg-secondary text-gold text-sm font-semibold">{displayName.split(' ').slice(0, 2).map(part => part[0]).join('').toUpperCase()}</AvatarFallback>
-          </Avatar>
+          <ProfileAvatar name={displayName} />
           <h1 className="text-base font-bold min-w-0 truncate">Olá, <span>{displayName.split(' ')[0].toUpperCase()}</span></h1>
         </header>
 
@@ -170,22 +164,24 @@ const Dashboard = () => {
         </Card>
 
         <div className="grid grid-cols-2 gap-3 sm:gap-5">
-          <Card className="thematic-card min-w-0 overflow-hidden">
+          <Card className="thematic-card dashboard-financial-card min-w-0 overflow-hidden">
             <ModuleArtwork module="/analises" />
-            <CardContent className="p-4 sm:p-5">
+            <CardContent className="dashboard-financial-content p-4 sm:p-5">
               <div className="flex items-center gap-2 text-muted-foreground"><TrendingUp className="h-4 w-4 shrink-0 text-primary" /><h2 className="text-xs sm:text-sm font-medium">Faturamento Projetado</h2></div>
               <p className="dashboard-financial-value mt-4 font-semibold tabular-nums">{formatCurrency(projection.faturamentoProjetado)}</p>
-              <Badge variant="outline" className={`dashboard-status mt-3 text-[10px] sm:text-xs ${projectedPercentage !== null && projectedPercentage > 0 ? 'dashboard-status-positive' : 'dashboard-status-blue'}`}>{projectedPercentage === null ? 'Sem base anterior' : `${projectedPercentage > 0 ? '+' : ''}${formatPercentage(projectedPercentage)} vs. média`}</Badge>
+              <div className="dashboard-financial-footer"><Badge variant="outline" className={`dashboard-status text-[10px] sm:text-xs ${projectedPercentage !== null && projectedPercentage > 0 ? 'dashboard-status-positive' : 'dashboard-status-blue'}`}>{projectedPercentage === null ? 'Sem base anterior' : `${projectedPercentage > 0 ? '+' : ''}${formatPercentage(projectedPercentage)} vs. média`}</Badge>
               <DashboardTrend values={monthlyTrends.map(point => point.projection)} label="Tendência do faturamento projetado em seis meses" tone="gold" />
+              </div>
             </CardContent>
           </Card>
-          <Card className="thematic-card min-w-0 overflow-hidden">
+          <Card className="thematic-card dashboard-financial-card min-w-0 overflow-hidden">
             <ModuleArtwork module="/financas" />
-            <CardContent className="p-4 sm:p-5">
+            <CardContent className="dashboard-financial-content p-4 sm:p-5">
               <div className="flex items-center gap-2 text-muted-foreground"><Wallet className="h-4 w-4 shrink-0 text-gold" /><h2 className="text-xs sm:text-sm font-medium">Resultado do Mês</h2></div>
               <p className="dashboard-financial-value mt-4 font-semibold tabular-nums">{formatCurrency(dre.resultadoOperacional)}</p>
-              <Badge variant="outline" className={`dashboard-status mt-3 text-[10px] sm:text-xs ${dre.margemFinal > 0 ? 'dashboard-status-positive' : 'dashboard-status-blue'}`}>{formatPercentage(dre.margemFinal)} de margem</Badge>
+              <div className="dashboard-financial-footer"><Badge variant="outline" className={`dashboard-status text-[10px] sm:text-xs ${dre.margemFinal > 0 ? 'dashboard-status-positive' : 'dashboard-status-blue'}`}>{formatPercentage(dre.margemFinal)} de margem</Badge>
               <DashboardTrend values={monthlyTrends.map(point => point.result)} label="Tendência dos resultados em seis meses" tone="blue" />
+              </div>
             </CardContent>
           </Card>
         </div>
