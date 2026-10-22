@@ -178,6 +178,11 @@ All colors MUST be HSL.
     box-shadow: var(--avatar-shadow);
   }
   .dashboard-avatar img { border-radius: 50%; }
+  .dashboard-avatar-button { background: transparent; }
+  .dashboard-avatar-button:hover .dashboard-avatar { box-shadow: var(--avatar-shadow), 0 0 20px hsl(var(--gold) / 0.35); }
+  .dashboard-avatar-loading { background: hsl(var(--stage) / 0.65); color: hsl(var(--gold)); }
+  .dashboard-financial-content { display: flex; flex-direction: column; height: 100%; min-height: 220px; }
+  .dashboard-financial-footer { margin-top: auto; padding-top: 16px; }
   .dashboard-financial-value {
     font-size: 24px;
     line-height: 1.25;
@@ -240,10 +245,10 @@ All colors MUST be HSL.
   .dashboard-show-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, hsl(var(--stage) / 0.8), transparent 65%); }
   .dashboard-calendar-lit { position: absolute; top: 66px; right: 25px; width: 44px; height: 44px; color: hsl(var(--neon-blue)); filter: drop-shadow(0 0 12px hsl(var(--neon-blue) / 0.8)); }
   .dashboard-show-title { max-width: 76%; }
-  .dashboard-itinerary { border-radius: 12px; border: 1px solid transparent; background: linear-gradient(hsl(var(--glass) / 0.9), hsl(var(--glass) / 0.9)) padding-box, var(--itinerary-border) border-box; backdrop-filter: blur(16px); box-shadow: inset 0 1px 0 hsl(var(--foreground) / 0.12), 0 0 14px hsl(var(--neon-blue) / 0.1); }
+  .dashboard-itinerary { border-radius: 999px; border: 1px solid transparent; color: hsl(var(--foreground)); font-weight: 600; padding-inline: 18px; background: linear-gradient(hsl(var(--glass) / 0.8), hsl(var(--glass) / 0.8)) padding-box, var(--itinerary-border) border-box; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); text-shadow: var(--module-text-shadow); box-shadow: inset 0 1px 0 hsl(var(--foreground) / 0.12), 0 0 14px hsl(var(--neon-blue) / 0.1); }
   .dashboard-status { white-space: normal; }
-  .dashboard-status-blue { color: hsl(var(--neon-blue)); background: hsl(var(--neon-blue) / 0.12); border-color: hsl(var(--neon-blue) / 0.22); box-shadow: 0 0 10px hsl(var(--neon-blue) / 0.08); }
-  .dashboard-status-positive { color: hsl(var(--neon-green)); background: hsl(var(--neon-green) / 0.1); border-color: hsl(var(--neon-green) / 0.18); box-shadow: 0 0 10px hsl(var(--neon-green) / 0.1); }
+  .dashboard-status-blue { color: hsl(var(--neon-blue)); background: hsl(var(--neon-blue) / 0.12); border-color: hsl(var(--neon-blue) / 0.3); box-shadow: 0 0 12px hsl(var(--neon-blue) / 0.16); }
+  .dashboard-status-positive { color: hsl(var(--neon-green)); background: hsl(var(--neon-green) / 0.1); border-color: hsl(var(--neon-green) / 0.28); box-shadow: 0 0 12px hsl(var(--neon-green) / 0.18); }
   .dashboard-trend-blue { color: hsl(var(--neon-green)); --trend-start: var(--neon-blue); --trend-end: var(--neon-green); }
   .dashboard-trend-gold { color: hsl(var(--stage-amber)); --trend-start: var(--gold); --trend-end: var(--stage-amber); }
   .dashboard-trend-start { stop-color: hsl(var(--trend-start)); }

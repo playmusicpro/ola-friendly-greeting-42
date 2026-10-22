@@ -4,3 +4,4 @@
 - Admin show reports use the shared typed analytics helper and distinguish completed financial results from scheduled shows.
 - Scope the dashboard visual theme and navigation exception to the home route so other pages retain their established layout; dashboard trend charts use actual financial records without placeholder trends.
 - Use shared ModuleArtwork for module navigation, dashboard quick actions, and themed financial/event cards so photography keeps one consistent overlay and glass treatment; StatCard artwork is opt-in.
+- Store rasterized avatars in private Storage under the authenticated user's folder; keep avatar_path and avatar_url in Auth metadata and renew signed display URLs instead of persisting expired links alone.
