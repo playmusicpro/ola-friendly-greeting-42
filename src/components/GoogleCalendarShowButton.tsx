@@ -4,7 +4,7 @@ import { buildGoogleCalendarLink } from '@/lib/googleCalendarLink';
 import { useToast } from '@/hooks/use-toast';
 import type { Show } from '@/types';
 
-export function GoogleCalendarShowButton({ show }: { show: Show }) {
+export function GoogleCalendarShowButton({ show }: { show: Pick<Show, 'date' | 'time' | 'local' | 'title' | 'address' | 'notes' | 'endTime'> }) {
   const { toast } = useToast();
   return <Button size="sm" variant="outline" className="gap-2 whitespace-normal h-auto py-2" onClick={() => {
     try { window.open(buildGoogleCalendarLink(show), '_blank', 'noopener,noreferrer'); }

@@ -27,6 +27,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { GoogleCalendarSyncIndicator } from '@/components/GoogleCalendarSyncIndicator';
+import { GoogleCalendarShowButton } from '@/components/GoogleCalendarShowButton';
 
 export default function Agenda() {
   const { events, addEvent, updateEvent, deleteEvent, duplicateEvent, markEventAsRealizado, shows } = useFinancialData();
@@ -254,6 +255,7 @@ export default function Agenda() {
                         </div>
 
                         <div className="flex flex-wrap gap-2 mt-4">
+                          {event.tipo === 'Show' && <GoogleCalendarShowButton show={{ date: event.date, time: event.startTime, endTime: event.endTime, local: event.local || event.title, title: event.title, address: event.local, notes: event.notes }} />}
                           <Button
                             variant="outline"
                             size="sm"

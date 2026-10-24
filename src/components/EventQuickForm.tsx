@@ -33,7 +33,7 @@ type EventFormData = z.infer<typeof eventSchema>;
 interface EventQuickFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: EventFormData) => void;
+  onSubmit: (data: EventFormData) => void | Promise<boolean | void>;
 }
 
 export function EventQuickForm({ open, onOpenChange, onSubmit }: EventQuickFormProps) {
@@ -49,8 +49,8 @@ export function EventQuickForm({ open, onOpenChange, onSubmit }: EventQuickFormP
     },
   });
 
-  const handleSubmit = (data: EventFormData) => {
-    onSubmit(data);
+  const handleSubmit = async (data: EventFormData) => {
+    if (await onSubmit(data) === false) return;
     form.reset();
     onOpenChange(false);
   };
@@ -152,7 +152,7 @@ export function EventQuickForm({ open, onOpenChange, onSubmit }: EventQuickFormP
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
                 Cancelar
               </Button>
-              <Button type="submit" className="flex-1">
+              <Button type="submit" disabled={form.formState.isSubmitting} className="flex-1">
                 Salvar Evento
               </Button>
             </div>

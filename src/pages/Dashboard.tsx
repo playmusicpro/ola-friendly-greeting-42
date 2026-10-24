@@ -121,8 +121,8 @@ const Dashboard = () => {
     : null;
   const goalProgress = activeGoalProgress?.progressoPercentual ?? 0;
 
-  const handleAddEvent = (data: { nomeEvento: string; dataEvento: string; horaEvento: string; local?: string; valorPrevisto?: number; observacoes?: string }) => {
-    addEvent({
+  const handleAddEvent = async (data: { nomeEvento: string; dataEvento: string; horaEvento: string; local?: string; valorPrevisto?: number; observacoes?: string }) => {
+    const ok = await addEvent({
       title: data.nomeEvento,
       tipo: 'Show',
       date: data.dataEvento,
@@ -131,7 +131,8 @@ const Dashboard = () => {
       notes: data.observacoes,
       realizado: false,
     });
-    toast({ title: "Evento salvo!", description: "O evento foi adicionado com sucesso." });
+    if (ok) toast({ title: "Evento salvo!", description: "O evento foi adicionado com sucesso." });
+    return ok;
   };
 
   return (
@@ -159,7 +160,7 @@ const Dashboard = () => {
             </div>
             <div className="flex items-end justify-between gap-4">
               <div className="min-w-0">
-                <h2 className="dashboard-show-title text-2xl sm:text-3xl font-semibold break-words">{nextShow?.local || 'O palco espera por você'}</h2>
+                <h2 className="dashboard-show-title text-2xl sm:text-3xl font-semibold break-words">{nextShow?.title || nextShow?.local || 'O palco espera por você'}</h2>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-sm text-muted-foreground">
                   {nextShow ? <><span className="flex items-center gap-1.5"><CalendarDays className="h-4 w-4" />{formatDateBR(nextShow.date)}</span>{nextShow.time && <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" />{nextShow.time}</span>}</> : <span>Nenhum show agendado</span>}
                 </div>

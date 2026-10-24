@@ -28,7 +28,7 @@ const Shows = () => {
   const [showToDelete, setShowToDelete] = useState<string | null>(null);
 
   const handleAddShow = async (showData: Omit<Show, 'id'>) => {
-    if (!await addShow(showData)) return;
+    if (!await addShow(showData)) return false;
     toast({
       title: "Show adicionado!",
       description: "O show foi adicionado à sua agenda com sucesso.",
@@ -37,7 +37,7 @@ const Shows = () => {
 
   const handleUpdateShow = async (showData: Omit<Show, 'id'>) => {
     if (editingShow) {
-      if (!await updateShow(editingShow.id, showData)) return;
+      if (!await updateShow(editingShow.id, showData)) return false;
       toast({
         title: "Show atualizado!",
         description: "As alterações foram salvas com sucesso.",
