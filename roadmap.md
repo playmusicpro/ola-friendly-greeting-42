@@ -1,3 +1,4 @@
+- [ ] Conferir itens 1–6 do arquivo e adicionar gráficos financeiros com filtros, distribuição de gastos e sigilo no Painel.
 - [x] Substituir Cifra Club por afinador cromático interno: 24 testes aprovados; módulo isolado detectou A4/440 Hz offline e desligou o microfone; compilação OK. Acesso pelo Painel autenticado aguarda sessão disponível.
 - [x] Dock do Painel com Afinador à esquerda, Play central e Menu à direita restaurado.
 - [x] Corrigir metas com aportes/resgates atômicos, ativar despesas fixas, unificar gastos mensais e atualizar próximo show; link Google Agenda adicionado, 108 testes aprovados e compilação automática OK.
