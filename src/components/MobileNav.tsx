@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, CalendarDays, DollarSign, Music2, Menu, Video, Trophy, Settings, X, Users, HelpCircle, Play } from "lucide-react";
+import { Home, CalendarDays, DollarSign, Music2, Menu, Video, Trophy, Settings, X, Users, HelpCircle, Play, AudioLines } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -12,6 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import ModuleArtwork from "@/components/ModuleArtwork";
 import HelpCenter from "@/components/HelpCenter";
+
+const AFINADOR_URL = "https://www.cifraclub.com.br/afinador/";
 
 const MobileNav = () => {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
@@ -46,12 +48,16 @@ const MobileNav = () => {
     setShowHelpCenter(true);
   };
 
+  const handleAfinadorClick = () => {
+    window.open(AFINADOR_URL, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <>
       {isDashboard ? <nav aria-label="Navegação do Painel" className="dashboard-dock fixed z-50 left-1/2 -translate-x-1/2 bottom-5">
         <Button variant="ghost" className="dashboard-dock-tab" onClick={() => navigate('/')} aria-current="page"><Home className="h-5 w-5" /><span>Início</span></Button>
         <Button className="dashboard-play" size="icon" aria-label="Abrir Finanças" title="Abrir Finanças" onClick={() => navigate('/financas')}><Play className="h-7 w-7 fill-current" /></Button>
-        <Button variant="ghost" className="dashboard-dock-tab" onClick={() => setIsMoreOpen(true)}><Menu className="h-5 w-5" /><span>Menu</span></Button>
+        <Button variant="ghost" className="dashboard-dock-tab" onClick={handleAfinadorClick} aria-label="Abrir afinador do Cifra Club" title="Abrir afinador do Cifra Club"><AudioLines className="h-5 w-5" /><span>Afinador</span></Button>
       </nav> : <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-gold/20 z-50 md:hidden shadow-lg">
         <div className="flex items-center justify-around py-3">
           {mainNavItems.map((item) => (
