@@ -26,4 +26,10 @@ describe('Play do Painel', () => {
     expect(screen.getByTestId('current-path').textContent).toBe('/');
     vi.unstubAllGlobals();
   });
+
+  it('restaura o Menu do Painel abrindo o drawer de módulos', () => {
+    render(<MemoryRouter initialEntries={['/']}><MobileNav /><CurrentPath /></MemoryRouter>);
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir menu' }));
+    expect(screen.getByRole('button', { name: /Repertório/ })).toBeInTheDocument();
+  });
 });
