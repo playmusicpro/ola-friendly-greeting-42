@@ -117,8 +117,8 @@ All colors MUST be HSL.
   .tuner-scale { position: relative; height: 40px; border-radius: 8px; background: var(--tuner-scale); }
   .tuner-center-zone { position: absolute; left: 45%; width: 10%; height: 100%; background: hsl(var(--neon-green) / 0.18); }
   .tuner-center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: hsl(var(--neon-green)); }
-  .tuner-needle { position: absolute; top: -5px; bottom: -5px; width: 3px; transform: translateX(-50%); border-radius: 2px; background: hsl(var(--tuner-warning)); box-shadow: 0 0 10px hsl(var(--tuner-warning) / 0.4); }
-  .tuner-session[data-tuning="tuned"] .tuner-needle { background: hsl(var(--neon-green)); box-shadow: 0 0 12px hsl(var(--neon-green) / 0.5); }
+  .tuner-needle { position: absolute; inset: -5px 0; width: 100%; height: 50px; overflow: visible; stroke: hsl(var(--tuner-warning)); stroke-width: 3px; filter: drop-shadow(0 0 5px hsl(var(--tuner-warning) / 0.4)); }
+  .tuner-session[data-tuning="tuned"] .tuner-needle { stroke: hsl(var(--neon-green)); filter: drop-shadow(0 0 5px hsl(var(--neon-green) / 0.5)); }
   .module-navigation {
     position: relative;
     isolation: isolate;

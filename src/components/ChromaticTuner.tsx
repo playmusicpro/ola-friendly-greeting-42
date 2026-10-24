@@ -27,7 +27,7 @@ function TunerSession() {
     </div>
     <div className="tuner-meter" role="meter" aria-label="Desvio de afinação em cents" aria-valuemin={-50} aria-valuemax={50} aria-valuenow={reading ? Math.round(reading.cents) : 0} aria-valuetext={reading ? `${Math.round(reading.cents)} cents` : 'Sem sinal'}>
       <div className="tuner-scale"><span className="tuner-center-zone" /><span className="tuner-center-line" />
-        {reading && <span className={`tuner-needle tuner-position-${position}`} />}
+        {reading && <svg className="tuner-needle" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><line x1={position} x2={position} y1="0" y2="40" vectorEffect="non-scaling-stroke" /></svg>}
       </div>
       <div className="mt-3 flex justify-between text-xs text-muted-foreground"><span>−50</span><span className="text-foreground">0 cents</span><span>+50</span></div>
     </div>
