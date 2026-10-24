@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, CalendarDays, DollarSign, Music2, Menu, Video, Trophy, Settings, X, Users, HelpCircle, Play } from "lucide-react";
+import { Home, CalendarDays, DollarSign, Music2, Menu, Video, Trophy, Settings, X, Users, HelpCircle, Play, AudioLines } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -12,6 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import ModuleArtwork from "@/components/ModuleArtwork";
 import HelpCenter from "@/components/HelpCenter";
+
+const AFINADOR_URL = "https://www.cifraclub.com.br/afinador/";
 
 const MobileNav = () => {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
