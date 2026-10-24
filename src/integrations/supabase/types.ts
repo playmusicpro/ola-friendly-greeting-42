@@ -204,6 +204,44 @@ export type Database = {
           },
         ]
       }
+      financial_goal_transactions: {
+        Row: {
+          created_at: string
+          goal_id: string
+          id: string
+          tipo: string
+          updated_at: string
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          created_at?: string
+          goal_id: string
+          id?: string
+          tipo: string
+          updated_at?: string
+          user_id: string
+          valor: number
+        }
+        Update: {
+          created_at?: string
+          goal_id?: string
+          id?: string
+          tipo?: string
+          updated_at?: string
+          user_id?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_goal_transactions_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "financial_goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_goals: {
         Row: {
           created_at: string
@@ -212,6 +250,7 @@ export type Database = {
           id: string
           nome: string
           periodo: string
+          saldo_ajuste: number
           updated_at: string
           user_id: string
           valor_meta: number
@@ -223,6 +262,7 @@ export type Database = {
           id?: string
           nome: string
           periodo?: string
+          saldo_ajuste?: number
           updated_at?: string
           user_id: string
           valor_meta?: number
@@ -234,6 +274,7 @@ export type Database = {
           id?: string
           nome?: string
           periodo?: string
+          saldo_ajuste?: number
           updated_at?: string
           user_id?: string
           valor_meta?: number
@@ -613,15 +654,18 @@ export type Database = {
       }
       shows: {
         Row: {
+          address: string | null
           cache: number
           combustivel: number
           consumacao: number
           created_at: string
           date: string
+          end_time: string | null
           equipamentos: number
           id: string
           km_rodados: number
           local: string
+          notes: string | null
           num_musicos: number
           outros_custos: number
           pagamento_musicos: number
@@ -630,19 +674,23 @@ export type Database = {
           roupas: number
           time: string | null
           tipo: string
+          title: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          address?: string | null
           cache?: number
           combustivel?: number
           consumacao?: number
           created_at?: string
           date: string
+          end_time?: string | null
           equipamentos?: number
           id?: string
           km_rodados?: number
           local: string
+          notes?: string | null
           num_musicos?: number
           outros_custos?: number
           pagamento_musicos?: number
@@ -651,19 +699,23 @@ export type Database = {
           roupas?: number
           time?: string | null
           tipo?: string
+          title?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          address?: string | null
           cache?: number
           combustivel?: number
           consumacao?: number
           created_at?: string
           date?: string
+          end_time?: string | null
           equipamentos?: number
           id?: string
           km_rodados?: number
           local?: string
+          notes?: string | null
           num_musicos?: number
           outros_custos?: number
           pagamento_musicos?: number
@@ -672,6 +724,7 @@ export type Database = {
           roupas?: number
           time?: string | null
           tipo?: string
+          title?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -750,6 +803,10 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      move_financial_goal: {
+        Args: { p_goal_id: string; p_tipo: string; p_valor: number }
+        Returns: number
+      }
     }
     Enums: {
       app_role: "owner" | "admin" | "user"
