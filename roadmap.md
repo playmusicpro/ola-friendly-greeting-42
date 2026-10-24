@@ -1,5 +1,6 @@
 - [x] Trocar o botão "Menu" do Dock por "Afinador" (ícone de áudio) abrindo o afinador do Cifra Club em nova aba; teste aprovado e compilação OK.
 - [ ] Devolver ao Painel um acesso ao menu de módulos (Repertório, Projeto, Desafios, Comunidades, Configurações) — bloqueado: aguarda decisão do usuário sobre onde colocar o gatilho.
+- [x] Corrigir metas com aportes/resgates atômicos, ativar despesas fixas, unificar gastos mensais e atualizar próximo show; link Google Agenda adicionado, 108 testes aprovados e compilação automática OK.
 - [ ] Validar aportes/resgates, despesas fixas e atualização do próximo show com conta real — bloqueado: Supabase externo sem sessão de teste disponível.
 - [x] Habilitar upload privado do avatar no Supabase e polir pílula do show, gráficos e badges; testes aprovados.
 - [ ] Validar upload e recarregamento da foto com usuário real — bloqueado: Supabase externo sem sessão de teste disponível.
