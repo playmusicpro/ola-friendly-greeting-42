@@ -1,4 +1,5 @@
-- [x] Dock do Painel com Afinador à esquerda (abre o afinador do Cifra Club em nova aba), Play central e Menu à direita restaurado; testes aprovados e compilação OK.
+- [ ] Substituir Cifra Club por afinador cromático interno com microfone, detecção local, indicador de cents e testes.
+- [x] Dock do Painel com Afinador à esquerda, Play central e Menu à direita restaurado.
 - [x] Corrigir metas com aportes/resgates atômicos, ativar despesas fixas, unificar gastos mensais e atualizar próximo show; link Google Agenda adicionado, 108 testes aprovados e compilação automática OK.
 - [ ] Validar aportes/resgates, despesas fixas e atualização do próximo show com conta real — bloqueado: Supabase externo sem sessão de teste disponível.
 - [x] Habilitar upload privado do avatar no Supabase e polir pílula do show, gráficos e badges; testes aprovados.
