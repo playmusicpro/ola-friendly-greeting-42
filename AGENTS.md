@@ -10,3 +10,4 @@
 - Next-show queries are user-scoped, ordered and independently limited for shows and unlinked Show events; invalidate both candidates after event/show mutations.
 - Google Calendar links are user-confirmed event templates, not OAuth synchronization; preserve local date-times with an explicit event timezone.
 - The chromatic tuner uses bundled Pitchy detection and Web Audio locally, never uploads audio or connects microphone output to speakers; release tracks, animation frames and AudioContext on stop, close, page hide and unmount.
+- Dashboard financial charts derive totals from the shared monthly calculator and classify original expense categories without summing duplicate views; privacy mode removes monetary chart series/tooltips as well as masking displayed amounts.
