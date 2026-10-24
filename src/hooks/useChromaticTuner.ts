@@ -104,7 +104,7 @@ export function useChromaticTuner() {
     } catch (cause) {
       if (token !== generation.current) return;
       stop();
-      const name = cause instanceof Error ? cause.name : '';
+      const name = typeof cause === 'object' && cause !== null && 'name' in cause ? String(cause.name) : '';
       setError(name === 'NotAllowedError' || name === 'SecurityError'
         ? 'Permissão do microfone negada. Permita o acesso nas configurações do navegador e tente novamente.'
         : name === 'NotFoundError'
