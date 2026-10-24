@@ -1,4 +1,5 @@
-- [ ] Corrigir metas com aportes/resgates atômicos, ativar despesas fixas, unificar gastos mensais e atualizar próximo show; adicionar link Google Agenda e testes.
+- [x] Corrigir metas com aportes/resgates atômicos, ativar despesas fixas, unificar gastos mensais e atualizar próximo show; link Google Agenda adicionado, 108 testes aprovados e compilação automática OK.
+- [ ] Validar aportes/resgates, despesas fixas e atualização do próximo show com conta real — bloqueado: Supabase externo sem sessão de teste disponível.
 - [x] Habilitar upload privado do avatar no Supabase e polir pílula do show, gráficos e badges; testes aprovados.
 - [ ] Validar upload e recarregamento da foto com usuário real — bloqueado: Supabase externo sem sessão de teste disponível.
 - [x] Aplicar imagens temáticas aos cards financeiros e Próximos Eventos; imagens e contraste conferidos em cards isolados, compilação aprovada.

@@ -12,13 +12,14 @@ import { useFinancialData } from '@/hooks/useFinancialData';
 interface EventFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (event: Omit<Event, 'id'>) => void;
+  onSubmit: (event: Omit<Event, 'id'>) => void | Promise<boolean | void>;
   initialData?: Event;
 }
 
 export function EventForm({ open, onOpenChange, onSubmit, initialData }: EventFormProps) {
   const { setlists } = useRepertoire();
   const { shows } = useFinancialData();
+  const [saving, setSaving] = useState(false);
   
   const [formData, setFormData] = useState<Omit<Event, 'id'>>({
     title: '',
@@ -63,10 +64,11 @@ export function EventForm({ open, onOpenChange, onSubmit, initialData }: EventFo
     }
   }, [initialData, open]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
-    onOpenChange(false);
+    setSaving(true);
+    try { if (await onSubmit(formData) !== false) onOpenChange(false); }
+    finally { setSaving(false); }
   };
 
   return (
@@ -152,14 +154,14 @@ export function EventForm({ open, onOpenChange, onSubmit, initialData }: EventFo
           <div>
             <Label htmlFor="playlistId">Setlist (opcional)</Label>
             <Select
-              value={formData.playlistId || ''}
-              onValueChange={(value) => setFormData({ ...formData, playlistId: value || undefined })}
+              value={formData.playlistId || 'none'}
+              onValueChange={(value) => setFormData({ ...formData, playlistId: value === 'none' ? undefined : value })}
             >
               <SelectTrigger id="playlistId">
                 <SelectValue placeholder="Selecionar setlist" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Nenhum</SelectItem>
+                <SelectItem value="none">Nenhum</SelectItem>
                 {setlists.map((setlist) => (
                   <SelectItem key={setlist.id} value={setlist.id}>
                     {setlist.name}
@@ -173,14 +175,14 @@ export function EventForm({ open, onOpenChange, onSubmit, initialData }: EventFo
             <div>
               <Label htmlFor="linkedShowId">Vincular a Show existente (opcional)</Label>
               <Select
-                value={formData.linkedShowId || ''}
-                onValueChange={(value) => setFormData({ ...formData, linkedShowId: value || undefined })}
+                value={formData.linkedShowId || 'none'}
+                onValueChange={(value) => setFormData({ ...formData, linkedShowId: value === 'none' ? undefined : value })}
               >
                 <SelectTrigger id="linkedShowId">
                   <SelectValue placeholder="Selecionar show" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  <SelectItem value="none">Nenhum</SelectItem>
                   {shows.map((show) => (
                     <SelectItem key={show.id} value={show.id}>
                       {show.local} - {show.date}
@@ -205,7 +207,7 @@ export function EventForm({ open, onOpenChange, onSubmit, initialData }: EventFo
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit">
+            <Button type="submit" disabled={saving}>
               {initialData ? 'Atualizar' : 'Criar'} Evento
             </Button>
           </div>
