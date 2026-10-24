@@ -256,7 +256,7 @@ export function getShowsAnalysis(
 /* Períodos, metas e projeção                                          */
 /* ------------------------------------------------------------------ */
 
-const toISODate = (d: Date) => d.toISOString().split('T')[0];
+export const toISODate = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 /** Intervalo (YYYY-MM-DD) do período atual: semana (seg-dom) ou mês corrente. */
 export function getPeriodRange(
@@ -314,9 +314,9 @@ export function calculateGoalProgress(
     .filter((i) => inRange(i.date, start, end))
     .reduce((sum, i) => sum + i.amount, 0);
 
-  const realizado = faturamentoShows + outrasReceitas;
+  const realizado = faturamentoShows + outrasReceitas + (goal.saldoAjuste ?? 0);
   const meta = goal.valorMeta || 0;
-  const progressoPercentual = meta > 0 ? Math.min(100, (realizado / meta) * 100) : 0;
+  const progressoPercentual = meta > 0 ? Math.max(0, Math.min(100, (realizado / meta) * 100)) : 0;
 
   return {
     meta,
@@ -370,4 +370,18 @@ export function getNextShow(shows: Show[], reference: Date = new Date()): Show |
     .filter((s) => !s.realizado && s.date >= hoje)
     .sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
   return futuros[0] ?? null;
+}
+
+/** One monthly source of truth; expenses already include all general outflows. */
+export function calculateMonthlyFinancials(shows: Show[], expenses: Expense[], fixedExpenses: FixedExpense[], incomes: Income[] = [], reference = new Date()) {
+  const { start, end } = getPeriodRange('mensal', reference);
+  const monthShows = shows.filter(s => inRange(s.date, start, end));
+  const monthExpenses = expenses.filter(e => inRange(e.date, start, end));
+  const activeFixed = fixedExpenses.filter(e => e.active !== false);
+  const monthIncome = incomes.filter(i => inRange(i.date, start, end));
+  const custosShows = monthShows.reduce((sum, s) => sum + calculateShow(s).totalGastos, 0);
+  const despesasFixas = activeFixed.reduce((sum, e) => sum + e.amount, 0);
+  const saidasAvulsas = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
+  return { custosShows, despesasFixas, saidasAvulsas, totalGastos: custosShows + despesasFixas + saidasAvulsas,
+    dre: calculateDRE(monthShows.filter(s => s.realizado), monthExpenses, activeFixed, monthIncome) };
 }

@@ -1,5 +1,9 @@
 export interface Show {
   id: string;
+  title?: string;
+  address?: string;
+  notes?: string;
+  endTime?: string;
   date: string;
   time: string;
   local: string;
@@ -41,6 +45,7 @@ export interface FixedExpense {
   description: string;
   amount: number;
   dueDay: number;
+  active?: boolean;
 }
 
 export interface Project {
@@ -191,6 +196,7 @@ export interface FinancialGoal {
   dataInicio: string;
   dataFim: string;
   criadoEm: string;
+  saldoAjuste?: number;
 }
 
 export interface GeneralExpense {
