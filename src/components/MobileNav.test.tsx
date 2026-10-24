@@ -16,4 +16,14 @@ describe('Play do Painel', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Abrir Finanças' }));
     expect(screen.getByTestId('current-path').textContent).toBe('/financas');
   });
+
+  it('abre o Afinador do Cifra Club em nova aba sem sair do Painel', () => {
+    const open = vi.fn();
+    vi.stubGlobal('open', open);
+    render(<MemoryRouter initialEntries={['/']}><MobileNav /><CurrentPath /></MemoryRouter>);
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir afinador do Cifra Club' }));
+    expect(open).toHaveBeenCalledWith('https://www.cifraclub.com.br/afinador/', '_blank', 'noopener,noreferrer');
+    expect(screen.getByTestId('current-path').textContent).toBe('/');
+    vi.unstubAllGlobals();
+  });
 });
