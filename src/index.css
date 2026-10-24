@@ -68,6 +68,15 @@ All colors MUST be HSL.
     --module-text-shadow: 0 1px 4px hsl(var(--stage));
     --artwork-muted-foreground: 230 15% 80%;
     --tuner-warning: 22 95% 62%;
+    --chart-income: hsl(var(--neon-green));
+    --chart-expense: hsl(345 85% 67%);
+    --chart-axis: hsl(var(--muted-foreground));
+    --chart-grid: hsl(var(--glass-border) / 0.12);
+    --chart-category-0: hsl(var(--gold));
+    --chart-category-1: hsl(var(--neon-blue));
+    --chart-category-2: hsl(var(--neon-green));
+    --chart-category-3: hsl(var(--neon-violet));
+    --chart-category-4: var(--chart-expense);
     --tuner-scale: linear-gradient(90deg, hsl(var(--tuner-warning) / 0.45), hsl(var(--muted)) 40%, hsl(var(--neon-green) / 0.45) 50%, hsl(var(--muted)) 60%, hsl(var(--tuner-warning) / 0.45));
   }
 
@@ -106,6 +115,18 @@ All colors MUST be HSL.
 }
 
 @layer components {
+  .dashboard-chart-section { padding-block: 20px; }
+  .financial-income-stop { stop-color: var(--chart-income); }
+  .financial-expense-stop { stop-color: var(--chart-expense); }
+  .financial-chart-tooltip { border: 1px solid hsl(var(--glass-border) / 0.25); border-radius: 8px; padding: 12px; background: hsl(var(--stage)); box-shadow: var(--glass-shadow); color: hsl(var(--foreground)); }
+  .chart-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .chart-income-dot { background: var(--chart-income); }
+  .chart-expense-dot { background: var(--chart-expense); }
+  .chart-category-0 { background: var(--chart-category-0); }
+  .chart-category-1 { background: var(--chart-category-1); }
+  .chart-category-2 { background: var(--chart-category-2); }
+  .chart-category-3 { background: var(--chart-category-3); }
+  .chart-category-4 { background: var(--chart-category-4); }
   .tuner-dialog { width: min(420px, calc(100% - 32px)); max-height: calc(100dvh - 32px); overflow-y: auto; border-radius: 24px; border-color: hsl(var(--glass-border) / 0.2); background: hsl(var(--stage)); box-shadow: var(--glass-shadow); }
   .tuner-session { display: flex; flex-direction: column; gap: 20px; }
   .tuner-note-area { text-align: center; padding-top: 12px; }

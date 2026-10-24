@@ -1,4 +1,6 @@
-import { Calendar, DollarSign, TrendingUp, Video, Plus, Wallet, AlertTriangle, Info, Music, Users, GraduationCap, Mic, Clock, CalendarDays, HelpCircle, PiggyBank, Target, Trash2, ArrowUpRight, MapPin, ChevronRight } from "lucide-react";
+import { Calendar, DollarSign, TrendingUp, Video, Plus, Wallet, AlertTriangle, Info, Music, Users, GraduationCap, Mic, Clock, CalendarDays, HelpCircle, PiggyBank, Target, Trash2, ArrowUpRight, MapPin, ChevronRight, Eye, EyeOff } from "lucide-react";
+import DashboardFinancialCharts from '@/components/DashboardFinancialCharts';
+import { PRIVATE_CURRENCY } from '@/lib/dashboardFinancialCharts';
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "@/hooks/useProfile";
 import ProfileAvatar from "@/components/ProfileAvatar";
@@ -53,6 +55,8 @@ const Dashboard = () => {
   } = useFinancialData();
   const { songs, setlists } = useRepertoire();
   const [showHelpCenter, setShowHelpCenter] = useState(false);
+  const [hideValues, setHideValues] = useState(false);
+  const money = (value: number) => hideValues ? PRIVATE_CURRENCY : formatCurrency(value);
   const [transactionGoal, setTransactionGoal] = useState<{id: string; nome: string} | null>(null);
   const [goalTipo, setGoalTipo] = useState<'deposito' | 'retirada'>('deposito');
   const [showGoalForm, setShowGoalForm] = useState(false);
@@ -149,6 +153,7 @@ const Dashboard = () => {
         <header className="flex items-center gap-3 pb-1">
           <ProfileAvatar name={displayName} />
           <h1 className="text-base font-bold min-w-0 truncate">Olá, <span>{displayName.split(' ')[0].toUpperCase()}</span></h1>
+          <Button variant="ghost" size="icon" className="ml-auto shrink-0 text-gold" onClick={() => setHideValues(value => !value)} aria-pressed={hideValues} aria-label={hideValues ? 'Mostrar valores' : 'Ocultar valores'} title={hideValues ? 'Mostrar valores' : 'Ocultar valores'}>{hideValues ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}</Button>
         </header>
 
         <Card className="dashboard-next-show relative overflow-hidden">
@@ -177,9 +182,9 @@ const Dashboard = () => {
             <ModuleArtwork module="/analises" />
             <CardContent className="dashboard-financial-content p-4 sm:p-5">
               <div className="flex items-center gap-2 text-muted-foreground"><TrendingUp className="h-4 w-4 shrink-0 text-primary" /><h2 className="text-xs sm:text-sm font-medium">Faturamento Projetado</h2></div>
-              <p className="dashboard-financial-value mt-4 font-semibold tabular-nums">{formatCurrency(projection.faturamentoProjetado)}</p>
+              <p className="dashboard-financial-value mt-4 font-semibold tabular-nums">{money(projection.faturamentoProjetado)}</p>
               <div className="dashboard-financial-footer"><Badge variant="outline" className={`dashboard-status text-[10px] sm:text-xs ${projectedPercentage !== null && projectedPercentage > 0 ? 'dashboard-status-positive' : 'dashboard-status-blue'}`}>{projectedPercentage === null ? 'Sem base anterior' : `${projectedPercentage > 0 ? '+' : ''}${formatPercentage(projectedPercentage)} vs. média`}</Badge>
-              <DashboardTrend values={monthlyTrends.map(point => point.projection)} label="Tendência do faturamento projetado em seis meses" tone="gold" />
+              {!hideValues && <DashboardTrend values={monthlyTrends.map(point => point.projection)} label="Tendência do faturamento projetado em seis meses" tone="gold" />}
               </div>
             </CardContent>
           </Card>
@@ -187,9 +192,9 @@ const Dashboard = () => {
             <ModuleArtwork module="/financas" />
             <CardContent className="dashboard-financial-content p-4 sm:p-5">
               <div className="flex items-center gap-2 text-muted-foreground"><Wallet className="h-4 w-4 shrink-0 text-gold" /><h2 className="text-xs sm:text-sm font-medium">Resultado do Mês</h2></div>
-              <p className="dashboard-financial-value mt-4 font-semibold tabular-nums">{formatCurrency(dre.resultadoOperacional)}</p>
+              <p className="dashboard-financial-value mt-4 font-semibold tabular-nums">{money(dre.resultadoOperacional)}</p>
               <div className="dashboard-financial-footer"><Badge variant="outline" className={`dashboard-status text-[10px] sm:text-xs ${dre.margemFinal > 0 ? 'dashboard-status-positive' : 'dashboard-status-blue'}`}>{formatPercentage(dre.margemFinal)} de margem</Badge>
-              <DashboardTrend values={monthlyTrends.map(point => point.result)} label="Tendência dos resultados em seis meses" tone="blue" />
+              {!hideValues && <DashboardTrend values={monthlyTrends.map(point => point.result)} label="Tendência dos resultados em seis meses" tone="blue" />}
               </div>
             </CardContent>
           </Card>
@@ -198,9 +203,10 @@ const Dashboard = () => {
         {alerts.length > 0 && <div className="space-y-3">{alerts.map(alert => <Alert key={alert.id} className={alert.type === 'danger' ? 'border-destructive/30 bg-destructive/5' : 'border-gold/20 bg-gold/5'}><AlertTriangle className="h-4 w-4" /><AlertDescription>{alert.message}</AlertDescription></Alert>)}</div>}
 
         <div className="grid grid-cols-2 gap-3 sm:gap-5">
-          <Card className="thematic-card"><ModuleArtwork module="/receitas" /><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 text-sm text-muted-foreground"><DollarSign className="h-4 w-4 shrink-0 text-gold" />Gastos do Mês</div><p className="dashboard-financial-value mt-2 font-semibold">{formatCurrency(monthly.totalGastos)}</p></CardContent></Card>
-          <Card className="thematic-card"><ModuleArtwork module="savings" /><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 text-sm text-muted-foreground"><PiggyBank className="h-4 w-4 shrink-0 text-gold" />Reservas</div><p className="dashboard-financial-value mt-2 font-semibold text-gold">{formatCurrency(totalPiggyBanks)}</p></CardContent></Card>
+          <Card className="thematic-card"><ModuleArtwork module="/receitas" /><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 text-sm text-muted-foreground"><DollarSign className="h-4 w-4 shrink-0 text-gold" />Gastos do Mês</div><p className="dashboard-financial-value mt-2 font-semibold">{money(monthly.totalGastos)}</p></CardContent></Card>
+          <Card className="thematic-card"><ModuleArtwork module="savings" /><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 text-sm text-muted-foreground"><PiggyBank className="h-4 w-4 shrink-0 text-gold" />Reservas</div><p className="dashboard-financial-value mt-2 font-semibold text-gold">{money(totalPiggyBanks)}</p></CardContent></Card>
         </div>
+        <DashboardFinancialCharts shows={shows} expenses={expenses} fixedExpenses={fixedExpenses} incomes={incomes} generalExpenses={generalExpenses} hidden={hideValues} />
 
         {/* Meta Ativa */}
         {activeGoal && (
@@ -214,12 +220,12 @@ const Dashboard = () => {
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">{formatCurrency(activeGoalProgress?.realizado ?? 0)} de {formatCurrency(activeGoal.valorMeta)}</span>
+                <span className="text-muted-foreground">{money(activeGoalProgress?.realizado ?? 0)} de {money(activeGoal.valorMeta)}</span>
                 <span className="font-semibold text-gold">{formatPercentage(goalProgress)}</span>
               </div>
               <Progress value={goalProgress} className="h-3" />
               <p className="text-xs text-muted-foreground">
-                Faltam {formatCurrency(activeGoalProgress?.restante ?? 0)} • considera shows finalizados no período
+                Faltam {money(activeGoalProgress?.restante ?? 0)} • considera shows finalizados no período
               </p>
             </div>
           </Card>
@@ -295,7 +301,7 @@ const Dashboard = () => {
                     <p className="font-medium">{exp.descricao}</p>
                     <p className="text-xs text-muted-foreground">{formatDateBR(exp.data)} • {exp.categoria}</p>
                   </div>
-                  <span className="text-destructive font-bold text-lg">-{formatCurrency(exp.valor)}</span>
+                  <span className="text-destructive font-bold text-lg">{hideValues ? PRIVATE_CURRENCY : `-${money(exp.valor)}`}</span>
                 </div>
               ))}
             </div>
@@ -313,11 +319,11 @@ const Dashboard = () => {
                     <p className="font-semibold">{pb.nome}</p>
                     <PiggyBank className="h-5 w-5 text-gold" />
                   </div>
-                  <p className="text-2xl font-bold text-gold">{formatCurrency(pb.valorAtual)}</p>
+                  <p className="text-2xl font-bold text-gold">{money(pb.valorAtual)}</p>
                   {pb.objetivo && (
                     <div className="mt-2">
                       <Progress value={(pb.valorAtual / pb.objetivo) * 100} className="h-2" />
-                      <p className="text-xs text-muted-foreground mt-1">Objetivo: {formatCurrency(pb.objetivo)}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Objetivo: {money(pb.objetivo)}</p>
                     </div>
                   )}
                 </div>
@@ -345,7 +351,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <Progress value={gp.progressoPercentual} className="h-2 mb-1" />
-                    <p className="text-xs text-muted-foreground">{formatPercentage(gp.progressoPercentual)} • {formatCurrency(gp.realizado)} / {formatCurrency(goal.valorMeta)}</p>
+                    <p className="text-xs text-muted-foreground">{formatPercentage(gp.progressoPercentual)} • {money(gp.realizado)} / {money(goal.valorMeta)}</p>
                     <div className="flex flex-wrap gap-2 mt-3">
                       <Button size="sm" onClick={() => { setGoalTipo('deposito'); setTransactionGoal(goal); }}><Plus className="h-4 w-4 mr-1" />Aporte / Adicionar Valor</Button>
                       <Button size="sm" variant="outline" disabled={gp.realizado <= 0} onClick={() => { setGoalTipo('retirada'); setTransactionGoal(goal); }}>Resgate / Retirar Valor</Button>
