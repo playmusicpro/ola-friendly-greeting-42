@@ -17,12 +17,14 @@ describe('Play do Painel', () => {
     expect(screen.getByTestId('current-path').textContent).toBe('/financas');
   });
 
-  it('abre o Afinador do Cifra Club em nova aba sem sair do Painel', () => {
+  it('abre o afinador interno sem sair do Painel nem abrir sites externos', () => {
     const open = vi.fn();
     vi.stubGlobal('open', open);
     render(<MemoryRouter initialEntries={['/']}><MobileNav /><CurrentPath /></MemoryRouter>);
-    fireEvent.click(screen.getByRole('button', { name: 'Abrir afinador do Cifra Club' }));
-    expect(open).toHaveBeenCalledWith('https://www.cifraclub.com.br/afinador/', '_blank', 'noopener,noreferrer');
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir afinador' }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ligar Microfone' })).toBeInTheDocument();
+    expect(open).not.toHaveBeenCalled();
     expect(screen.getByTestId('current-path').textContent).toBe('/');
     vi.unstubAllGlobals();
   });
