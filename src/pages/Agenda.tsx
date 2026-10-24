@@ -75,17 +75,17 @@ export default function Agenda() {
   const selectedDateStr = selectedDate?.toISOString().split('T')[0] || '';
   const dayEvents = events.filter(event => event.date === selectedDateStr);
 
-  const handleAddEvent = (eventData: Omit<Event, 'id'>) => {
-    addEvent(eventData);
+  const handleAddEvent = async (eventData: Omit<Event, 'id'>) => {
+    if (!await addEvent(eventData)) return false;
     toast({
       title: "Evento criado",
       description: "O evento foi adicionado à agenda.",
     });
   };
 
-  const handleUpdateEvent = (eventData: Omit<Event, 'id'>) => {
+  const handleUpdateEvent = async (eventData: Omit<Event, 'id'>) => {
     if (editingEvent) {
-      updateEvent(editingEvent.id, eventData);
+      if (!await updateEvent(editingEvent.id, eventData)) return false;
       toast({
         title: "Evento atualizado",
         description: "As alterações foram salvas.",
