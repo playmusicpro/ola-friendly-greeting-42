@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useFinancialData } from "@/hooks/useFinancialData";
 import { calculateShow, formatCurrency, formatPercentage } from "@/lib/calculations";
+import { GoogleCalendarShowButton } from '@/components/GoogleCalendarShowButton';
 import { ShowForm } from "@/components/ShowForm";
 import { useState } from "react";
 import { Show } from "@/types";
@@ -26,17 +27,17 @@ const Shows = () => {
   const [editingShow, setEditingShow] = useState<Show | undefined>();
   const [showToDelete, setShowToDelete] = useState<string | null>(null);
 
-  const handleAddShow = (showData: Omit<Show, 'id'>) => {
-    addShow(showData);
+  const handleAddShow = async (showData: Omit<Show, 'id'>) => {
+    if (!await addShow(showData)) return false;
     toast({
       title: "Show adicionado!",
       description: "O show foi adicionado à sua agenda com sucesso.",
     });
   };
 
-  const handleUpdateShow = (showData: Omit<Show, 'id'>) => {
+  const handleUpdateShow = async (showData: Omit<Show, 'id'>) => {
     if (editingShow) {
-      updateShow(editingShow.id, showData);
+      if (!await updateShow(editingShow.id, showData)) return false;
       toast({
         title: "Show atualizado!",
         description: "As alterações foram salvas com sucesso.",
@@ -149,7 +150,7 @@ const Shows = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3 flex-wrap">
-                        <h3 className="text-xl font-bold">{show.local}</h3>
+                        <h3 className="text-xl font-bold">{show.title || show.local}</h3>
                         <Badge variant="outline" className="border-primary/30 text-primary">{show.tipo}</Badge>
                         {show.realizado && (
                           <Badge className="bg-success text-white border-success">Finalizado</Badge>
@@ -180,6 +181,7 @@ const Shows = () => {
                     </div>
 
                     <div className="flex gap-2 flex-wrap justify-end">
+                      <GoogleCalendarShowButton show={show} />
                       <Button
                         size="sm"
                         variant={show.realizado ? "outline" : "default"}

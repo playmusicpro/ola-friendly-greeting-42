@@ -15,6 +15,10 @@ import { calculateShow, formatCurrency, formatPercentage } from "@/lib/calculati
 import { useEffect, useState } from "react";
 
 const showSchema = z.object({
+  title: z.string().optional(),
+  address: z.string().optional(),
+  notes: z.string().optional(),
+  endTime: z.string().optional(),
   date: z.string().min(1, "Data é obrigatória"),
   time: z.string().min(1, "Horário é obrigatório"),
   local: z.string().trim().min(1, "Local é obrigatório").max(200, "Local deve ter no máximo 200 caracteres"),
@@ -37,7 +41,7 @@ type ShowFormData = z.infer<typeof showSchema>;
 interface ShowFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (show: Omit<Show, 'id'>) => void;
+  onSubmit: (show: Omit<Show, 'id'>) => void | Promise<boolean | void>;
   initialData?: Show;
 }
 
@@ -47,7 +51,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
     handleSubmit,
     watch,
     setValue,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     reset,
   } = useForm<ShowFormData>({
     resolver: zodResolver(showSchema),
@@ -102,9 +106,9 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
     setCalculations(calc);
   }, [watchedValues]);
 
-  const handleFormSubmit = (data: ShowFormData) => {
+  const handleFormSubmit = async (data: ShowFormData) => {
     // Após validação do zod, todos os campos estarão presentes
-    onSubmit(data as Omit<Show, 'id'>);
+    if (await onSubmit(data as Omit<Show, 'id'>) === false) return;
     reset();
     onOpenChange(false);
   };
@@ -123,6 +127,10 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gold">Informações do Show</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2"><Label htmlFor="show-title">Título do Show</Label><Input id="show-title" {...register('title')} placeholder="Nome da apresentação" /></div>
+              <div><Label htmlFor="show-end">Horário de término</Label><Input id="show-end" type="time" {...register('endTime')} /><p className="text-xs text-muted-foreground">Sem término informado: duração de 2 horas no Google Agenda.</p></div>
+              <div><Label htmlFor="show-address">Endereço</Label><Input id="show-address" {...register('address')} placeholder="Rua, número e cidade" /></div>
+              <div className="md:col-span-2"><Label htmlFor="show-notes">Descrição</Label><Input id="show-notes" {...register('notes')} /></div>
               <div>
                 <Label htmlFor="date">Data *</Label>
                 <Input
@@ -405,6 +413,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
             </Button>
             <Button
               type="submit"
+              disabled={isSubmitting}
               className="bg-primary hover:bg-primary/90 text-white"
             >
               <DollarSign className="h-4 w-4 mr-2" />

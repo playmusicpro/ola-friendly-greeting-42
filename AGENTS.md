@@ -5,3 +5,7 @@
 - Scope the dashboard visual theme and navigation exception to the home route so other pages retain their established layout; dashboard trend charts use actual financial records without placeholder trends.
 - Use shared ModuleArtwork for module navigation, dashboard quick actions, and themed financial/event cards so photography keeps one consistent overlay and glass treatment; StatCard artwork is opt-in.
 - Store rasterized avatars in private Storage under the authenticated user's folder; keep avatar_path and avatar_url in Auth metadata and renew signed display URLs instead of persisting expired links alone.
+- Use calculateMonthlyFinancials for Dashboard and Finance monthly totals; expenses and generalExpenses are two views of the same rows and must never be summed together.
+- Goal movements use an authenticated invoker wrapper over an owner-validated private atomic function, with a row lock and immutable movement history to prevent stale-balance withdrawals.
+- Next-show queries are user-scoped, ordered and independently limited for shows and unlinked Show events; invalidate both candidates after event/show mutations.
+- Google Calendar links are user-confirmed event templates, not OAuth synchronization; preserve local date-times with an explicit event timezone.

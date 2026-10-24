@@ -18,7 +18,8 @@ import { useOnboarding } from "@/hooks/useOnboarding";
 import { formatDateBR } from "@/lib/dateUtils";
 import { tooltips } from "@/lib/helpContent";
 import { 
-  calculateDRE, 
+  calculateDRE,
+  calculateMonthlyFinancials, 
   generateAlerts,
   formatCurrency,
   formatPercentage,
@@ -28,6 +29,8 @@ import {
 } from "@/lib/calculations";
 import Onboarding from "@/components/Onboarding";
 import HelpCenter from "@/components/HelpCenter";
+import { GoalTransactionForm } from '@/components/GoalTransactionForm';
+import { GoogleCalendarShowButton } from '@/components/GoogleCalendarShowButton';
 import { GoalForm } from "@/components/GoalForm";
 import { ExpenseForm } from "@/components/ExpenseForm";
 import { PiggyBankForm } from "@/components/PiggyBankForm";
@@ -41,15 +44,17 @@ const Dashboard = () => {
   const displayName = profile?.name?.trim() || "Músico";
   const { toast } = useToast();
   const {
-    shows, expenses, fixedExpenses, project, incomes, events,
+    nextShow, shows, expenses, fixedExpenses, project, incomes, events,
     goals, generalExpenses, piggyBanks,
-    addGoal, deleteGoal,
+    addGoal, deleteGoal, moveGoal,
     addGeneralExpense,
     addPiggyBank,
     addEvent,
   } = useFinancialData();
   const { songs, setlists } = useRepertoire();
   const [showHelpCenter, setShowHelpCenter] = useState(false);
+  const [transactionGoal, setTransactionGoal] = useState<{id: string; nome: string} | null>(null);
+  const [goalTipo, setGoalTipo] = useState<'deposito' | 'retirada'>('deposito');
   const [showGoalForm, setShowGoalForm] = useState(false);
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showPiggyForm, setShowPiggyForm] = useState(false);
@@ -87,9 +92,10 @@ const Dashboard = () => {
     }
   };
   
-  const dre = calculateDRE(shows, expenses, fixedExpenses, incomes);
+  const monthly = calculateMonthlyFinancials(shows, expenses, fixedExpenses, incomes, now);
+  const dre = monthly.dre;
   const projection = calculateProjectedRevenue(shows, now);
-  const nextShow = getNextShow(shows, now);
+
   const nextShowDate = nextShow ? new Date(nextShow.date) : undefined;
   const alerts = generateAlerts(shows, dre, nextShowDate);
   const monthlyTrends = Array.from({ length: 6 }, (_, index) => {
@@ -97,7 +103,7 @@ const Dashboard = () => {
     const month = `${reference.getFullYear()}-${String(reference.getMonth() + 1).padStart(2, '0')}`;
     return {
       projection: calculateProjectedRevenue(shows, reference).faturamentoProjetado,
-      result: calculateDRE(shows.filter(show => show.date.startsWith(month)), expenses.filter(expense => expense.date.startsWith(month)), fixedExpenses, incomes.filter(income => income.date.startsWith(month))).resultadoOperacional,
+      result: calculateMonthlyFinancials(shows, expenses, fixedExpenses, incomes, reference).dre.resultadoOperacional,
     };
   });
   const projectedPercentage = projection.mediaMensal !== 0 ? ((projection.faturamentoProjetado - projection.mediaMensal) / Math.abs(projection.mediaMensal)) * 100 : null;
@@ -115,8 +121,8 @@ const Dashboard = () => {
     : null;
   const goalProgress = activeGoalProgress?.progressoPercentual ?? 0;
 
-  const handleAddEvent = (data: { nomeEvento: string; dataEvento: string; horaEvento: string; local?: string; valorPrevisto?: number; observacoes?: string }) => {
-    addEvent({
+  const handleAddEvent = async (data: { nomeEvento: string; dataEvento: string; horaEvento: string; local?: string; valorPrevisto?: number; observacoes?: string }) => {
+    const ok = await addEvent({
       title: data.nomeEvento,
       tipo: 'Show',
       date: data.dataEvento,
@@ -125,13 +131,15 @@ const Dashboard = () => {
       notes: data.observacoes,
       realizado: false,
     });
-    toast({ title: "Evento salvo!", description: "O evento foi adicionado com sucesso." });
+    if (ok) toast({ title: "Evento salvo!", description: "O evento foi adicionado com sucesso." });
+    return ok;
   };
 
   return (
     <>
       <Onboarding isOpen={showOnboarding} onComplete={completeOnboarding} onClose={() => setShowOnboarding(false)} />
       <HelpCenter isOpen={showHelpCenter} onClose={() => setShowHelpCenter(false)} />
+      <GoalTransactionForm goal={transactionGoal} tipo={goalTipo} balance={transactionGoal ? calculateGoalProgress(goals.find(g => g.id === transactionGoal.id) ?? { id: '', nome: '', valorMeta: 0, periodo: 'mensal', dataInicio: '', dataFim: '', criadoEm: '' }, shows, incomes, now).realizado : 0} onClose={() => setTransactionGoal(null)} onSubmit={async (id, value, tipo) => { const ok = await moveGoal(id, value, tipo); if (ok) toast({ title: tipo === 'deposito' ? 'Aporte realizado' : 'Resgate realizado' }); return ok; }} />
       <GoalForm open={showGoalForm} onOpenChange={setShowGoalForm} onSubmit={(data) => { addGoal(data); toast({ title: "Meta criada!", description: "Sua meta financeira foi salva." }); }} />
       <ExpenseForm open={showExpenseForm} onOpenChange={setShowExpenseForm} onSubmit={(data) => { addGeneralExpense(data); toast({ title: "Gasto registrado!", description: "O gasto foi salvo com sucesso." }); }} />
       <PiggyBankForm open={showPiggyForm} onOpenChange={setShowPiggyForm} onSubmit={(data) => { addPiggyBank(data); toast({ title: "Cofrinho criado!", description: "Seu cofrinho foi salvo com sucesso." }); }} />
@@ -152,13 +160,14 @@ const Dashboard = () => {
             </div>
             <div className="flex items-end justify-between gap-4">
               <div className="min-w-0">
-                <h2 className="dashboard-show-title text-2xl sm:text-3xl font-semibold break-words">{nextShow?.local || 'O palco espera por você'}</h2>
+                <h2 className="dashboard-show-title text-2xl sm:text-3xl font-semibold break-words">{nextShow?.title || nextShow?.local || 'O palco espera por você'}</h2>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-sm text-muted-foreground">
                   {nextShow ? <><span className="flex items-center gap-1.5"><CalendarDays className="h-4 w-4" />{formatDateBR(nextShow.date)}</span>{nextShow.time && <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" />{nextShow.time}</span>}</> : <span>Nenhum show agendado</span>}
                 </div>
               </div>
               <Button variant="ghost" size="icon" aria-label={nextShow ? 'Ver próximo show' : 'Adicionar show'} className="shrink-0 rounded-full border border-gold/20 text-gold" onClick={() => nextShow ? navigate('/agenda') : setShowEventForm(true)}>{nextShow ? <ArrowUpRight className="h-5 w-5" /> : <Plus className="h-5 w-5" />}</Button>
             </div>
+            {nextShow && <div className="mt-4"><GoogleCalendarShowButton show={nextShow} /></div>}
             <Button variant="outline" className="dashboard-itinerary mt-5 gap-2 text-xs" onClick={() => navigate('/agenda')}>Ver Roteiro do Show<ChevronRight className="h-4 w-4" /></Button>
           </CardContent>
         </Card>
@@ -189,7 +198,7 @@ const Dashboard = () => {
         {alerts.length > 0 && <div className="space-y-3">{alerts.map(alert => <Alert key={alert.id} className={alert.type === 'danger' ? 'border-destructive/30 bg-destructive/5' : 'border-gold/20 bg-gold/5'}><AlertTriangle className="h-4 w-4" /><AlertDescription>{alert.message}</AlertDescription></Alert>)}</div>}
 
         <div className="grid grid-cols-2 gap-3 sm:gap-5">
-          <Card className="thematic-card"><ModuleArtwork module="/receitas" /><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 text-sm text-muted-foreground"><DollarSign className="h-4 w-4 shrink-0 text-gold" />Gastos do Mês</div><p className="dashboard-financial-value mt-2 font-semibold">{formatCurrency(totalGeneralExpenses)}</p></CardContent></Card>
+          <Card className="thematic-card"><ModuleArtwork module="/receitas" /><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 text-sm text-muted-foreground"><DollarSign className="h-4 w-4 shrink-0 text-gold" />Gastos do Mês</div><p className="dashboard-financial-value mt-2 font-semibold">{formatCurrency(monthly.totalGastos)}</p></CardContent></Card>
           <Card className="thematic-card"><ModuleArtwork module="savings" /><CardContent className="p-4 sm:p-5"><div className="flex items-center gap-2 text-sm text-muted-foreground"><PiggyBank className="h-4 w-4 shrink-0 text-gold" />Reservas</div><p className="dashboard-financial-value mt-2 font-semibold text-gold">{formatCurrency(totalPiggyBanks)}</p></CardContent></Card>
         </div>
 
@@ -337,6 +346,10 @@ const Dashboard = () => {
                     </div>
                     <Progress value={gp.progressoPercentual} className="h-2 mb-1" />
                     <p className="text-xs text-muted-foreground">{formatPercentage(gp.progressoPercentual)} • {formatCurrency(gp.realizado)} / {formatCurrency(goal.valorMeta)}</p>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      <Button size="sm" onClick={() => { setGoalTipo('deposito'); setTransactionGoal(goal); }}><Plus className="h-4 w-4 mr-1" />Aporte / Adicionar Valor</Button>
+                      <Button size="sm" variant="outline" disabled={gp.realizado <= 0} onClick={() => { setGoalTipo('retirada'); setTransactionGoal(goal); }}>Resgate / Retirar Valor</Button>
+                    </div>
                   </div>
                 );
               })}
