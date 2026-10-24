@@ -1,4 +1,6 @@
-import { Fuel, Shirt, Music, PiggyBank, Home as HomeIcon, TrendingDown, TrendingUp, AlertTriangle, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
+import { Fuel, Shirt, Music, PiggyBank, Home as HomeIcon, TrendingDown, TrendingUp, AlertTriangle, Plus, Trash2, ArrowUp, ArrowDown, Edit } from "lucide-react";
+import { FixedExpenseForm } from '@/components/FixedExpenseForm';
+import type { FixedExpense } from '@/types';
 import StatCard from "@/components/StatCard";
 import ModuleArtwork from "@/components/ModuleArtwork";
 import { Card } from "@/components/ui/card";
@@ -7,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { useFinancialData } from "@/hooks/useFinancialData";
 import { useToast } from "@/hooks/use-toast";
-import { calculateDRE, formatCurrency, formatPercentage } from "@/lib/calculations";
+import { calculateMonthlyFinancials, formatCurrency, formatPercentage } from "@/lib/calculations";
 import { ExpenseForm } from "@/components/ExpenseForm";
 import { PiggyBankForm } from "@/components/PiggyBankForm";
 import { PiggyBankTransactionForm } from "@/components/PiggyBankTransactionForm";
@@ -17,26 +19,24 @@ import { useState } from "react";
 const Financas = () => {
   const { toast } = useToast();
   const {
-    shows, expenses, fixedExpenses, incomes,
+    shows, expenses, fixedExpenses, incomes, saveFixedExpense,
     generalExpenses, piggyBanks,
     addGeneralExpense, deleteGeneralExpense,
     addPiggyBank, addToPiggyBank, withdrawFromPiggyBank, deletePiggyBank,
   } = useFinancialData();
 
+  const [showFixedForm, setShowFixedForm] = useState(false);
+  const [editingFixed, setEditingFixed] = useState<FixedExpense | undefined>();
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showPiggyForm, setShowPiggyForm] = useState(false);
   const [transactionPiggyId, setTransactionPiggyId] = useState<string | null>(null);
   const [transactionType, setTransactionType] = useState<'deposito' | 'retirada'>('deposito');
 
-  const handleComingSoon = (feature: string) => {
-    toast({ title: "Em desenvolvimento", description: `A função "${feature}" será disponibilizada em breve.` });
-  };
-
-  const totalGastos = expenses.reduce((sum, exp) => sum + exp.amount, 0);
-  const totalFixas = fixedExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+  const monthly = calculateMonthlyFinancials(shows, expenses, fixedExpenses, incomes);
+  const totalFixas = monthly.despesasFixas;
   const totalGeneralExpenses = generalExpenses.reduce((sum, e) => sum + e.valor, 0);
   const totalPiggyBanks = piggyBanks.reduce((sum, pb) => sum + pb.valorAtual, 0);
-  const dre = calculateDRE(shows, expenses, fixedExpenses, incomes);
+  const dre = monthly.dre;
 
   const selectedPiggy = piggyBanks.find(pb => pb.id === transactionPiggyId);
 
@@ -47,6 +47,7 @@ const Financas = () => {
 
   return (
     <div className="space-y-6">
+      <FixedExpenseForm open={showFixedForm} onOpenChange={setShowFixedForm} initialData={editingFixed} onSubmit={async data => { const ok = await saveFixedExpense(data, editingFixed?.id); if (ok) toast({ title: 'Despesa fixa salva' }); return ok; }} />
       <ExpenseForm
         open={showExpenseForm}
         onOpenChange={setShowExpenseForm}
@@ -91,7 +92,7 @@ const Financas = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatCard title="Total de Gastos" value={formatCurrency(totalGastos + totalGeneralExpenses)} icon={TrendingDown} trend={`${generalExpenses.length} gasto(s) registrado(s)`} variant="default" artwork="/receitas" />
+        <StatCard title="Total de Gastos do Mês" value={formatCurrency(monthly.totalGastos)} icon={TrendingDown} trend={`${generalExpenses.length} gasto(s) registrado(s)`} variant="default" artwork="/receitas" />
         <StatCard title="Cofrinhos" value={formatCurrency(totalPiggyBanks)} icon={PiggyBank} trend={`${piggyBanks.length} cofrinho(s) ativo(s)`} variant="gold" artwork="savings" />
         <StatCard title="Despesas Fixas" value={formatCurrency(totalFixas)} icon={HomeIcon} trend="Compromissos recorrentes" variant="default" artwork="/agenda" />
       </div>
@@ -125,7 +126,7 @@ const Financas = () => {
           </div>
           <div className="flex items-center justify-between p-4 bg-background/50 rounded-xl border border-border">
             <div>
-              <p className="text-sm text-muted-foreground">Despesas Fixas</p>
+              <p className="text-sm text-muted-foreground">Despesas Fixas e Saídas Avulsas</p>
               <p className="text-xs text-muted-foreground mt-1">Aluguel, pensão, parcelas, etc.</p>
             </div>
             <span className="text-2xl font-bold text-destructive">-{formatCurrency(dre.despesasFixas)}</span>
@@ -393,16 +394,16 @@ const Financas = () => {
                   <p className="text-sm text-muted-foreground">Compromissos mensais</p>
                 </div>
               </div>
-              <Button onClick={() => handleComingSoon("Adicionar Despesa Fixa")}>Adicionar</Button>
+              <Button onClick={() => { setEditingFixed(undefined); setShowFixedForm(true); }}>Adicionar</Button>
             </div>
             <div className="space-y-3">
               {fixedExpenses.map(exp => (
                 <div key={exp.id} className="flex items-center justify-between p-4 bg-secondary rounded-lg">
                   <div>
                     <p className="font-medium">{exp.description}</p>
-                    <p className="text-sm text-muted-foreground">Vence dia {exp.dueDay}</p>
+                    <p className="text-sm text-muted-foreground">Vence dia {exp.dueDay} • {exp.active === false ? 'Inativa' : 'Ativa'}</p>
                   </div>
-                  <span className="text-lg font-semibold text-destructive">{formatCurrency(exp.amount)}</span>
+                  <div className="flex items-center gap-2"><span className="text-lg font-semibold text-destructive">{formatCurrency(exp.amount)}</span><Button size="icon" variant="ghost" aria-label={`Editar ${exp.description}`} onClick={() => { setEditingFixed(exp); setShowFixedForm(true); }}><Edit className="h-4 w-4" /></Button></div>
                 </div>
               ))}
             </div>
