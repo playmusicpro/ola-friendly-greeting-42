@@ -52,7 +52,7 @@ export default function ProfileAvatar({ name }: { name: string }) {
     }
   };
 
-  const url = photo?.userId === userId ? photo.url : undefined;
+  const url = photo && photo.userId === userId ? photo.url : undefined;
   const initials = name.trim().split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase();
   return <>
     <input ref={input} type="file" accept="image/*" className="hidden" aria-label="Selecionar foto de perfil" onChange={handleFile} />

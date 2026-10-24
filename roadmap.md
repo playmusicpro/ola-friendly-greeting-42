@@ -1,4 +1,5 @@
-- [ ] Habilitar upload do avatar no Supabase e polir pílula do show, gráficos e badges do Painel.
+- [x] Habilitar upload privado do avatar no Supabase e polir pílula do show, gráficos e badges; testes aprovados.
+- [ ] Validar upload e recarregamento da foto com usuário real — bloqueado: Supabase externo sem sessão de teste disponível.
 - [x] Aplicar imagens temáticas aos cards financeiros e Próximos Eventos; imagens e contraste conferidos em cards isolados, compilação aprovada.
 - [x] Direcionar Play para Finanças e aplicar imagens temáticas aos botões de módulos com acabamento do Show; teste aprovado e menu conferido isoladamente.
 - [x] Refinar profundidade visual do Painel conforme arquivo enviado: luzes, vidro, imagem de show, gráficos e Dock iluminados.
