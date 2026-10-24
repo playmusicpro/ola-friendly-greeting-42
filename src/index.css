@@ -67,6 +67,8 @@ All colors MUST be HSL.
     --module-overlay: linear-gradient(90deg, hsl(var(--stage) / 0.82), hsl(var(--stage) / 0.32)), linear-gradient(0deg, hsl(var(--stage) / 0.8), transparent 65%);
     --module-text-shadow: 0 1px 4px hsl(var(--stage));
     --artwork-muted-foreground: 230 15% 80%;
+    --tuner-warning: 22 95% 62%;
+    --tuner-scale: linear-gradient(90deg, hsl(var(--tuner-warning) / 0.45), hsl(var(--muted)) 40%, hsl(var(--neon-green) / 0.45) 50%, hsl(var(--muted)) 60%, hsl(var(--tuner-warning) / 0.45));
   }
 
   /* High Contrast Mode */
@@ -104,6 +106,19 @@ All colors MUST be HSL.
 }
 
 @layer components {
+  .tuner-dialog { width: min(420px, calc(100% - 32px)); max-height: calc(100dvh - 32px); overflow-y: auto; border-radius: 24px; border-color: hsl(var(--glass-border) / 0.2); background: hsl(var(--stage)); box-shadow: var(--glass-shadow); }
+  .tuner-session { display: flex; flex-direction: column; gap: 20px; }
+  .tuner-note-area { text-align: center; padding-top: 12px; }
+  .tuner-note { height: 116px; font-size: 88px; font-weight: 600; line-height: 116px; color: hsl(var(--foreground)); }
+  .tuner-note sub { font-size: 24px; color: hsl(var(--muted-foreground)); vertical-align: baseline; margin-left: 4px; }
+  .tuner-state { min-height: 24px; margin-top: 12px; font-size: 14px; color: hsl(var(--muted-foreground)); }
+  .tuner-session[data-tuning="tuned"] .tuner-state, .tuner-session[data-tuning="tuned"] .tuner-note { color: hsl(var(--neon-green)); text-shadow: 0 0 18px hsl(var(--neon-green) / 0.25); }
+  .tuner-session[data-tuning="flat"] .tuner-state, .tuner-session[data-tuning="sharp"] .tuner-state { color: hsl(var(--tuner-warning)); }
+  .tuner-scale { position: relative; height: 40px; border-radius: 8px; background: var(--tuner-scale); }
+  .tuner-center-zone { position: absolute; left: 45%; width: 10%; height: 100%; background: hsl(var(--neon-green) / 0.18); }
+  .tuner-center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: hsl(var(--neon-green)); }
+  .tuner-needle { position: absolute; top: -5px; bottom: -5px; width: 3px; transform: translateX(-50%); border-radius: 2px; background: hsl(var(--tuner-warning)); box-shadow: 0 0 10px hsl(var(--tuner-warning) / 0.4); }
+  .tuner-session[data-tuning="tuned"] .tuner-needle { background: hsl(var(--neon-green)); box-shadow: 0 0 12px hsl(var(--neon-green) / 0.5); }
   .module-navigation {
     position: relative;
     isolation: isolate;
