@@ -29,6 +29,8 @@ import MobileHeader from "./components/MobileHeader";
 import DesktopSidebar from "./components/DesktopSidebar";
 import MusicianProfileGate from "./components/MusicianProfileGate";
 import AdminRoute from "./components/AdminRoute";
+import { lazy, Suspense } from 'react';
+const Panorama = lazy(() => import('./pages/Panorama'));
 
 const queryClient = new QueryClient();
 
@@ -62,6 +64,7 @@ const AppLayout = () => {
             <Route path="/agenda" element={<Agenda />} />
             <Route path="/modo-show/:playlistId" element={<ModoShow />} />
             <Route path="/financas" element={<Financas />} />
+            <Route path="/panorama" element={<Suspense fallback={<p role="status">Carregando panorama…</p>}><Panorama /></Suspense>} />
             <Route path="/receitas" element={<Receitas />} />
             <Route path="/analises" element={<Analises />} />
             <Route path="/projeto" element={<Projeto />} />
