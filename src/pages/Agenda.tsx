@@ -30,11 +30,21 @@ import { GoogleCalendarSyncIndicator } from '@/components/GoogleCalendarSyncIndi
 import { GoogleCalendarShowButton } from '@/components/GoogleCalendarShowButton';
 import { ShowForm } from '@/components/ShowForm';
 import type { Show } from '@/types';
+import { showFromEvent } from '@/lib/showForm';
 
 export default function Agenda() {
   const { events, addEvent, updateEvent, deleteEvent, duplicateEvent, markEventAsRealizado, shows, addShow, updateShow } = useFinancialData();
   const [financialShow, setFinancialShow] = useState<Show | undefined>();
   const [showFinancialForm, setShowFinancialForm] = useState(false);
+  const [sourceEvent, setSourceEvent] = useState<Event | undefined>();
+  const [showPrefill, setShowPrefill] = useState<Partial<Show> | undefined>();
+  const openEventShow = (event: Event, duplicate = false) => {
+    const linked = !duplicate && event.linkedShowId ? shows.find(show => show.id === event.linkedShowId) : undefined;
+    setFinancialShow(linked);
+    setSourceEvent(duplicate ? undefined : event);
+    setShowPrefill(duplicate ? { ...showFromEvent(event), title: `${event.title} (cópia)`, realizado: false } : showFromEvent(event));
+    setShowFinancialForm(true);
+  };
   const { setlists, songs } = useRepertoire();
   const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -110,6 +120,8 @@ export default function Agenda() {
   };
 
   const handleDuplicate = (id: string) => {
+    const event = events.find(item => item.id === id);
+    if (event?.tipo === 'Show') { openEventShow(event, true); return; }
     duplicateEvent(id);
     toast({
       title: "Evento duplicado",
@@ -118,6 +130,8 @@ export default function Agenda() {
   };
 
   const handleMarkRealizado = async (id: string) => {
+    const event = events.find(item => item.id === id);
+    if (event?.tipo === 'Show' && !event.linkedShowId) { openEventShow(event); return; }
     if (!await markEventAsRealizado(id)) return;
     toast({
       title: "Evento marcado como realizado",
@@ -187,7 +201,7 @@ export default function Agenda() {
           <p className="text-muted-foreground">Gerencie seus eventos e compromissos</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => { setFinancialShow(undefined); setShowFinancialForm(true); }}>Novo Show</Button>
+          <Button variant="outline" onClick={() => { setFinancialShow(undefined); setSourceEvent(undefined); setShowPrefill(undefined); setShowFinancialForm(true); }}><Plus className="h-4 w-4 mr-2" />Novo Show</Button>
           <GoogleCalendarSyncIndicator />
           <Button onClick={() => { setEditingEvent(null); setIsFormOpen(true); }}>
             <Plus className="h-4 w-4 mr-2" />
@@ -261,11 +275,11 @@ export default function Agenda() {
 
                         <div className="flex flex-wrap gap-2 mt-4">
                           {event.tipo === 'Show' && <GoogleCalendarShowButton show={{ date: event.date, time: event.startTime, endTime: event.endTime, local: event.local || event.title, title: event.title, address: event.local, notes: event.notes }} />}
-                          {linkedShow && <Button variant="outline" size="sm" onClick={() => { setFinancialShow(linkedShow); setShowFinancialForm(true); }}>Cachê e Pagamentos</Button>}
+                          {linkedShow && <Button variant="outline" size="sm" onClick={() => openEventShow(event)}>Cachê e Pagamentos</Button>}
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => { setEditingEvent(event); setIsFormOpen(true); }}
+                            onClick={() => { if (event.tipo === 'Show') { openEventShow(event); return; } setEditingEvent(event); setIsFormOpen(true); }}
                           >
                             <Edit className="h-4 w-4 mr-2" />
                             Editar
@@ -335,7 +349,15 @@ export default function Agenda() {
         onSubmit={editingEvent ? handleUpdateEvent : handleAddEvent}
         initialData={editingEvent || undefined}
       />
-      <ShowForm open={showFinancialForm} onOpenChange={setShowFinancialForm} initialData={financialShow} onSubmit={data => financialShow ? updateShow(financialShow.id, data) : addShow(data)} />
+      <ShowForm open={showFinancialForm} onOpenChange={setShowFinancialForm} initialData={financialShow} prefill={showPrefill} onSubmit={async data => {
+        const saved = financialShow ? await updateShow(financialShow.id, data) : await addShow(data, sourceEvent?.id);
+        if (!saved) return false;
+        if (financialShow && sourceEvent) {
+          if (!await updateEvent(sourceEvent.id, { ...sourceEvent, title: data.title || data.local, date: data.date, startTime: data.time, endTime: data.endTime, local: data.local, notes: data.notes, realizado: !!data.realizado })) return false;
+        }
+        toast({ title: financialShow ? 'Show atualizado' : 'Show criado', description: 'Dados do evento, recebimentos e custos salvos.' });
+        return true;
+      }} />
 
       <AlertDialog open={!!deletingEventId} onOpenChange={() => setDeletingEventId(null)}>
         <AlertDialogContent>
