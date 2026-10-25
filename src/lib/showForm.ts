@@ -20,7 +20,7 @@ export const showSchema = z.object({
   if (data.deductTeam && !data.teamPaymentDate) ctx.addIssue({ code: 'custom', path: ['teamPaymentDate'], message: 'Informe a data do pagamento da equipe' });
 });
 export type ShowFormData = z.infer<typeof showSchema>;
-export function showFormDefaults(show?: Partial<Show>): ShowFormData {
+export function showFormDefaults(show?: Partial<Show>): ShowFormData & Omit<Show, 'id'> {
   return {
     address: '', notes: '', endTime: '', date: '', time: '', local: '', tipo: 'Bar',
     cache: 0, numMusicos: 1, consumacao: 0, kmRodados: 0, combustivel: 0, pedagio: 0, roupas: 0,
