@@ -27,10 +27,8 @@ describe('Configurações do perfil e aparência', () => {
 
   it('persiste a escolha Rosa Neon Suave e restaura a aparência após remontar', async () => {
     const view = setup();
-    // Native keyboard selection is represented by the Select's hidden native control.
-    const nativeSelect = view.container.querySelector('select');
-    if (!nativeSelect) throw new Error('Seletor de tema ausente');
-    fireEvent.change(nativeSelect, { target: { value: 'soft-pink' } });
+    fireEvent.keyDown(screen.getByRole('combobox'), { key: 'Enter' });
+    fireEvent.click(await screen.findByRole('option', { name: 'Rosa Neon Suave' }));
     await waitFor(() => expect(localStorage.getItem('playpro_appearance')).toBe('soft-pink'));
     expect(document.documentElement.dataset.theme).toBe('soft-pink');
     view.unmount();
