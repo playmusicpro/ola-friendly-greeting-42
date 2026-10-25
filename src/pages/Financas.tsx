@@ -1,6 +1,7 @@
 import { Fuel, Shirt, Music, PiggyBank, Home as HomeIcon, TrendingDown, TrendingUp, AlertTriangle, Plus, Trash2, ArrowUp, ArrowDown, Edit } from "lucide-react";
 import { FixedExpenseForm } from '@/components/FixedExpenseForm';
-import type { FixedExpense } from '@/types';
+import type { FixedExpense, Show } from '@/types';
+import { ShowForm } from '@/components/ShowForm';
 import StatCard from "@/components/StatCard";
 import ModuleArtwork from "@/components/ModuleArtwork";
 import { Card } from "@/components/ui/card";
@@ -9,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { useFinancialData } from "@/hooks/useFinancialData";
 import { useToast } from "@/hooks/use-toast";
-import { calculateMonthlyFinancials, formatCurrency, formatPercentage } from "@/lib/calculations";
+import { calculateMonthlyFinancials, showOutstanding, showCashReceipts, formatCurrency, formatPercentage } from "@/lib/calculations";
 import { ExpenseForm } from "@/components/ExpenseForm";
 import { PiggyBankForm } from "@/components/PiggyBankForm";
 import { PiggyBankTransactionForm } from "@/components/PiggyBankTransactionForm";
@@ -22,13 +23,14 @@ const Financas = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const {
-    shows, expenses, fixedExpenses, incomes, saveFixedExpense,
+    shows, expenses, fixedExpenses, incomes, saveFixedExpense, updateShow,
     generalExpenses, piggyBanks, goalMovements,
     addGeneralExpense, deleteGeneralExpense,
     addPiggyBank, addToPiggyBank, withdrawFromPiggyBank, deletePiggyBank,
   } = useFinancialData();
 
   const [showFixedForm, setShowFixedForm] = useState(false);
+  const [editingPayment, setEditingPayment] = useState<Show | undefined>();
   const [editingFixed, setEditingFixed] = useState<FixedExpense | undefined>();
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showPiggyForm, setShowPiggyForm] = useState(false);
@@ -50,6 +52,7 @@ const Financas = () => {
 
   return (
     <div className="space-y-6">
+      <ShowForm open={!!editingPayment} onOpenChange={open => { if (!open) setEditingPayment(undefined); }} initialData={editingPayment} onSubmit={data => editingPayment ? updateShow(editingPayment.id, data) : false} />
       <FixedExpenseForm open={showFixedForm} onOpenChange={setShowFixedForm} initialData={editingFixed} onSubmit={async data => { const ok = await saveFixedExpense(data, editingFixed?.id); if (ok) toast({ title: 'Despesa fixa salva' }); return ok; }} />
       <ExpenseForm
         open={showExpenseForm}
@@ -163,6 +166,7 @@ const Financas = () => {
       </Card>
 
       {/* Tabs */}
+      <section className="space-y-3"><h2 className="text-xl font-semibold text-gold">Cachês e Pagamentos</h2>{shows.length === 0 && <p className="text-muted-foreground">Nenhum show cadastrado</p>}{shows.map(show => <div key={show.id} className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-border"><div className="min-w-0"><h3 className="font-semibold break-words">{show.title || show.local}</h3><p className="text-xs text-muted-foreground">{formatDateBR(show.date)} · {show.realizado ? 'Realizado' : 'Agendado'} · {showOutstanding(show) === 0 ? 'Quitado' : 'A receber'}</p><p className="text-sm mt-1">Recebido: {formatCurrency(showCashReceipts(show).reduce((sum, receipt) => sum + receipt.amount, 0))} · Restante: {formatCurrency(showOutstanding(show))}</p>{!show.cashTracking && <p className="text-xs text-muted-foreground mt-1">Registro anterior · pagamentos a conferir</p>}</div><Button variant="outline" size="sm" onClick={() => setEditingPayment(show)}>Editar Pagamentos</Button></div>)}</section>
       <Tabs defaultValue="gastos" className="space-y-4">
         <TabsList className="financial-tabs grid grid-cols-2 md:grid-cols-4 w-full">
           <TabsTrigger className="thematic-tab" value="gastos"><ModuleArtwork module="/receitas" />Gastos</TabsTrigger>
