@@ -54,25 +54,25 @@ const MobileNav = () => {
         <Button variant="ghost" className="dashboard-dock-tab" onClick={() => setShowTuner(true)} aria-label="Abrir afinador" title="Abrir afinador"><AudioLines className="h-5 w-5" /><span>Afinador</span></Button>
         <Button className="dashboard-play" size="icon" aria-label="Abrir Panorama Visual" title="Abrir Panorama Visual" onClick={() => navigate('/panorama')}><Play className="h-7 w-7 fill-current" /></Button>
         <Button variant="ghost" className="dashboard-dock-tab" onClick={() => setIsMoreOpen(true)} aria-label="Abrir menu" title="Abrir menu"><Menu className="h-5 w-5" /><span>Menu</span></Button>
-      </nav> : <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-gold/20 z-50 md:hidden shadow-lg">
-        <div className="flex items-center justify-around py-3">
+      </nav> : <nav aria-label="Navegação principal" className="mobile-floating-dock fixed z-50 md:hidden">
+        <div className="grid grid-cols-4 items-center gap-1">
           {mainNavItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
-              className="flex flex-col items-center gap-1 px-4 py-2 text-muted-foreground transition-all duration-200"
-              activeClassName="text-gold scale-110"
+              className="mobile-dock-item text-muted-foreground transition-colors"
+              activeClassName="text-gold bg-gold/10"
             >
               <item.icon className="h-6 w-6" />
-              <span className="text-[10px] font-semibold tracking-wide">{item.label}</span>
+              <span className="text-[11px] font-medium">{item.label}</span>
             </NavLink>
           ))}
           
           {/* Botão Mais */}
           <Button variant="ghost"
             onClick={() => setIsMoreOpen(true)}
-            className={`flex flex-col items-center gap-1 px-4 py-2 transition-all duration-200 ${
-              isMoreActive ? "text-gold scale-110" : "text-muted-foreground"
+             className={`mobile-dock-item transition-colors ${
+               isMoreActive ? "text-gold bg-gold/10" : "text-muted-foreground"
             }`}
           >
             <Menu className="h-6 w-6" />

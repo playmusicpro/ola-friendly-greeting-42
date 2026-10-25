@@ -199,6 +199,25 @@ All colors MUST be HSL.
   .thematic-tab[data-state="active"] { color: hsl(var(--gold)); border: 1px solid hsl(var(--gold) / 0.45); box-shadow: var(--glass-shadow); }
   .thematic-tab .module-artwork img { width: 100%; }
   .financial-tabs { height: auto; scrollbar-width: thin; }
+  .app-button { border-radius: 999px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .app-button[class*="border-input"] { background: hsl(var(--glass) / 0.45); border-color: hsl(var(--glass-border) / 0.18); }
+  .glass-segmented { background: hsl(var(--glass) / 0.55); border: 1px solid hsl(var(--glass-border) / 0.14); border-radius: 999px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); padding: 4px; }
+  .finance-page .finance-segmented { display: grid; grid-template-columns: 1.2fr 1.1fr 1fr; width: 100%; height: auto; gap: 4px; background: hsl(var(--glass) / 0.55); }
+  .finance-segmented > button { min-width: 0; min-height: 44px; padding: 8px 4px; font-size: 12px; }
+  .finance-category-filter { width: min(100%, 280px); border-radius: 999px; background: hsl(var(--glass) / 0.45); border-color: hsl(var(--glass-border) / 0.18); }
+  .cash-diagnosis { border-radius: 16px; background: hsl(var(--glass-border) / 0.04); }
+  .mobile-floating-dock { left: 50%; bottom: calc(16px + env(safe-area-inset-bottom)); transform: translateX(-50%); width: min(420px, calc(100% - 24px)); padding: 6px; border-radius: 28px; background: hsl(var(--glass) / 0.82); border: 1px solid hsl(var(--glass-border) / 0.2); box-shadow: var(--glass-shadow); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+  .mobile-floating-dock .mobile-dock-item { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; width: 100%; height: 60px; min-width: 0; padding: 4px; border-radius: 22px; white-space: nowrap; }
+  .mobile-dock-item > svg { width: 22px; height: 22px; flex-shrink: 0; }
+  .finance-page { padding-bottom: 24px; }
+  .finance-page .finance-summary > div { padding: 16px; }
+  .finance-summary > div > div { flex-direction: column-reverse; gap: 10px; }
+  .finance-summary p { letter-spacing: 0; overflow-wrap: anywhere; }
+  .finance-summary p.text-3xl { font-size: 22px; }
+  .finance-summary p.text-xs { font-size: 11px; }
+  @media (min-width: 768px) {
+    .finance-summary > div > div { flex-direction: row; }
+  }
   .dashboard-stage {
     background-color: hsl(var(--stage));
     background-image: var(--stage-light);

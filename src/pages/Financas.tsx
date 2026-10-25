@@ -1,4 +1,4 @@
-import { Fuel, Shirt, Music, PiggyBank, Home as HomeIcon, TrendingDown, TrendingUp, AlertTriangle, Plus, Trash2, ArrowUp, ArrowDown, Edit } from "lucide-react";
+import { PiggyBank, Home as HomeIcon, TrendingDown, TrendingUp, AlertTriangle, Plus, Trash2, ArrowUp, ArrowDown, Edit } from "lucide-react";
 import { FixedExpenseForm } from '@/components/FixedExpenseForm';
 import type { FixedExpense, Show } from '@/types';
 import { ShowForm } from '@/components/ShowForm';
@@ -17,6 +17,7 @@ import { PiggyBankTransactionForm } from "@/components/PiggyBankTransactionForm"
 import { formatDateBR } from "@/lib/dateUtils";
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import FinancialGoals from '@/components/FinancialGoals';
 
 const Financas = () => {
@@ -39,19 +40,16 @@ const Financas = () => {
 
   const monthly = calculateMonthlyFinancials(shows, expenses, fixedExpenses, incomes, new Date(), { goalMovements, piggyBanks });
   const totalFixas = monthly.despesasFixas;
-  const totalGeneralExpenses = generalExpenses.reduce((sum, e) => sum + e.valor, 0);
+  const [category, setCategory] = useState("todos");
+  const filteredExpenses = generalExpenses.filter(exp => category === "todos" || exp.categoria === category);
+  const totalFilteredExpenses = filteredExpenses.reduce((sum, exp) => sum + exp.valor, 0);
   const totalPiggyBanks = piggyBanks.reduce((sum, pb) => sum + pb.valorAtual, 0);
   const dre = monthly.dre;
 
   const selectedPiggy = piggyBanks.find(pb => pb.id === transactionPiggyId);
 
-  const fuelExpenses = generalExpenses.filter(e => e.categoria === 'combustivel');
-  const totalFuel = fuelExpenses.reduce((sum, e) => sum + e.valor, 0);
-  const gearExpenses = generalExpenses.filter(e => e.categoria === 'equipamentos');
-  const totalGear = gearExpenses.reduce((sum, e) => sum + e.valor, 0);
-
   return (
-    <div className="space-y-6">
+    <div className="finance-page space-y-6">
       <ShowForm open={!!editingPayment} onOpenChange={open => { if (!open) setEditingPayment(undefined); }} initialData={editingPayment} onSubmit={data => editingPayment ? updateShow(editingPayment.id, data) : false} />
       <FixedExpenseForm open={showFixedForm} onOpenChange={setShowFixedForm} initialData={editingFixed} onSubmit={async data => { const ok = await saveFixedExpense(data, editingFixed?.id); if (ok) toast({ title: 'Despesa fixa salva' }); return ok; }} />
       <ExpenseForm
@@ -90,14 +88,13 @@ const Financas = () => {
 
       {/* Header */}
       <div className="mb-2">
-        <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-gold via-primary to-gold bg-clip-text text-transparent">
-          Consultor Financeiro
+        <h1 className="text-2xl font-semibold mb-2">
+          Finanças
         </h1>
-        <p className="text-muted-foreground text-lg">Acompanhe seus gastos e economias de forma profissional</p>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="finance-summary grid grid-cols-2 md:grid-cols-3 gap-3">
         <StatCard title="Custos Totais" value={formatCurrency(monthly.totalGastos)} icon={TrendingDown} trend={`${generalExpenses.length} gasto(s) registrado(s)`} variant="default" artwork="/receitas" />
         <StatCard title="Faturamento Bruto" value={formatCurrency(monthly.faturamentoBruto)} icon={TrendingUp} artwork="/financas" />
         <StatCard title="Lucro Líquido Real" value={formatCurrency(monthly.lucroLiquidoReal)} icon={TrendingUp} trend={`${formatPercentage(dre.margemFinal)} de margem`} artwork="/financas" />
@@ -107,83 +104,21 @@ const Financas = () => {
         <StatCard title="Despesas Fixas" value={formatCurrency(totalFixas)} icon={HomeIcon} trend="Compromissos recorrentes" variant="default" artwork="/agenda" />
       </div>
 
-      {/* DRE Simplificado */}
-      <Card className="thematic-card p-6 border-gold/20">
-        <ModuleArtwork module="/financas" />
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 rounded-xl bg-gold/10">
-            <TrendingUp className="h-6 w-6 text-gold" />
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold">DRE Simplificado</h2>
-            <p className="text-xs text-muted-foreground">Demonstrativo de Resultado do Mês</p>
-          </div>
-        </div>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-background/50 rounded-xl border border-border">
-            <div>
-              <p className="text-sm text-muted-foreground">Receita Bruta</p>
-              <p className="text-xs text-muted-foreground mt-1">Sinais e pagamentos recebidos</p>
-            </div>
-            <span className="text-2xl font-bold text-success">{formatCurrency(dre.receitaBruta)}</span>
-          </div>
-          <div className="flex items-center justify-between p-4 bg-background/50 rounded-xl border border-border">
-            <div>
-              <p className="text-sm text-muted-foreground">Custos Diretos</p>
-              <p className="text-xs text-muted-foreground mt-1">Gastos relacionados aos shows</p>
-            </div>
-            <span className="text-2xl font-bold text-destructive">-{formatCurrency(dre.custosDirectos)}</span>
-          </div>
-          <div className="flex items-center justify-between p-4 bg-background/50 rounded-xl border border-border">
-            <div>
-              <p className="text-sm text-muted-foreground">Despesas Fixas e Saídas Avulsas</p>
-              <p className="text-xs text-muted-foreground mt-1">Aluguel, pensão, parcelas, etc.</p>
-            </div>
-            <span className="text-2xl font-bold text-destructive">-{formatCurrency(dre.despesasFixas)}</span>
-          </div>
-          <div className="flex flex-wrap justify-between gap-3 border-t border-border pt-4"><span>Margem de Contribuição</span><strong>{formatCurrency(monthly.margemContribuicao)}</strong></div>
-          <div className="flex flex-wrap justify-between gap-3"><span>Aportes líquidos em Metas</span><strong>{formatCurrency(monthly.aportesMetas)}</strong></div>
-          <div className="h-px bg-gold/20 my-4"></div>
-          <div className="flex items-center justify-between p-5 bg-gradient-to-r from-primary/10 to-gold/10 rounded-xl border-2 border-gold/30">
-            <div>
-              <p className="font-semibold text-lg">Lucro Líquido Real</p>
-              <p className="text-xs text-muted-foreground mt-1">Lucro líquido do período</p>
-            </div>
-            <div className="text-right">
-              <p className={`text-3xl font-bold ${dre.resultadoOperacional >= 0 ? 'text-success' : 'text-destructive'}`}>
-                {formatCurrency(dre.resultadoOperacional)}
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">Margem: {formatPercentage(dre.margemFinal)}</p>
-            </div>
-          </div>
-          {dre.margemFinal < 0 && (
-            <div className="flex items-center gap-3 p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-              <p className="text-sm text-destructive font-medium">Atenção: Suas despesas superaram sua receita este mês</p>
-            </div>
-          )}
-        </div>
-      </Card>
-
       {/* Tabs */}
-      <section className="space-y-3"><h2 className="text-xl font-semibold text-gold">Cachês e Pagamentos</h2>{shows.length === 0 && <p className="text-muted-foreground">Nenhum show cadastrado</p>}{shows.map(show => <div key={show.id} className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-border"><div className="min-w-0"><h3 className="font-semibold break-words">{show.title || show.local}</h3><p className="text-xs text-muted-foreground">{formatDateBR(show.date)} · {show.realizado ? 'Realizado' : 'Agendado'} · {showOutstanding(show) === 0 ? 'Quitado' : 'A receber'}</p><p className="text-sm mt-1">Recebido: {formatCurrency(showCashReceipts(show).reduce((sum, receipt) => sum + receipt.amount, 0))} · Restante: {formatCurrency(showOutstanding(show))}</p>{!show.cashTracking && <p className="text-xs text-muted-foreground mt-1">Registro anterior · pagamentos a conferir</p>}</div><Button variant="outline" size="sm" onClick={() => setEditingPayment(show)}>Editar Pagamentos</Button></div>)}</section>
-      <Tabs defaultValue="gastos" className="space-y-4">
-        <TabsList className="financial-tabs flex w-full flex-nowrap justify-start gap-2 overflow-x-auto px-1 py-1">
-          <TabsTrigger className="thematic-tab shrink-0 whitespace-nowrap" value="gastos"><ModuleArtwork module="/receitas" />Gastos</TabsTrigger>
-          <TabsTrigger className="shrink-0 whitespace-nowrap" value="combustivel">Combustível</TabsTrigger>
-          <TabsTrigger className="shrink-0 whitespace-nowrap" value="equipamentos">Equipamentos</TabsTrigger>
-          <TabsTrigger className="thematic-tab shrink-0 whitespace-nowrap" value="cofrinho"><ModuleArtwork module="savings" />Cofrinhos</TabsTrigger>
-          <TabsTrigger className="thematic-tab shrink-0 whitespace-nowrap" value="fixas"><ModuleArtwork module="/agenda" />Despesas Fixas</TabsTrigger>
-          <TabsTrigger className="shrink-0 whitespace-nowrap" value="metas">Metas</TabsTrigger>
-          <TabsTrigger className="shrink-0 whitespace-nowrap" value="relatorios">Relatórios</TabsTrigger>
-          <TabsTrigger className="shrink-0 whitespace-nowrap" value="receitas">Receitas</TabsTrigger>
+      <Tabs defaultValue="lancamentos" className="space-y-6">
+        <TabsList aria-label="Áreas de Finanças" className="finance-segmented">
+          <TabsTrigger value="lancamentos"><span className="sm:hidden">Extrato</span><span className="hidden sm:inline">Lançamentos / Extrato</span></TabsTrigger>
+          <TabsTrigger value="planejamento">Planejamento</TabsTrigger>
+          <TabsTrigger value="relatorios">Relatórios</TabsTrigger>
         </TabsList>
 
         {/* Gastos Gerais */}
-        <TabsContent value="gastos" className="space-y-4">
-          <Card className="thematic-card p-6 border-primary/10">
+        <TabsContent value="lancamentos" className="space-y-6">
+      <section className="space-y-3"><h2 className="text-xl font-semibold text-gold">Cachês e Pagamentos</h2>{shows.length === 0 && <p className="text-muted-foreground">Nenhum show cadastrado</p>}{shows.map(show => <div key={show.id} className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-border"><div className="min-w-0"><h3 className="font-semibold break-words">{show.title || show.local}</h3><p className="text-xs text-muted-foreground">{formatDateBR(show.date)} · {show.realizado ? 'Realizado' : 'Agendado'} · {showOutstanding(show) === 0 ? 'Quitado' : 'A receber'}</p><p className="text-sm mt-1">Recebido: {formatCurrency(showCashReceipts(show).reduce((sum, receipt) => sum + receipt.amount, 0))} · Restante: {formatCurrency(showOutstanding(show))}</p>{!show.cashTracking && <p className="text-xs text-muted-foreground mt-1">Registro anterior · pagamentos a conferir</p>}</div><Button variant="outline" size="sm" onClick={() => setEditingPayment(show)}>Editar Pagamentos</Button></div>)}</section>
+
+          <Card className="thematic-card p-4 sm:p-6 border-primary/10">
             <ModuleArtwork module="/receitas" />
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
               <div className="flex items-center gap-3">
                 <div className="p-3 rounded-xl bg-primary/10">
                   <TrendingDown className="h-6 w-6 text-primary" />
@@ -199,7 +134,21 @@ const Financas = () => {
               </Button>
             </div>
 
-            {generalExpenses.length === 0 ? (
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger aria-label="Filtrar gastos por categoria" className="finance-category-filter mb-5"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os gastos</SelectItem>
+                <SelectItem value="outros">Gastos Gerais</SelectItem>
+                <SelectItem value="combustivel">Combustível</SelectItem>
+                <SelectItem value="alimentacao">Alimentação</SelectItem>
+                <SelectItem value="equipamentos">Equipamentos</SelectItem>
+                <SelectItem value="musicos">Músicos</SelectItem>
+                <SelectItem value="roupas">Roupas</SelectItem>
+                <SelectItem value="transporte">Transporte</SelectItem>
+                <SelectItem value="manutencao">Manutenção</SelectItem>
+              </SelectContent>
+            </Select>
+            {filteredExpenses.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <TrendingDown className="h-16 w-16 mx-auto mb-4 opacity-30" />
                 <p className="text-lg">Nenhum gasto registrado</p>
@@ -207,8 +156,8 @@ const Financas = () => {
               </div>
             ) : (
               <div className="space-y-3">
-                {generalExpenses.map(exp => (
-                  <div key={exp.id} className="flex items-center justify-between p-4 bg-secondary/50 rounded-xl border border-border">
+                {filteredExpenses.map(exp => (
+                  <div key={exp.id} className="flex flex-wrap items-center justify-between gap-3 p-4 bg-secondary/50 rounded-xl border border-border">
                     <div>
                       <p className="font-medium">{exp.descricao}</p>
                       <p className="text-xs text-muted-foreground">{formatDateBR(exp.data)} • {exp.categoria}</p>
@@ -224,112 +173,55 @@ const Financas = () => {
               </div>
             )}
 
-            {generalExpenses.length > 0 && (
+            {filteredExpenses.length > 0 && (
               <div className="mt-6 pt-6 border-t border-gold/20">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Total de gastos gerais</span>
-                  <span className="text-2xl font-bold text-destructive">{formatCurrency(totalGeneralExpenses)}</span>
+                  <span className="text-sm text-muted-foreground">Total da seleção</span>
+                  <span className="text-2xl font-bold text-destructive">{formatCurrency(totalFilteredExpenses)}</span>
                 </div>
               </div>
             )}
           </Card>
-        </TabsContent>
 
-        <TabsContent value="combustivel" className="space-y-4">
-          <Card className="p-6 shadow-lg border-primary/10">
-            <div className="flex items-center justify-between mb-6">
+          <Card className="thematic-card p-4 sm:p-6">
+            <ModuleArtwork module="/agenda" />
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
               <div className="flex items-center gap-3">
-                <div className="p-3 rounded-xl bg-primary/10"><Fuel className="h-6 w-6 text-primary" /></div>
+                <div className="p-3 rounded-lg bg-primary/10"><HomeIcon className="h-6 w-6 text-primary" /></div>
                 <div>
-                  <h2 className="text-xl font-semibold">Combustível</h2>
-                  <p className="text-xs text-muted-foreground">Gastos com transporte para shows</p>
+                  <h2 className="text-xl font-semibold">Despesas Fixas</h2>
+                  <p className="text-sm text-muted-foreground">Compromissos mensais</p>
                 </div>
               </div>
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl" onClick={() => setShowExpenseForm(true)}>Adicionar Gasto</Button>
+              <Button onClick={() => { setEditingFixed(undefined); setShowFixedForm(true); }}>Adicionar</Button>
             </div>
-            {fuelExpenses.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Fuel className="h-16 w-16 mx-auto mb-4 opacity-30" />
-                <p className="text-lg">Nenhum gasto de combustível registrado</p>
-                <p className="text-sm mt-2">Clique em "Adicionar Gasto" para começar</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {fuelExpenses.map(exp => (
-                  <div key={exp.id} className="flex items-center justify-between p-4 bg-secondary/50 rounded-xl border border-border">
-                    <div>
-                      <p className="font-medium">{exp.descricao}</p>
-                      <p className="text-xs text-muted-foreground">{formatDateBR(exp.data)}</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg font-semibold text-destructive">{formatCurrency(exp.valor)}</span>
-                      <Button size="icon" variant="ghost" onClick={() => { deleteGeneralExpense(exp.id); toast({ title: "Gasto removido" }); }}>
-                        <Trash2 className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                    </div>
+            <div className="space-y-3">
+              {fixedExpenses.map(exp => (
+                <div key={exp.id} className="flex flex-wrap items-center justify-between gap-3 p-4 bg-secondary rounded-lg">
+                  <div>
+                    <p className="font-medium">{exp.description}</p>
+                    <p className="text-sm text-muted-foreground">Vence dia {exp.dueDay} • {exp.active === false ? 'Inativa' : 'Ativa'}</p>
                   </div>
-                ))}
-              </div>
-            )}
-            <div className="mt-6 pt-6 border-t border-gold/20">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Total em combustível</span>
-                <span className="text-2xl font-bold text-destructive">{formatCurrency(totalFuel)}</span>
-              </div>
-            </div>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="equipamentos" className="space-y-4">
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-primary/10"><Music className="h-6 w-6 text-primary" /></div>
-                <div>
-                  <h2 className="text-xl font-semibold">Equipamentos</h2>
-                  <p className="text-sm text-muted-foreground">Manutenção e acessórios</p>
+                  <div className="flex items-center gap-2"><span className="text-lg font-semibold text-destructive">{formatCurrency(exp.amount)}</span><Button size="icon" variant="ghost" aria-label={`Editar ${exp.description}`} onClick={() => { setEditingFixed(exp); setShowFixedForm(true); }}><Edit className="h-4 w-4" /></Button></div>
                 </div>
-              </div>
-              <Button onClick={() => setShowExpenseForm(true)}>Adicionar Gasto</Button>
+              ))}
             </div>
-            {gearExpenses.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Music className="h-16 w-16 mx-auto mb-4 opacity-30" />
-                <p className="text-lg">Nenhum gasto de equipamentos registrado</p>
-                <p className="text-sm mt-2">Clique em "Adicionar Gasto" para começar</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {gearExpenses.map(exp => (
-                  <div key={exp.id} className="flex items-center justify-between p-4 bg-secondary rounded-lg">
-                    <div>
-                      <p className="font-medium">{exp.descricao}</p>
-                      <p className="text-sm text-muted-foreground">{formatDateBR(exp.data)}</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg font-semibold text-destructive">{formatCurrency(exp.valor)}</span>
-                      <Button size="icon" variant="ghost" onClick={() => { deleteGeneralExpense(exp.id); toast({ title: "Gasto removido" }); }}>
-                        <Trash2 className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
             <div className="mt-6 pt-6 border-t border-border">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Total em equipamentos</span>
-                <span className="text-2xl font-bold text-destructive">{formatCurrency(totalGear)}</span>
+                <span className="text-muted-foreground">Total mensal</span>
+                <span className="text-2xl font-bold text-destructive">{formatCurrency(totalFixas)}</span>
               </div>
             </div>
           </Card>
+
         </TabsContent>
 
         {/* Cofrinhos */}
-        <TabsContent value="cofrinho" className="space-y-4">
-          <Card className="thematic-card p-6">
+        <TabsContent value="planejamento" className="space-y-6">
+          <FinancialGoals />
+          <Card className="thematic-card p-4 sm:p-6">
             <ModuleArtwork module="savings" />
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
               <div className="flex items-center gap-3">
                 <div className="p-3 rounded-lg bg-gold/10"><PiggyBank className="h-6 w-6 text-gold" /></div>
                 <div>
@@ -399,41 +291,74 @@ const Financas = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="fixas" className="space-y-4">
-          <Card className="thematic-card p-6">
-            <ModuleArtwork module="/agenda" />
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-lg bg-primary/10"><HomeIcon className="h-6 w-6 text-primary" /></div>
-                <div>
-                  <h2 className="text-xl font-semibold">Despesas Fixas</h2>
-                  <p className="text-sm text-muted-foreground">Compromissos mensais</p>
-                </div>
-              </div>
-              <Button onClick={() => { setEditingFixed(undefined); setShowFixedForm(true); }}>Adicionar</Button>
+        <TabsContent value="relatorios" className="space-y-6">
+      {/* DRE Simplificado */}
+      <Card className="thematic-card p-4 sm:p-6 border-gold/20">
+        <ModuleArtwork module="/financas" />
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 rounded-xl bg-gold/10">
+            <TrendingUp className="h-6 w-6 text-gold" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold">DRE Simplificado</h2>
+            <p className="text-xs text-muted-foreground">Demonstrativo de Resultado do Mês</p>
+          </div>
+        </div>
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-background/50 rounded-xl border border-border">
+            <div>
+              <p className="text-sm text-muted-foreground">Receita Bruta</p>
+              <p className="text-xs text-muted-foreground mt-1">Sinais e pagamentos recebidos</p>
             </div>
-            <div className="space-y-3">
-              {fixedExpenses.map(exp => (
-                <div key={exp.id} className="flex items-center justify-between p-4 bg-secondary rounded-lg">
-                  <div>
-                    <p className="font-medium">{exp.description}</p>
-                    <p className="text-sm text-muted-foreground">Vence dia {exp.dueDay} • {exp.active === false ? 'Inativa' : 'Ativa'}</p>
-                  </div>
-                  <div className="flex items-center gap-2"><span className="text-lg font-semibold text-destructive">{formatCurrency(exp.amount)}</span><Button size="icon" variant="ghost" aria-label={`Editar ${exp.description}`} onClick={() => { setEditingFixed(exp); setShowFixedForm(true); }}><Edit className="h-4 w-4" /></Button></div>
-                </div>
-              ))}
+            <span className="text-2xl font-bold text-success">{formatCurrency(dre.receitaBruta)}</span>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-background/50 rounded-xl border border-border">
+            <div>
+              <p className="text-sm text-muted-foreground">Custos Diretos</p>
+              <p className="text-xs text-muted-foreground mt-1">Gastos relacionados aos shows</p>
             </div>
-            <div className="mt-6 pt-6 border-t border-border">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Total mensal</span>
-                <span className="text-2xl font-bold text-destructive">{formatCurrency(totalFixas)}</span>
-              </div>
+            <span className="text-2xl font-bold text-destructive">-{formatCurrency(dre.custosDirectos)}</span>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-background/50 rounded-xl border border-border">
+            <div>
+              <p className="text-sm text-muted-foreground">Despesas Fixas e Saídas Avulsas</p>
+              <p className="text-xs text-muted-foreground mt-1">Aluguel, pensão, parcelas, etc.</p>
             </div>
-          </Card>
+            <span className="text-2xl font-bold text-destructive">-{formatCurrency(dre.despesasFixas)}</span>
+          </div>
+          <div className="flex flex-wrap justify-between gap-3 border-t border-border pt-4"><span>Margem de Contribuição</span><strong>{formatCurrency(monthly.margemContribuicao)}</strong></div>
+          <div className="flex flex-wrap justify-between gap-3"><span>Aportes líquidos em Metas</span><strong>{formatCurrency(monthly.aportesMetas)}</strong></div>
+          <div className="h-px bg-gold/20 my-4"></div>
+          <div className="flex flex-wrap items-center justify-between gap-3 p-5 bg-gradient-to-r from-primary/10 to-gold/10 rounded-xl border-2 border-gold/30">
+            <div>
+              <p className="font-semibold text-lg">Lucro Líquido Real</p>
+              <p className="text-xs text-muted-foreground mt-1">Lucro líquido do período</p>
+            </div>
+            <div className="text-right">
+              <p className={`text-2xl font-bold ${dre.resultadoOperacional >= 0 ? 'text-success' : 'text-destructive'}`}>
+                {formatCurrency(dre.resultadoOperacional)}
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">Margem: {formatPercentage(dre.margemFinal)}</p>
+            </div>
+          </div>
+          {dre.margemFinal < 0 && (
+            <div className="flex items-center gap-3 p-4 bg-destructive/10 border border-destructive/20 rounded-xl">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              <p className="text-sm text-destructive font-medium">Atenção: Suas despesas superaram sua receita este mês</p>
+            </div>
+          )}
+        </div>
+      </Card>
+
+          <section className="space-y-3">
+            <h2 className="text-lg font-semibold">Receitas e análises</h2>
+            <div className="flex flex-wrap gap-3">
+              <Button onClick={() => navigate('/receitas')}>Gerenciar Receitas</Button>
+              <Button variant="outline" onClick={() => navigate('/panorama')}>Panorama Visual</Button>
+              <Button variant="outline" onClick={() => navigate('/analises')}>Análise por Evento</Button>
+            </div>
+          </section>
         </TabsContent>
-        <TabsContent value="metas"><FinancialGoals /></TabsContent>
-        <TabsContent value="relatorios" className="space-y-4"><h2 className="text-xl font-semibold text-gold">Relatórios Analíticos</h2><div className="flex flex-wrap gap-3"><Button onClick={() => navigate('/panorama')}>Panorama Visual</Button><Button variant="outline" onClick={() => navigate('/analises')}>Análise por Evento</Button></div></TabsContent>
-        <TabsContent value="receitas"><Button onClick={() => navigate('/receitas')}>Gerenciar Receitas e Lançamentos</Button></TabsContent>
       </Tabs>
     </div>
   );

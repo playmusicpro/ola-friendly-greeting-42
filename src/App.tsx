@@ -56,7 +56,7 @@ const AppLayout = () => {
     <div className={`min-h-screen flex w-full bg-background ${isDashboard ? "dashboard-stage" : ""}`}>
       <DesktopSidebar />
       {!isDashboard && <MobileHeader />}
-      <main className={`flex-1 min-w-0 md:ml-64 ${isDashboard ? "pt-0 pb-32" : "pt-16 md:pt-0 pb-20 md:pb-0"}`}>
+      <main className={`flex-1 min-w-0 md:ml-64 ${isDashboard ? "pt-0 pb-32" : "pt-16 md:pt-0 pb-32 md:pb-0"}`}>
         <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
           <MusicianProfileGate>
           <Routes>

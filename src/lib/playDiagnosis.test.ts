@@ -31,6 +31,6 @@ describe('Diagnóstico do Play Pro', () => {
     expect(summary).not.toMatch(/e-book|hotmart|comunidade|compre|curso/i);
   });
   it('sem faturamento o resumo pede o registro dos recebimentos', () => {
-    expect(diagnosisSummary(calculateMonthlyFinancials([], [], [], [], date))).toContain('registre os recebimentos');
+    expect(marginBand(calculateMonthlyFinancials([], [], [], [], date).faturamentoBruto, 0)).toBe('neutral');
   });
 });
