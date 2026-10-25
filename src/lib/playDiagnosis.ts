@@ -3,7 +3,7 @@ import { getMonthStart, getMonthEnd } from './dateUtils';
 import { PAID_MATERIALS, type MarketFocus } from './officialMaterials';
 import type { FinancialGoal, Show } from '@/types';
 
-export function marginBand(revenue: number, margin: number) {
+export function marginBand(revenue: number, margin: number): 'neutral' | 'success' | 'warning' | 'danger' {
   if (revenue <= 0) return 'neutral';
   if (margin >= 60) return 'success';
   if (margin >= 40) return 'warning';
