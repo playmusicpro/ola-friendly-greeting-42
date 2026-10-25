@@ -1,6 +1,5 @@
 import { calculateMonthlyFinancials, formatCurrency, showCashCosts, showOutstanding } from './calculations';
 import { getMonthStart, getMonthEnd } from './dateUtils';
-import { PAID_MATERIALS, type MarketFocus } from './officialMaterials';
 import type { FinancialGoal, Show } from '@/types';
 
 export function marginBand(revenue: number, margin: number): 'neutral' | 'success' | 'warning' | 'danger' {
@@ -34,10 +33,12 @@ export function buildPlayDiagnosis(monthly: ReturnType<typeof calculateMonthlyFi
     collection: pending > 0 ? `Tem ${formatCurrency(pending)} travado de show que você já fez esse mês. Passa o Pix pro contratante e cobra o saldo combinado antes do fim da semana!` : undefined };
 }
 
-export function contextualMaterial(band: ReturnType<typeof marginBand>, focus: MarketFocus) {
-  if (focus === 'precificacao') return PAID_MATERIALS.precificacao;
-  if (focus === 'repertorio') return PAID_MATERIALS.repertorio;
-  if (focus === 'covers' || focus === 'video') return PAID_MATERIALS.covers;
-  if (band === 'danger') return PAID_MATERIALS.bar;
-  return { ...PAID_MATERIALS.precificacao, title: 'Próximo passo na estrada', message: "Quer fortalecer sua postura e negociação? Conheça o e-book 'Músico de Sucesso' na área de membros." };
+// Uma frase curta, estilo parceiro de estrada, sobre a margem real do mês. Sem ofertas.
+export function diagnosisSummary(monthly: ReturnType<typeof calculateMonthlyFinancials>) {
+  const band = marginBand(monthly.faturamentoBruto, monthly.dre.margemFinal);
+  const margin = monthly.dre.margemFinal.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
+  if (band === 'success') return `Margem de ${margin}% no mês: o caixa tá firme, segue nesse ritmo.`;
+  if (band === 'warning') return `Margem de ${margin}% no mês: dá pra respirar, mas fica de olho nos custos da estrada.`;
+  if (band === 'danger') return `Margem de ${margin}% no mês: os custos estão comendo seu lucro, hora de rever valores e gastos.`;
+  return 'Ainda não entrou faturamento neste mês; registre os recebimentos pra enxergar sua margem real.';
 }
