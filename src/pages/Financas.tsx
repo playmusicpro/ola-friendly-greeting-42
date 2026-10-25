@@ -94,7 +94,7 @@ const Financas = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="finance-summary grid grid-cols-2 md:grid-cols-3 gap-3">
         <StatCard title="Custos Totais" value={formatCurrency(monthly.totalGastos)} icon={TrendingDown} trend={`${generalExpenses.length} gasto(s) registrado(s)`} variant="default" artwork="/receitas" />
         <StatCard title="Faturamento Bruto" value={formatCurrency(monthly.faturamentoBruto)} icon={TrendingUp} artwork="/financas" />
         <StatCard title="Lucro Líquido Real" value={formatCurrency(monthly.lucroLiquidoReal)} icon={TrendingUp} trend={`${formatPercentage(dre.margemFinal)} de margem`} artwork="/financas" />
@@ -143,7 +143,9 @@ const Financas = () => {
                 <SelectItem value="alimentacao">Alimentação</SelectItem>
                 <SelectItem value="equipamentos">Equipamentos</SelectItem>
                 <SelectItem value="musicos">Músicos</SelectItem>
-                <SelectItem value="fixas">Despesas Fixas</SelectItem>
+                <SelectItem value="roupas">Roupas</SelectItem>
+                <SelectItem value="transporte">Transporte</SelectItem>
+                <SelectItem value="manutencao">Manutenção</SelectItem>
               </SelectContent>
             </Select>
             {filteredExpenses.length === 0 ? (
