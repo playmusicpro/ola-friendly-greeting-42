@@ -115,6 +115,23 @@ All colors MUST be HSL.
 }
 
 @layer components {
+  .login-scene {
+    position: relative;
+    isolation: isolate;
+    background: hsl(var(--stage));
+    --muted-foreground: var(--artwork-muted-foreground);
+    --login-overlay: linear-gradient(180deg, hsl(var(--stage) / 0.15), hsl(var(--stage) / 0.3) 55%, hsl(var(--stage) / 0.58));
+    --login-surface: linear-gradient(135deg, hsl(var(--glass) / 0.52), hsl(var(--stage) / 0.38));
+    --login-input-surface: hsl(var(--foreground) / 0.04);
+    --login-shadow: 0 24px 64px hsl(var(--background) / 0.4), inset 0 1px 0 hsl(var(--foreground) / 0.1);
+  }
+  .login-background { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 65%; z-index: -2; }
+  .login-scrim { position: absolute; inset: 0; background: var(--login-overlay); z-index: -1; }
+  .login-logo { width: min(100%, 380px); aspect-ratio: 3.2; overflow: hidden; }
+  .login-logo img { width: 100%; height: 100%; object-fit: cover; object-position: center 48%; mix-blend-mode: screen; }
+  .login-glass { border-radius: 24px; background: var(--login-surface); border: 1px solid hsl(var(--glass-border) / 0.23); box-shadow: var(--login-shadow); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+  .login-input { background: var(--login-input-surface); border-color: hsl(var(--glass-border) / 0.22); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .login-input:focus-visible { border-color: hsl(var(--primary)); }
   .dashboard-chart-section { padding-block: 20px; }
   .financial-income-stop { stop-color: var(--chart-income); }
   .financial-expense-stop { stop-color: var(--chart-expense); }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Music, Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
+import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import loginStudio from '@/assets/login-studio.jpg';
+import brandLogo from '@/assets/play-pro-logo.jpeg.asset.json';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -64,23 +66,22 @@ const Login = () => {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md space-y-8">
+    <div className="login-scene min-h-svh flex items-center justify-center p-4 py-8 sm:py-12">
+      <img className="login-background" src={loginStudio} alt="" aria-hidden="true" width={1024} height={1536} fetchPriority="high" />
+      <div className="login-scrim" aria-hidden="true" />
+      <div className="login-content relative w-full max-w-md space-y-7">
         {/* Logo/Brand */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-            <Music className="h-8 w-8 text-primary" />
-          </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-gold via-primary to-gold bg-clip-text text-transparent">
-            Play Pro
+        <div className="text-center space-y-3">
+          <h1 className="login-logo mx-auto">
+            <img src={brandLogo.url} alt="Play Pro" width={1029} height={768} />
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-xs sm:text-sm">
             Seu assistente profissional para músicos
           </p>
         </div>
 
         {/* Login Card */}
-        <Card className="border-primary/10 shadow-lg">
+        <Card className="login-glass">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Entrar</CardTitle>
             <CardDescription className="text-center">
@@ -102,7 +103,7 @@ const Login = () => {
                       setEmail(e.target.value);
                       setError(null);
                     }}
-                    className="pl-10"
+                    className="login-input pl-10"
                     required
                     autoComplete="email"
                     autoFocus
@@ -123,7 +124,7 @@ const Login = () => {
                       setPassword(e.target.value);
                       setError(null);
                     }}
-                    className="pl-10"
+                    className="login-input pl-10"
                     required
                     minLength={6}
                     autoComplete="current-password"
@@ -132,18 +133,19 @@ const Login = () => {
                 {error && (
                   <p className="text-sm text-destructive">{error}</p>
                 )}
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-xs text-muted-foreground">
                     Primeiro acesso? Sua conta é criada automaticamente.
                   </p>
-                  <button
+                  <Button
+                    variant="link"
                     type="button"
                     onClick={handleForgot}
                     disabled={isSendingReset}
-                    className="text-xs font-medium text-primary hover:underline whitespace-nowrap disabled:opacity-50"
+                    className="h-auto p-0 text-xs font-medium whitespace-nowrap"
                   >
                     {isSendingReset ? "Enviando..." : "Esqueci minha senha"}
-                  </button>
+                  </Button>
                 </div>
               </div>
 
