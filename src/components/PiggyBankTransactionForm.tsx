@@ -25,7 +25,7 @@ const transactionSchema = z.object({
 interface PiggyBankTransactionFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (valor: number) => void;
+  onSubmit: (valor: number) => void | boolean | Promise<void | boolean>;
   tipo: "deposito" | "retirada";
   piggyBankName: string;
 }
@@ -42,8 +42,8 @@ export function PiggyBankTransactionForm({
     defaultValues: { valor: 0 },
   });
 
-  const handleSubmit = (data: { valor: number }) => {
-    onSubmit(data.valor);
+  const handleSubmit = async (data: { valor: number }) => {
+    if (await onSubmit(data.valor) === false) return;
     form.reset();
     onOpenChange(false);
   };
@@ -75,7 +75,7 @@ export function PiggyBankTransactionForm({
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
                 Cancelar
               </Button>
-              <Button type="submit" className="flex-1">
+              <Button type="submit" className="flex-1" disabled={form.formState.isSubmitting}>
                 {tipo === "deposito" ? "Depositar" : "Retirar"}
               </Button>
             </div>

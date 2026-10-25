@@ -70,13 +70,13 @@ const Financas = () => {
       <PiggyBankTransactionForm
         open={!!transactionPiggyId}
         onOpenChange={(open) => { if (!open) setTransactionPiggyId(null); }}
-        onSubmit={(valor) => {
-          if (!transactionPiggyId) return;
+        onSubmit={async (valor) => {
+          if (!transactionPiggyId) return false;
           if (transactionType === 'deposito') {
-            addToPiggyBank(transactionPiggyId, valor);
+            if (!await addToPiggyBank(transactionPiggyId, valor)) return false;
             toast({ title: "Depósito realizado!", description: `${formatCurrency(valor)} adicionado.` });
           } else {
-            withdrawFromPiggyBank(transactionPiggyId, valor);
+            if (!await withdrawFromPiggyBank(transactionPiggyId, valor)) return false;
             toast({ title: "Retirada realizada!", description: `${formatCurrency(valor)} retirado.` });
           }
           setTransactionPiggyId(null);
@@ -211,7 +211,7 @@ const Financas = () => {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-lg font-semibold text-destructive">{formatCurrency(exp.valor)}</span>
-                      <Button size="icon" variant="ghost" onClick={() => { deleteGeneralExpense(exp.id); toast({ title: "Gasto removido" }); }}>
+                      <Button size="icon" variant="ghost" disabled={exp.origin === 'team_payment'} onClick={() => { deleteGeneralExpense(exp.id); toast({ title: "Gasto removido" }); }}>
                         <Trash2 className="h-4 w-4 text-muted-foreground" />
                       </Button>
                     </div>

@@ -121,7 +121,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
 
   const handleFormSubmit = async (data: ShowFormData) => {
     // Após validação do zod, todos os campos estarão presentes
-    if (await onSubmit({ ...data, cashTracking: true }) === false) return;
+    if (await onSubmit({ ...data, cashTracking: true } as Omit<Show, 'id'>) === false) return;
     reset();
     onOpenChange(false);
   };
