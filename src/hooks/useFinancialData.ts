@@ -362,7 +362,7 @@ export function useFinancialData() {
   const deleteShow = (id: string) =>
     run('excluir show', async (ownerId) => {
       await req(supabase.from('shows').delete().eq('id', id));
-    }, 'shows', 'events');
+    }, 'shows', 'events', 'expenses');
 
   const markShowRealizado = (id: string, realizado = true) =>
     run('atualizar status do show', async (ownerId) => {
@@ -508,6 +508,7 @@ export function useFinancialData() {
 
   const deleteGoal = (id: string) =>
     run('excluir meta', async (ownerId) => {
+      if (((goalsQ.data ?? []).find(goal => goal.id === id)?.saldoAjuste ?? 0) > 0) throw new Error('Resgate o valor reservado antes de excluir a meta.');
       await req(supabase.from('financial_goals').delete().eq('id', id));
     }, 'financial_goals');
 
@@ -565,6 +566,7 @@ export function useFinancialData() {
 
   const deletePiggyBank = (id: string) =>
     run('excluir cofrinho', async (ownerId) => {
+      if (((piggyQ.data ?? []).find(bank => bank.id === id)?.valorAtual ?? 0) > 0) throw new Error('Retire o saldo antes de excluir o cofrinho.');
       await req(supabase.from('piggy_banks').delete().eq('id', id));
     }, 'piggy_banks');
 

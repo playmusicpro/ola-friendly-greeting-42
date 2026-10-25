@@ -98,6 +98,15 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
   const watchedValues = watch();
 
   useEffect(() => {
+    if (!open) return;
+    reset(initialData ? { ...initialData, cashTracking: true, depositAmount: initialData.depositAmount ?? 0 } : {
+      date: '', time: '', local: '', tipo: '', cache: 0, numMusicos: 1, consumacao: 0, kmRodados: 0,
+      combustivel: 0, pedagio: 0, roupas: 0, equipamentos: 0, outrosCustos: 0, pagamentoMusicos: 0,
+      realizado: false, cashTracking: true, depositAmount: 0, depositReceived: false, settled: false, deductTeam: false,
+    });
+  }, [open, initialData, reset]);
+
+  useEffect(() => {
     const mockShow: Show = {
       id: "temp",
       date: watchedValues.date || "",
