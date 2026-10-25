@@ -9,7 +9,9 @@ import {
   Expense,
   FixedExpense,
   Income,
-  FinancialGoal
+  FinancialGoal,
+  GoalMovement,
+  PiggyBank
 } from '@/types';
 
 export function calculateShow(show: Show): ShowCalculations {
@@ -314,7 +316,7 @@ export function calculateGoalProgress(
     .filter((i) => inRange(i.date, start, end))
     .reduce((sum, i) => sum + i.amount, 0);
 
-  const realizado = faturamentoShows + outrasReceitas + (goal.saldoAjuste ?? 0);
+  const realizado = goal.saldoAjuste !== undefined ? Math.max(0, goal.saldoAjuste) : faturamentoShows + outrasReceitas;
   const meta = goal.valorMeta || 0;
   const progressoPercentual = meta > 0 ? Math.max(0, Math.min(100, (realizado / meta) * 100)) : 0;
 
@@ -373,15 +375,56 @@ export function getNextShow(shows: Show[], reference: Date = new Date()): Show |
 }
 
 /** One monthly source of truth; expenses already include all general outflows. */
-export function calculateMonthlyFinancials(shows: Show[], expenses: Expense[], fixedExpenses: FixedExpense[], incomes: Income[] = [], reference = new Date()) {
+export function showCashReceipts(show: Show): { date: string; amount: number }[] {
+  if (!show.cashTracking) return show.realizado ? [{ date: show.date, amount: show.cache }] : [];
+  const deposit = show.depositReceived ? (show.depositAmount ?? 0) : 0;
+  const receipts: { date: string; amount: number }[] = [];
+  if (deposit > 0 && show.depositDate) receipts.push({ date: show.depositDate, amount: deposit });
+  if (show.settled && show.settlementDate) receipts.push({ date: show.settlementDate, amount: Math.max(0, show.cache - deposit) });
+  return receipts;
+}
+
+export function showOutstanding(show: Show) {
+  return Math.max(0, show.cache - showCashReceipts(show).reduce((sum, receipt) => sum + receipt.amount, 0));
+}
+
+export function showCashCosts(show: Show): { date: string; amount: number; category: string }[] {
+  if (show.cashTracking && !show.realizado && !show.deductTeam) return [];
+  const rows: { date: string; amount: number; category: string }[] = [];
+  if (!show.cashTracking || show.realizado) {
+    rows.push({ date: show.date, amount: show.combustivel, category: 'combustivel' }, { date: show.date, amount: show.consumacao, category: 'alimentacao' }, { date: show.date, amount: show.equipamentos, category: 'equipamentos' }, { date: show.date, amount: show.pedagio + show.roupas + show.outrosCustos, category: 'outros' });
+  }
+  if (!show.cashTracking || show.deductTeam) rows.push({ date: show.teamPaymentDate || show.date, amount: show.pagamentoMusicos, category: 'musicos' });
+  return rows;
+}
+
+export function financialDiagnosis(margin: number, revenue: number) {
+  if (revenue <= 0) return { tone: 'neutral', message: 'Sem faturamento recebido no período para avaliar a margem.' } as const;
+  if (margin < 40) return { tone: 'warning', message: 'Renegocie custos operacionais ou repasse o transporte ao contratante para melhorar sua margem.' } as const;
+  if (margin >= 60) return { tone: 'success', message: 'Alta eficiência financeira! Seu lucro favorece o avanço das metas.' } as const;
+  return { tone: 'neutral', message: 'Margem equilibrada. Acompanhe os custos e mantenha os aportes planejados.' } as const;
+}
+
+export function calculateMonthlyFinancials(shows: Show[], expenses: Expense[], fixedExpenses: FixedExpense[], incomes: Income[] = [], reference = new Date(), reserves: { goalMovements?: GoalMovement[]; piggyBanks?: PiggyBank[] } = {}) {
   const { start, end } = getPeriodRange('mensal', reference);
   const monthShows = shows.filter(s => inRange(s.date, start, end));
-  const monthExpenses = expenses.filter(e => inRange(e.date, start, end));
+  const monthExpenses = expenses.filter(e => inRange(e.date, start, end) && e.origin !== 'team_payment');
   const activeFixed = fixedExpenses.filter(e => e.active !== false);
   const monthIncome = incomes.filter(i => inRange(i.date, start, end));
-  const custosShows = monthShows.reduce((sum, s) => sum + calculateShow(s).totalGastos, 0);
+  const roundMoney = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100;
+  const custosShows = roundMoney(shows.flatMap(showCashCosts).filter(row => inRange(row.date, start, end)).reduce((sum, row) => sum + row.amount, 0));
   const despesasFixas = activeFixed.reduce((sum, e) => sum + e.amount, 0);
   const saidasAvulsas = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
-  return { custosShows, despesasFixas, saidasAvulsas, totalGastos: custosShows + despesasFixas + saidasAvulsas,
-    dre: calculateDRE(monthShows.filter(s => s.realizado), monthExpenses, activeFixed, monthIncome) };
+  const faturamentoBruto = roundMoney(shows.flatMap(showCashReceipts).filter(row => inRange(row.date, start, end)).reduce((sum, row) => sum + row.amount, 0) + monthIncome.reduce((sum, row) => sum + row.amount, 0));
+  const goalMovements = reserves.goalMovements ?? [];
+  const aportesMetas = roundMoney(goalMovements.filter(row => inRange(row.date, start, end)).reduce((sum, row) => sum + (row.tipo === 'deposito' ? row.valor : -row.valor), 0));
+  const aportesCofrinhos = roundMoney((reserves.piggyBanks ?? []).flatMap(bank => bank.historico).filter(row => inRange(row.data, start, end)).reduce((sum, row) => sum + (row.tipo === 'deposito' ? row.valor : -row.valor), 0));
+  const totalGastos = roundMoney(custosShows + despesasFixas + saidasAvulsas);
+  const margemContribuicao = roundMoney(faturamentoBruto - custosShows);
+  const lucroLiquidoReal = roundMoney(margemContribuicao - despesasFixas - saidasAvulsas - aportesMetas);
+  const saldoDisponivel = roundMoney(lucroLiquidoReal - aportesCofrinhos);
+  const margemFinal = faturamentoBruto > 0 ? lucroLiquidoReal / faturamentoBruto * 100 : 0;
+  const projecaoCaixa = roundMoney(monthShows.reduce((sum, show) => sum + showOutstanding(show), 0));
+  return { custosShows, despesasFixas, saidasAvulsas, totalGastos, faturamentoBruto, margemContribuicao, aportesMetas, aportesCofrinhos, lucroLiquidoReal, saldoDisponivel, projecaoCaixa,
+    dre: { receitaBruta: faturamentoBruto, custosDirectos: custosShows, despesasFixas: despesasFixas + saidasAvulsas, resultadoOperacional: lucroLiquidoReal, margemFinal } };
 }
