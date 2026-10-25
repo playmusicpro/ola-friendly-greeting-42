@@ -16,7 +16,7 @@ const num = (v: unknown) => Number(v ?? 0);
 
 const toShow = (r: any): Show => ({
   id: r.id,
-  title: r.title ?? undefined, address: r.address ?? undefined, notes: r.notes ?? undefined, endTime: r.end_time ?? undefined,
+  title: r.title ?? undefined, contractor: r.contractor ?? undefined, address: r.address ?? undefined, notes: r.notes ?? undefined, endTime: r.end_time ?? undefined,
   date: r.date,
   time: r.time ?? '',
   local: r.local,
@@ -39,7 +39,7 @@ const toShow = (r: any): Show => ({
 
 const fromShow = (s: Omit<Show, 'id'>, userId: string) => ({
   user_id: userId,
-  title: s.title || null, address: s.address || null, notes: s.notes || null, end_time: s.endTime || null,
+  title: s.title || null, contractor: s.contractor || null, address: s.address || null, notes: s.notes || null, end_time: s.endTime || null,
   date: s.date,
   time: s.time || null,
   local: s.local,
@@ -349,10 +349,11 @@ export function useFinancialData() {
   };
 
   /* Shows */
-  const addShow = (showData: Omit<Show, 'id'>) =>
+  const addShow = (showData: Omit<Show, 'id'>, sourceEventId?: string) =>
     run('salvar show', async (ownerId) => {
-      await req(supabase.from('shows').insert(fromShow(showData, ownerId)));
-    }, 'shows', 'expenses');
+      const saved = await req(supabase.from('shows').insert(fromShow(showData, ownerId)).select('id').single());
+      if (sourceEventId) await req(supabase.from('events').update({ linked_show_id: saved.id, title: showData.title || showData.local, date: showData.date, start_time: showData.time, end_time: showData.endTime || null, local: showData.local, notes: showData.notes || null, realizado: !!showData.realizado }).eq('id', sourceEventId));
+    }, 'shows', 'expenses', 'events');
 
   const updateShow = (id: string, showData: Omit<Show, 'id'>) =>
     run('atualizar show', async (ownerId) => {
@@ -477,15 +478,7 @@ export function useFinancialData() {
 
       let linkedShowId = event.linkedShowId;
       if (event.tipo === 'Show' && !linkedShowId) {
-        const created = await req(
-          supabase.from('shows').insert(fromShow({
-            date: event.date, time: event.startTime, local: event.local || event.title,
-            tipo: 'Bar', cache: 0, numMusicos: 1, consumacao: 0, kmRodados: 0,
-            combustivel: 0, pedagio: 0, roupas: 0, equipamentos: 0, outrosCustos: 0,
-            pagamentoMusicos: 0,
-          }, ownerId)).select('id').single()
-        );
-        linkedShowId = (created as any).id;
+        throw new Error('Complete o cadastro financeiro do show antes de marcar como realizado.');
       }
 
       await req(supabase.from('events')

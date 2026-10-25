@@ -20,14 +20,13 @@ import { GoogleCalendarShowButton } from '@/components/GoogleCalendarShowButton'
 import { GoalForm } from '@/components/GoalForm';
 import { ExpenseForm } from '@/components/ExpenseForm';
 import { PiggyBankForm } from '@/components/PiggyBankForm';
-import { EventQuickForm } from '@/components/EventQuickForm';
 import { ShowForm } from '@/components/ShowForm';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { profile } = useProfile();
   const displayName = profile?.name?.trim() || 'Músico';
-  const { nextShow, shows, expenses, fixedExpenses, incomes, piggyBanks, goalMovements, addShow, addGoal, addGeneralExpense, addPiggyBank, addEvent } = useFinancialData();
+  const { nextShow, shows, expenses, fixedExpenses, incomes, piggyBanks, goalMovements, addShow, addGoal, addGeneralExpense, addPiggyBank } = useFinancialData();
   const [showGoalForm, setShowGoalForm] = useState(false);
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showPiggyForm, setShowPiggyForm] = useState(false);
@@ -46,7 +45,6 @@ export default function Dashboard() {
     { title: 'Projeção de Caixa Futura', value: monthly.projecaoCaixa, module: '/financas' },
     { title: 'Reservas', value: piggyBanks.reduce((sum, bank) => sum + bank.valorAtual, 0), module: 'savings' },
   ];
-  const handleAddEvent = (data: { nomeEvento: string; dataEvento: string; horaEvento: string; local?: string; observacoes?: string }) => addEvent({ title: data.nomeEvento, tipo: 'Show', date: data.dataEvento, startTime: data.horaEvento, local: data.local, notes: data.observacoes, realizado: false });
   return <>
     <Onboarding isOpen={showOnboarding} onComplete={completeOnboarding} onClose={() => setShowOnboarding(false)} />
     <GoalForm open={showGoalForm} onOpenChange={setShowGoalForm} onSubmit={data => { void addGoal(data); }} />

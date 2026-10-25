@@ -1,6 +1,7 @@
 export interface Show {
   id: string;
   title?: string;
+  contractor?: string;
   address?: string;
   notes?: string;
   endTime?: string;
