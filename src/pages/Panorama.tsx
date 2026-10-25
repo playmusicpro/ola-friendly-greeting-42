@@ -13,7 +13,7 @@ import { PRIVATE_CURRENCY } from '@/lib/dashboardFinancialCharts';
 export default function Panorama() {
   const navigate = useNavigate();
   const [hidden, setHidden] = useState(false);
-  const { shows, expenses, fixedExpenses, incomes, generalExpenses, piggyBanks, goalMovements, project, events } = useFinancialData();
+  const { shows, expenses, fixedExpenses, incomes, generalExpenses, piggyBanks, goalMovements, goals, project, events } = useFinancialData();
   const { songs, setlists } = useRepertoire();
   const monthly = calculateMonthlyFinancials(shows, expenses, fixedExpenses, incomes, new Date(), { goalMovements, piggyBanks });
   const projection = calculateProjectedRevenue(shows);
