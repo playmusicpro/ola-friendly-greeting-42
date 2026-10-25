@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { buildPlayDiagnosis, contextualMaterial, marginBand } from './playDiagnosis';
+import { buildPlayDiagnosis, diagnosisSummary, marginBand } from './playDiagnosis';
 import { calculateMonthlyFinancials } from './calculations';
-import { PAID_MATERIALS } from './officialMaterials';
 import type { Show } from '@/types';
 
 const date = new Date(2026, 9, 25);
 const show: Show = { id: 's', date: '2026-10-20', time: '20:00', local: 'Bar', tipo: 'Bar', cache: 1000, numMusicos: 1, consumacao: 0, kmRodados: 0, combustivel: 100, pedagio: 50, roupas: 900, equipamentos: 0, outrosCustos: 200, pagamentoMusicos: 200, realizado: true, cashTracking: true, depositAmount: 300, depositReceived: true, depositDate: '2026-10-20', settled: false, deductTeam: true, teamPaymentDate: '2026-10-20' };
 const totals = calculateMonthlyFinancials([show], [], [], [], date);
+
 describe('Diagnóstico do Play Pro', () => {
   it('margem de 60% é verde', () => expect(marginBand(1000, 60)).toBe('success'));
   it('margem de 40% é amarela', () => expect(marginBand(1000, 40)).toBe('warning'));
@@ -25,8 +25,12 @@ describe('Diagnóstico do Play Pro', () => {
     expect(result.transportPercent).toBe(50);
     expect(result.teamPercent).toBeCloseTo(200 / 300 * 100);
   });
-  it('margem apertada indica Bar, Barzinho e Boteco', () => expect(contextualMaterial('danger', 'automatico')).toEqual(PAID_MATERIALS.bar));
-  it('interesse declarado de preço indica Músico de Sucesso', () => expect(contextualMaterial('success', 'precificacao')).toEqual(PAID_MATERIALS.precificacao));
-  it('interesse declarado de repertório indica Transição Musical Profissional', () => expect(contextualMaterial('neutral', 'repertorio')).toEqual(PAID_MATERIALS.repertorio));
-  it('interesse declarado de covers indica Grave Você Mesmo', () => expect(contextualMaterial('warning', 'covers')).toEqual(PAID_MATERIALS.covers));
+  it('resumo da margem é uma frase curta sem ofertas', () => {
+    const summary = diagnosisSummary(totals);
+    expect(summary).toContain('%');
+    expect(summary).not.toMatch(/e-book|hotmart|comunidade|compre|curso/i);
+  });
+  it('sem faturamento o resumo pede o registro dos recebimentos', () => {
+    expect(diagnosisSummary(calculateMonthlyFinancials([], [], [], [], date))).toContain('registre os recebimentos');
+  });
 });

@@ -168,15 +168,15 @@ const Financas = () => {
       {/* Tabs */}
       <section className="space-y-3"><h2 className="text-xl font-semibold text-gold">Cachês e Pagamentos</h2>{shows.length === 0 && <p className="text-muted-foreground">Nenhum show cadastrado</p>}{shows.map(show => <div key={show.id} className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-border"><div className="min-w-0"><h3 className="font-semibold break-words">{show.title || show.local}</h3><p className="text-xs text-muted-foreground">{formatDateBR(show.date)} · {show.realizado ? 'Realizado' : 'Agendado'} · {showOutstanding(show) === 0 ? 'Quitado' : 'A receber'}</p><p className="text-sm mt-1">Recebido: {formatCurrency(showCashReceipts(show).reduce((sum, receipt) => sum + receipt.amount, 0))} · Restante: {formatCurrency(showOutstanding(show))}</p>{!show.cashTracking && <p className="text-xs text-muted-foreground mt-1">Registro anterior · pagamentos a conferir</p>}</div><Button variant="outline" size="sm" onClick={() => setEditingPayment(show)}>Editar Pagamentos</Button></div>)}</section>
       <Tabs defaultValue="gastos" className="space-y-4">
-        <TabsList className="financial-tabs grid grid-cols-2 md:grid-cols-4 w-full">
-          <TabsTrigger className="thematic-tab" value="gastos"><ModuleArtwork module="/receitas" />Gastos</TabsTrigger>
-          <TabsTrigger value="combustivel">Combustível</TabsTrigger>
-          <TabsTrigger value="equipamentos">Equipamentos</TabsTrigger>
-          <TabsTrigger className="thematic-tab" value="cofrinho"><ModuleArtwork module="savings" />Cofrinhos</TabsTrigger>
-          <TabsTrigger className="thematic-tab" value="fixas"><ModuleArtwork module="/agenda" />Despesas Fixas</TabsTrigger>
-          <TabsTrigger value="metas">Metas</TabsTrigger>
-          <TabsTrigger value="relatorios">Relatórios</TabsTrigger>
-          <TabsTrigger value="receitas">Receitas</TabsTrigger>
+        <TabsList className="financial-tabs flex w-full flex-nowrap justify-start gap-2 overflow-x-auto px-1 py-1">
+          <TabsTrigger className="thematic-tab shrink-0 whitespace-nowrap" value="gastos"><ModuleArtwork module="/receitas" />Gastos</TabsTrigger>
+          <TabsTrigger className="shrink-0 whitespace-nowrap" value="combustivel">Combustível</TabsTrigger>
+          <TabsTrigger className="shrink-0 whitespace-nowrap" value="equipamentos">Equipamentos</TabsTrigger>
+          <TabsTrigger className="thematic-tab shrink-0 whitespace-nowrap" value="cofrinho"><ModuleArtwork module="savings" />Cofrinhos</TabsTrigger>
+          <TabsTrigger className="thematic-tab shrink-0 whitespace-nowrap" value="fixas"><ModuleArtwork module="/agenda" />Despesas Fixas</TabsTrigger>
+          <TabsTrigger className="shrink-0 whitespace-nowrap" value="metas">Metas</TabsTrigger>
+          <TabsTrigger className="shrink-0 whitespace-nowrap" value="relatorios">Relatórios</TabsTrigger>
+          <TabsTrigger className="shrink-0 whitespace-nowrap" value="receitas">Receitas</TabsTrigger>
         </TabsList>
 
         {/* Gastos Gerais */}

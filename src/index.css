@@ -198,7 +198,7 @@ All colors MUST be HSL.
   .thematic-tab { position: relative; isolation: isolate; overflow: hidden; text-shadow: var(--module-text-shadow); color: hsl(var(--foreground)); }
   .thematic-tab[data-state="active"] { color: hsl(var(--gold)); border: 1px solid hsl(var(--gold) / 0.45); box-shadow: var(--glass-shadow); }
   .thematic-tab .module-artwork img { width: 100%; }
-  .financial-tabs { height: auto; gap: 4px; }
+  .financial-tabs { height: auto; scrollbar-width: thin; }
   .dashboard-stage {
     background-color: hsl(var(--stage));
     background-image: var(--stage-light);
