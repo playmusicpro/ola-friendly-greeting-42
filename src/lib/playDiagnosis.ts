@@ -40,5 +40,5 @@ export function diagnosisSummary(monthly: ReturnType<typeof calculateMonthlyFina
   if (band === 'success') return `Margem de ${margin}% no mês: o caixa tá firme, segue nesse ritmo.`;
   if (band === 'warning') return `Margem de ${margin}% no mês: dá pra respirar, mas fica de olho nos custos da estrada.`;
   if (band === 'danger') return `Margem de ${margin}% no mês: os custos estão comendo seu lucro, hora de rever valores e gastos.`;
-  return 'Ainda não entrou faturamento neste mês; registre os recebimentos pra enxergar sua margem real.';
+  return 'Nenhum faturamento registrado este mês. Lance seus recebimentos para ver sua margem real.';
 }

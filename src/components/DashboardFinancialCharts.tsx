@@ -17,7 +17,7 @@ export default function DashboardFinancialCharts({ shows, expenses, fixedExpense
   return <section className="dashboard-chart-section space-y-6" aria-label="Gráficos financeiros">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <h2 className="text-lg font-semibold">Movimentação financeira</h2>
-      <div className="flex gap-1" role="group" aria-label="Período dos gráficos">
+      <div className="glass-segmented flex gap-1" role="group" aria-label="Período dos gráficos">
         {([['month', 'Mês'], ['quarter', '3 Meses'], ['year', 'Ano']] as const).map(([value, label]) => <Button key={value} size="sm" variant={range === value ? 'secondary' : 'ghost'} aria-pressed={range === value} onClick={() => setRange(value)}>{label}</Button>)}
       </div>
     </div>
@@ -38,12 +38,12 @@ export default function DashboardFinancialCharts({ shows, expenses, fixedExpense
     <div className="flex gap-5 text-xs text-muted-foreground"><span className="flex items-center gap-2"><i className="chart-dot chart-income-dot" />Receitas</span><span className="flex items-center gap-2"><i className="chart-dot chart-expense-dot" />Despesas</span></div>
     <div className="border-t border-border pt-5">
       <h2 className="text-lg font-semibold">Despesas por categoria</h2>
-      <div className="grid items-center gap-4 sm:grid-cols-2">
-        <div className="relative h-64 min-w-0">
+      <div className="flex flex-col items-center gap-4">
+        <div className="relative h-64 w-full max-w-sm min-w-0">
           {!hidden && data.totalGastos > 0 && <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={data.distribution.filter(item => item.value > 0)} dataKey="value" nameKey="name" innerRadius="72%" outerRadius="92%" paddingAngle={3} stroke="none" isAnimationActive={false}>{data.distribution.filter(item => item.value > 0).map(item => <Cell key={item.name} fill={`var(--chart-category-${data.distribution.findIndex(entry => entry.name === item.name)})`} />)}</Pie><Tooltip content={({ active, payload }) => active && payload?.length ? <div className="financial-chart-tooltip text-sm">{payload[0].name}: {money(Number(payload[0].value))}</div> : null} /></PieChart></ResponsiveContainer>}
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 text-center"><span className="text-xs text-muted-foreground">Total de Gastos</span><strong className="text-xl font-semibold text-gold tabular-nums">{money(data.totalGastos)}</strong>{!hidden && data.totalGastos === 0 && <span className="text-xs text-muted-foreground">Sem gastos no período</span>}</div>
         </div>
-        <ul className="space-y-3">{data.distribution.map((item, i) => <li key={item.name} className="flex items-center justify-between gap-3 text-sm"><span className="flex items-center gap-2"><i className={`chart-dot chart-category-${i}`} />{item.name}</span><span className="tabular-nums text-muted-foreground">{money(item.value)}</span></li>)}</ul>
+        <ul className="w-full max-w-sm space-y-3">{data.distribution.map((item, i) => <li key={item.name} className="flex items-center justify-between gap-3 text-sm"><span className="flex items-center gap-2"><i className={`chart-dot chart-category-${i}`} />{item.name}</span><span className="tabular-nums text-muted-foreground">{money(item.value)}</span></li>)}</ul>
       </div>
     </div>
   </section>;

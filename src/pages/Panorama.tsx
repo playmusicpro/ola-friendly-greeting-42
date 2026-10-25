@@ -9,7 +9,7 @@ import PlayDiagnosisCards from '@/components/PlayDiagnosisCards';
 import { useFinancialData } from '@/hooks/useFinancialData';
 import { useRepertoire } from '@/hooks/useRepertoire';
 import { calculateMonthlyFinancials, calculateProjectedRevenue, formatCurrency, formatPercentage, generateAlerts } from '@/lib/calculations';
-import { buildDashboardFinancialCharts, PRIVATE_CURRENCY } from '@/lib/dashboardFinancialCharts';
+import { PRIVATE_CURRENCY } from '@/lib/dashboardFinancialCharts';
 
 export default function Panorama() {
   const navigate = useNavigate();
@@ -34,13 +34,8 @@ export default function Panorama() {
     ['Custos Totais', money(monthly.totalGastos)],
     ['Reservas', money(piggyBanks.reduce((sum, bank) => sum + bank.valorAtual, 0))],
   ];
-  const categories = buildDashboardFinancialCharts(shows, expenses, fixedExpenses, incomes, generalExpenses, 'month');
   return <div className="space-y-6 max-w-5xl mx-auto">
     <header className="flex items-center gap-3"><Button variant="ghost" size="icon" aria-label="Voltar ao Painel" onClick={() => navigate('/')}><ArrowLeft className="h-5 w-5" /></Button><div className="min-w-0"><h1 className="text-2xl font-semibold">Panorama Visual</h1><p className="text-sm text-muted-foreground">Analytics</p></div><Button className="ml-auto shrink-0 text-gold" variant="outline" size="icon" onClick={() => setHidden(value => !value)} aria-pressed={hidden} aria-label={hidden ? 'Mostrar valores' : 'Ocultar valores'} title={hidden ? 'Mostrar valores' : 'Ocultar valores'}>{hidden ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}</Button></header>
-    <section aria-labelledby="panorama-categories-title" className="rounded-lg border border-border bg-card p-4 space-y-3">
-      <div className="flex items-center justify-between gap-3"><h2 id="panorama-categories-title" className="text-lg font-semibold">Despesas por Categoria</h2><span className="text-sm text-muted-foreground tabular-nums">Total: {money(categories.totalGastos)}</span></div>
-      <ul className="grid gap-2 sm:grid-cols-2">{categories.distribution.map((item, i) => <li key={item.name} className="flex items-center justify-between gap-3 text-sm"><span className="flex items-center gap-2"><i className={`chart-dot chart-category-${i}`} />{item.name}</span><span className="tabular-nums text-muted-foreground">{money(item.value)}</span></li>)}</ul>
-    </section>
     <DashboardFinancialCharts shows={shows} expenses={expenses} fixedExpenses={fixedExpenses} incomes={incomes} generalExpenses={generalExpenses} hidden={hidden} />
     <PlayDiagnosisCards monthly={monthly} hidden={hidden} />
     <div className="grid grid-cols-2 gap-3">{metrics.map(([title, value]) => <div className="thematic-card rounded-lg border p-4 min-w-0" key={title}><ModuleArtwork module="/financas" /><h2 className="text-xs text-muted-foreground">{title}</h2><p className="dashboard-financial-value mt-3 text-gold font-semibold tabular-nums">{value}</p></div>)}</div>
