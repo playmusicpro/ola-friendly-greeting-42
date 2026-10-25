@@ -53,7 +53,7 @@ type ShowFormData = z.infer<typeof showSchema>;
 interface ShowFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (show: Omit<Show, 'id'>) => void | Promise<boolean | void>;
+  onSubmit: (show: Omit<Show, 'id'>) => boolean | void | Promise<boolean | void>;
   initialData?: Show;
 }
 
