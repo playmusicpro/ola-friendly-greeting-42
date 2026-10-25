@@ -12,6 +12,9 @@ import Configuracoes from './Configuracoes';
 describe('Configurações do perfil e aparência', () => {
   beforeEach(() => {
     vi.clearAllMocks(); localStorage.clear();
+    const stored = new Map<string, string>();
+    vi.mocked(localStorage.getItem).mockImplementation((key: string) => stored.get(key) ?? null);
+    vi.mocked(localStorage.setItem).mockImplementation((key: string, value: string) => { stored.set(key, value); });
     HTMLElement.prototype.scrollIntoView = vi.fn();
     HTMLElement.prototype.hasPointerCapture = vi.fn(() => false);
     HTMLElement.prototype.releasePointerCapture = vi.fn();
