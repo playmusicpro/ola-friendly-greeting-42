@@ -1,6 +1,7 @@
 import { ExternalLink, Users, BookOpen, Sparkles, ArrowRight, MessageCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { COMMUNITY_URL, HOTMART_MEMBERS_URL } from '@/lib/officialMaterials';
 
 const Comunidades = () => {
   const communities = [
@@ -13,7 +14,7 @@ const Comunidades = () => {
 Aqui é onde a troca acontece em tempo real: contatos, oportunidades, dúvidas, bastidores e networking direto com quem também vive de música.
 
 Entre, se apresente e comece a jogar o jogo junto com a galera.`,
-      link: "https://chat.whatsapp.com/GiPcr5DgYXy25KjBiyTFIi",
+      link: COMMUNITY_URL,
       icon: MessageCircle,
       gradient: "from-success via-success/80 to-gold",
       buttonText: "Entrar na Comunidade do WhatsApp",
@@ -31,7 +32,7 @@ Entre, se apresente e comece a jogar o jogo junto com a galera.`,
 Aqui você terá acesso a eBooks, materiais exclusivos e conteúdos estratégicos que formam a base de quem trata a música como negócio, entende o jogo da atenção e quer aprender a jogá-lo com inteligência.
 
 Se você pensa fora da caixa e sabe que resultado vem de estratégia, seu lugar é aqui.`,
-      link: "https://hotmart.com/pt-br/club/musico-de-sucesso",
+      link: HOTMART_MEMBERS_URL,
       icon: Users,
       gradient: "from-primary via-primary/80 to-gold",
       buttonText: "Acessar Comunidade",
