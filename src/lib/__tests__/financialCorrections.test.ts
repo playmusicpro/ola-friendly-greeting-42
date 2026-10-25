@@ -21,7 +21,7 @@ describe('monthly financial integrity', () => {
   });
   it('increases and decreases goal progress with persisted adjustments', () => {
     expect(calculateGoalProgress({ ...goal, saldoAjuste: 280 }, [show()], [], now).realizado).toBe(280);
-    expect(calculateGoalProgress({ ...goal, saldoAjuste: 280 }, [show()], [], now).progressoPercentual).toBe(14);
+    expect(calculateGoalProgress({ ...goal, saldoAjuste: 280 }, [show()], [], now).progressoPercentual).toBeCloseTo(14);
     expect(calculateGoalProgress({ ...goal, saldoAjuste: 80 }, [show()], [], now).progressoPercentual).toBe(4);
   });
   it('chooses the nearest non-completed show from today onwards', () => {

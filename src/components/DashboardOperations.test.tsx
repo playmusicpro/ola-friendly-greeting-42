@@ -6,7 +6,7 @@ import DashboardOperations from './DashboardOperations';
 vi.mock('@/hooks/useFinancialData', () => ({ useFinancialData: () => ({
   shows: [], expenses: [], fixedExpenses: [], incomes: [], events: [], goals: [],
   generalExpenses: [{ id: 'expense-1', descricao: 'Transporte', categoria: 'combustivel', valor: 123.45, data: '2026-10-24' }],
-  piggyBanks: [{ id: 'bank-1', nome: 'Novo instrumento', valorAtual: 250, objetivo: 1000 }],
+  piggyBanks: [{ id: 'bank-1', nome: 'Novo instrumento', valorAtual: 250, objetivo: 1000, historico: [] }],
 }) }));
 vi.mock('./FinancialGoals', () => ({ default: () => null }));
 
