@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toISODate } from '@/lib/calculations';
+import { showSchema } from '@/lib/showForm';
 import { toast } from '@/hooks/use-toast';
 import {
   Show, Expense, FixedExpense, Project, Income, NotificationSettings,
@@ -351,6 +352,8 @@ export function useFinancialData() {
   /* Shows */
   const addShow = (showData: Omit<Show, 'id'>, sourceEventId?: string) =>
     run('salvar show', async (ownerId) => {
+      const validation = showSchema.safeParse(showData);
+      if (!validation.success) throw new Error(validation.error.issues[0]?.message || 'Complete o cadastro do show.');
       const saved = await req(supabase.from('shows').insert(fromShow(showData, ownerId)).select('id').single());
       if (sourceEventId) await req(supabase.from('events').update({ linked_show_id: saved.id, title: showData.title || showData.local, date: showData.date, start_time: showData.time, end_time: showData.endTime || null, local: showData.local, notes: showData.notes || null, realizado: !!showData.realizado }).eq('id', sourceEventId));
     }, 'shows', 'expenses', 'events');
@@ -450,6 +453,7 @@ export function useFinancialData() {
   /* Eventos */
   const addEvent = (eventData: Omit<Event, 'id'>) =>
     run('salvar evento', async (ownerId) => {
+      if (eventData.tipo === 'Show') throw new Error('Use Novo Show para preencher os dados financeiros do evento.');
       await req(supabase.from('events').insert(fromEvent(eventData, ownerId)));
     }, 'events');
 
@@ -476,7 +480,7 @@ export function useFinancialData() {
       const event = (eventsQ.data ?? []).find((e) => e.id === id);
       if (!event) throw new Error('Evento não encontrado');
 
-      let linkedShowId = event.linkedShowId;
+      const linkedShowId = event.linkedShowId;
       if (event.tipo === 'Show' && !linkedShowId) {
         throw new Error('Complete o cadastro financeiro do show antes de marcar como realizado.');
       }
