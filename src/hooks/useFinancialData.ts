@@ -5,7 +5,7 @@ import { toISODate } from '@/lib/calculations';
 import { toast } from '@/hooks/use-toast';
 import {
   Show, Expense, FixedExpense, Project, Income, NotificationSettings,
-  Event, FinancialGoal, GeneralExpense, PiggyBank,
+  Event, FinancialGoal, GeneralExpense, PiggyBank, GoalMovement,
 } from '@/types';
 
 /* ------------------------------------------------------------------ */
@@ -32,6 +32,9 @@ const toShow = (r: any): Show => ({
   outrosCustos: num(r.outros_custos),
   pagamentoMusicos: num(r.pagamento_musicos),
   realizado: !!r.realizado,
+  cashTracking: r.cash_tracking, depositAmount: num(r.deposit_amount), depositReceived: r.deposit_received,
+  depositDate: r.deposit_date ?? undefined, settled: r.settled, settlementDate: r.settlement_date ?? undefined,
+  deductTeam: r.deduct_team, teamPaymentDate: r.team_payment_date ?? undefined,
 });
 
 const fromShow = (s: Omit<Show, 'id'>, userId: string) => ({
@@ -52,10 +55,14 @@ const fromShow = (s: Omit<Show, 'id'>, userId: string) => ({
   outros_custos: s.outrosCustos,
   pagamento_musicos: s.pagamentoMusicos,
   realizado: !!s.realizado,
+  cash_tracking: s.cashTracking ?? false, deposit_amount: s.depositAmount ?? 0, deposit_received: s.depositReceived ?? false,
+  deposit_date: s.depositDate || null, settled: s.settled ?? false, settlement_date: s.settlementDate || null,
+  deduct_team: s.deductTeam ?? false, team_payment_date: s.teamPaymentDate || null,
 });
 
 const toGeneralExpense = (r: any): GeneralExpense => ({
   id: r.id,
+  showId: r.show_id ?? undefined, origin: r.origin ?? undefined,
   descricao: r.descricao,
   categoria: r.categoria,
   valor: num(r.valor),
@@ -65,6 +72,7 @@ const toGeneralExpense = (r: any): GeneralExpense => ({
 
 const toExpense = (r: any): Expense => ({
   id: r.id,
+  showId: r.show_id ?? undefined, origin: r.origin ?? undefined,
   category: (['combustivel', 'roupas', 'equipamentos'].includes(r.categoria)
     ? r.categoria
     : 'equipamentos') as Expense['category'],
@@ -263,6 +271,20 @@ export function useFinancialData() {
     },
   });
 
+  const goalMovementsQ = useQuery({
+    queryKey: key('goal_movements'), enabled,
+    queryFn: async (): Promise<GoalMovement[]> => {
+      const rows: GoalMovement[] = [];
+      for (let offset = 0; ; offset += 500) {
+        const { data, error } = await supabase.from('financial_goal_transactions').select('*').eq('user_id', userId ?? '').order('created_at').order('id').range(offset, offset + 499);
+        if (error) throw error;
+        rows.push(...(data ?? []).map(row => ({ id: row.id, goalId: row.goal_id, tipo: row.tipo as GoalMovement['tipo'], valor: num(row.valor), date: toISODate(new Date(row.created_at)) })));
+        if ((data ?? []).length < 500) break;
+      }
+      return rows;
+    },
+  });
+
   const piggyQ = useQuery({
     queryKey: key('piggy_banks'), enabled,
     queryFn: async () => {
@@ -330,12 +352,12 @@ export function useFinancialData() {
   const addShow = (showData: Omit<Show, 'id'>) =>
     run('salvar show', async (ownerId) => {
       await req(supabase.from('shows').insert(fromShow(showData, ownerId)));
-    }, 'shows');
+    }, 'shows', 'expenses');
 
   const updateShow = (id: string, showData: Omit<Show, 'id'>) =>
     run('atualizar show', async (ownerId) => {
       await req(supabase.from('shows').update(fromShow(showData, ownerId)).eq('id', id));
-    }, 'shows');
+    }, 'shows', 'expenses');
 
   const deleteShow = (id: string) =>
     run('excluir show', async (ownerId) => {
@@ -356,7 +378,7 @@ export function useFinancialData() {
     const original = (showsQ.data ?? []).find((s) => s.id === id);
     if (!original) return;
     const { id: _drop, ...rest } = original;
-    addShow({ ...rest, realizado: false, local: `${original.local} (cópia)` });
+    addShow({ ...rest, realizado: false, depositReceived: false, settled: false, deductTeam: false, depositDate: undefined, settlementDate: undefined, teamPaymentDate: undefined, local: `${original.local} (cópia)` });
     return { ...original, local: `${original.local} (cópia)` };
   };
 
@@ -482,7 +504,7 @@ export function useFinancialData() {
         data_inicio: data.dataInicio,
         data_fim: data.dataFim || null,
       }));
-    }, 'financial_goals');
+    }, 'financial_goals', 'goal_movements');
 
   const deleteGoal = (id: string) =>
     run('excluir meta', async (ownerId) => {
@@ -492,7 +514,7 @@ export function useFinancialData() {
   const moveGoal = (id: string, valor: number, tipo: 'deposito' | 'retirada') =>
     run('movimentar meta', async () => {
       await req(supabase.rpc('move_financial_goal', { p_goal_id: id, p_valor: valor, p_tipo: tipo }));
-    }, 'financial_goals');
+    }, 'financial_goals', 'goal_movements');
 
   const saveFixedExpense = (data: Omit<FixedExpense, 'id'>, id?: string) =>
     run('salvar despesa fixa', async (ownerId) => {
@@ -524,34 +546,18 @@ export function useFinancialData() {
       const created = await req(supabase.from('piggy_banks').insert({
         user_id: ownerId,
         nome: data.nome,
-        valor_atual: data.valorAtual,
+        valor_atual: 0,
         objetivo: data.objetivo ?? null,
       }).select('id').single());
 
       if (data.valorAtual > 0) {
-        await req(supabase.from('piggy_bank_transactions').insert({
-          user_id: ownerId,
-          piggy_bank_id: (created as any).id,
-          tipo: 'deposito',
-          valor: data.valorAtual,
-          data: new Date().toISOString().split('T')[0],
-        }));
+        await req(supabase.rpc('move_piggy_bank', { p_bank_id: (created as any).id, p_tipo: 'deposito', p_valor: data.valorAtual }));
       }
     }, 'piggy_banks');
 
   const movePiggyBank = (id: string, valor: number, tipo: 'deposito' | 'retirada') =>
     run(tipo === 'deposito' ? 'depositar no cofrinho' : 'retirar do cofrinho', async (ownerId) => {
-      const pb = (piggyQ.data ?? []).find((p) => p.id === id);
-      if (!pb) throw new Error('Cofrinho não encontrado');
-      const novoValor = tipo === 'deposito'
-        ? pb.valorAtual + valor
-        : Math.max(0, pb.valorAtual - valor);
-
-      await req(supabase.from('piggy_bank_transactions').insert({
-        user_id: ownerId, piggy_bank_id: id, tipo, valor,
-        data: new Date().toISOString().split('T')[0],
-      }));
-      await req(supabase.from('piggy_banks').update({ valor_atual: novoValor }).eq('id', id));
+      await req(supabase.rpc('move_piggy_bank', { p_bank_id: id, p_valor: valor, p_tipo: tipo }));
     }, 'piggy_banks');
 
   const addToPiggyBank = (id: string, valor: number) => movePiggyBank(id, valor, 'deposito');
@@ -576,6 +582,7 @@ export function useFinancialData() {
     notificationSettings: notifQ.data ?? { enableWhatsAppNotifications: false },
     events: eventsQ.data ?? [],
     goals: goalsQ.data ?? [],
+    goalMovements: goalMovementsQ.data ?? [],
     generalExpenses: expensesRaw.map(toGeneralExpense) as GeneralExpense[],
     piggyBanks: piggyQ.data ?? [],
     isLoading:
