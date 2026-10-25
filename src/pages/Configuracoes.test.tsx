@@ -1,8 +1,8 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ThemeProvider } from 'next-themes';
-const mocks = vi.hoisted(() => ({ save: vi.fn(), toast: vi.fn() }));
-vi.mock('@/hooks/useProfile', () => ({ useProfile: () => ({ profile: { name: 'Nome Supabase', email: '', generoMusical: '', cidade: '', telefone: '' }, isLoading: false, updateProfile: { mutateAsync: mocks.save } }) }));
+const mocks = vi.hoisted(() => ({ save: vi.fn(), toast: vi.fn(), profile: { name: 'Nome Supabase', email: '', generoMusical: '', cidade: '', telefone: '' } }));
+vi.mock('@/hooks/useProfile', () => ({ useProfile: () => ({ profile: mocks.profile, isLoading: false, updateProfile: { mutateAsync: mocks.save } }) }));
 vi.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast: mocks.toast }) }));
 vi.mock('@/hooks/useOnboarding', () => ({ useOnboarding: () => ({}) }));
 vi.mock('@/components/Onboarding', () => ({ default: () => null }));
