@@ -19,6 +19,14 @@ export interface Show {
   outrosCustos: number;
   pagamentoMusicos: number;
   realizado?: boolean;
+  cashTracking?: boolean;
+  depositAmount?: number;
+  depositReceived?: boolean;
+  depositDate?: string;
+  settled?: boolean;
+  settlementDate?: string;
+  deductTeam?: boolean;
+  teamPaymentDate?: string;
 }
 
 export interface ShowCalculations {
@@ -34,6 +42,8 @@ export interface ShowCalculations {
 
 export interface Expense {
   id: string;
+  showId?: string;
+  origin?: string;
   category: 'combustivel' | 'roupas' | 'equipamentos';
   description: string;
   amount: number;
@@ -201,6 +211,8 @@ export interface FinancialGoal {
 
 export interface GeneralExpense {
   id: string;
+  showId?: string;
+  origin?: string;
   descricao: string;
   categoria: string;
   valor: number;
@@ -220,4 +232,12 @@ export interface PiggyBank {
     valor: number;
     data: string;
   }>;
+}
+
+export interface GoalMovement {
+  id: string;
+  goalId: string;
+  tipo: 'deposito' | 'retirada';
+  valor: number;
+  date: string;
 }

@@ -20,9 +20,9 @@ describe('monthly financial integrity', () => {
     expect(calculateMonthlyFinancials([show({ realizado: false })], [], [], [], now).dre.receitaBruta).toBe(0);
   });
   it('increases and decreases goal progress with persisted adjustments', () => {
-    expect(calculateGoalProgress({ ...goal, saldoAjuste: 280 }, [show()], [], now).realizado).toBe(1000);
-    expect(calculateGoalProgress({ ...goal, saldoAjuste: 280 }, [show()], [], now).progressoPercentual).toBe(50);
-    expect(calculateGoalProgress({ ...goal, saldoAjuste: 80 }, [show()], [], now).progressoPercentual).toBe(40);
+    expect(calculateGoalProgress({ ...goal, saldoAjuste: 280 }, [show()], [], now).realizado).toBe(280);
+    expect(calculateGoalProgress({ ...goal, saldoAjuste: 280 }, [show()], [], now).progressoPercentual).toBeCloseTo(14);
+    expect(calculateGoalProgress({ ...goal, saldoAjuste: 80 }, [show()], [], now).progressoPercentual).toBe(4);
   });
   it('chooses the nearest non-completed show from today onwards', () => {
     expect(getNextShow([show({ id: 'late', date: '2026-10-30', realizado: false }), show({ id: 'today', realizado: false }), show({ id: 'done' }), show({ id: 'past', date: '2026-10-23', realizado: false })], now)?.id).toBe('today');

@@ -18,7 +18,7 @@ export default function FinancialGoals({ hidden = false }: { hidden?: boolean })
   return <section className="space-y-4" aria-label="Metas financeiras">
     <div className="flex flex-wrap justify-between items-center gap-3"><h2 className="flex items-center gap-2 text-xl font-semibold text-gold"><Target className="h-5 w-5" />Metas Financeiras</h2><Button onClick={() => setCreating(true)} className="gap-2"><Plus className="h-4 w-4" />Adicionar Meta</Button></div>
     <GoalForm open={creating} onOpenChange={setCreating} onSubmit={data => { void addGoal(data); }} />
-    <GoalTransactionForm goal={movement} tipo={movement?.tipo ?? 'deposito'} balance={selected ? calculateGoalProgress(selected, shows, incomes).realizado : 0} onClose={() => setMovement(null)} onSubmit={moveGoal} />
+    <GoalTransactionForm goal={movement} tipo={movement?.tipo ?? 'deposito'} balance={Math.max(0, selected?.saldoAjuste ?? 0)} onClose={() => setMovement(null)} onSubmit={moveGoal} />
     {goals.length === 0 && <p className="py-8 text-center text-muted-foreground">Nenhuma meta cadastrada</p>}
     {goals.map(goal => {
       const gp = calculateGoalProgress(goal, shows, incomes);

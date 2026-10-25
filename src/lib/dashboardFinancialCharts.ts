@@ -1,4 +1,4 @@
-import { calculateMonthlyFinancials, toISODate } from '@/lib/calculations';
+import { calculateMonthlyFinancials, showCashCosts, showCashReceipts, toISODate } from '@/lib/calculations';
 import type { Show, Expense, FixedExpense, Income, GeneralExpense } from '@/types';
 
 export type FinancialRange = 'month' | 'quarter' | 'year';
@@ -14,12 +14,12 @@ export function buildDashboardFinancialCharts(shows: Show[], expenses: Expense[]
   const inRange = (date: string) => date >= start && date <= end;
   const distribution = expenseCategories.map(name => ({ name, value: 0 }));
   const add = (index: number, amount: number) => { distribution[index].value += amount; };
-  shows.filter(s => inRange(s.date)).forEach(s => {
-    add(0, s.pagamentoMusicos); add(1, s.combustivel); add(2, s.consumacao); add(3, s.equipamentos);
-    add(4, s.pedagio + s.roupas + s.outrosCustos);
+  shows.flatMap(showCashCosts).filter(row => inRange(row.date)).forEach(row => {
+    const index = row.category === 'musicos' ? 0 : row.category === 'combustivel' ? 1 : row.category === 'alimentacao' ? 2 : row.category === 'equipamentos' ? 3 : 4;
+    add(index, row.amount);
   });
   const generalById = new Map(general.map(e => [e.id, e.categoria]));
-  expenses.filter(e => inRange(e.date)).forEach(e => {
+  expenses.filter(e => inRange(e.date) && e.origin !== 'team_payment').forEach(e => {
     const category = (generalById.get(e.id) ?? e.category).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
     const index = /music|equipe/.test(category) ? 0 : /combust|transporte/.test(category) ? 1 : /alimenta|consuma/.test(category) ? 2 : /equipamento/.test(category) ? 3 : 4;
     add(index, e.amount);
@@ -28,8 +28,9 @@ export function buildDashboardFinancialCharts(shows: Show[], expenses: Expense[]
   const trend = range === 'month'
     ? Array.from({ length: new Date(reference.getFullYear(), reference.getMonth() + 1, 0).getDate() }, (_, i) => {
       const day = toISODate(new Date(reference.getFullYear(), reference.getMonth(), i + 1));
-      const monthly = calculateMonthlyFinancials(shows.filter(s => s.date === day), expenses.filter(e => e.date === day), fixed.filter(f => Math.min(f.dueDay, new Date(reference.getFullYear(), reference.getMonth() + 1, 0).getDate()) === i + 1), incomes.filter(e => e.date === day), reference);
-      return { label: String(i + 1).padStart(2, '0'), receitas: monthly.dre.receitaBruta, despesas: monthly.totalGastos };
+      const receitas = shows.flatMap(showCashReceipts).filter(row => row.date === day).reduce((sum, row) => sum + row.amount, 0) + incomes.filter(row => row.date === day).reduce((sum, row) => sum + row.amount, 0);
+      const despesas = shows.flatMap(showCashCosts).filter(row => row.date === day).reduce((sum, row) => sum + row.amount, 0) + expenses.filter(row => row.date === day && row.origin !== 'team_payment').reduce((sum, row) => sum + row.amount, 0) + fixed.filter(f => f.active !== false && Math.min(f.dueDay, new Date(reference.getFullYear(), reference.getMonth() + 1, 0).getDate()) === i + 1).reduce((sum, row) => sum + row.amount, 0);
+      return { label: String(i + 1).padStart(2, '0'), receitas, despesas };
     })
     : months.map(month => {
       const monthly = calculateMonthlyFinancials(shows, expenses, fixed, incomes, month);

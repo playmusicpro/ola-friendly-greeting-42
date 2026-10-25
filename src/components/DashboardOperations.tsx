@@ -14,10 +14,10 @@ import FinancialGoals from '@/components/FinancialGoals';
 
 export default function DashboardOperations({ hidden = false }: { hidden?: boolean }) {
   const navigate = useNavigate();
-  const { shows, expenses, fixedExpenses, incomes, events, goals, generalExpenses, piggyBanks } = useFinancialData();
+  const { shows, expenses, fixedExpenses, incomes, events, goals, generalExpenses, piggyBanks, goalMovements } = useFinancialData();
   const now = new Date();
   const money = (value: number) => hidden ? PRIVATE_CURRENCY : formatCurrency(value);
-  const monthly = calculateMonthlyFinancials(shows, expenses, fixedExpenses, incomes, now);
+  const monthly = calculateMonthlyFinancials(shows, expenses, fixedExpenses, incomes, now, { goalMovements, piggyBanks });
   const alerts = generateAlerts(shows, monthly.dre);
   const upcomingEvents = events.filter(event => !event.realizado && new Date(`${event.date}T${event.startTime}`) > now)
     .sort((a, b) => `${a.date}T${a.startTime}`.localeCompare(`${b.date}T${b.startTime}`)).slice(0, 3);

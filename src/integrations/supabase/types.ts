@@ -167,6 +167,7 @@ export type Database = {
           data: string
           descricao: string
           id: string
+          origin: string | null
           show_id: string | null
           updated_at: string
           user_id: string
@@ -178,6 +179,7 @@ export type Database = {
           data?: string
           descricao: string
           id?: string
+          origin?: string | null
           show_id?: string | null
           updated_at?: string
           user_id: string
@@ -189,6 +191,7 @@ export type Database = {
           data?: string
           descricao?: string
           id?: string
+          origin?: string | null
           show_id?: string | null
           updated_at?: string
           user_id?: string
@@ -656,10 +659,15 @@ export type Database = {
         Row: {
           address: string | null
           cache: number
+          cash_tracking: boolean
           combustivel: number
           consumacao: number
           created_at: string
           date: string
+          deduct_team: boolean
+          deposit_amount: number
+          deposit_date: string | null
+          deposit_received: boolean
           end_time: string | null
           equipamentos: number
           id: string
@@ -672,6 +680,9 @@ export type Database = {
           pedagio: number
           realizado: boolean
           roupas: number
+          settled: boolean
+          settlement_date: string | null
+          team_payment_date: string | null
           time: string | null
           tipo: string
           title: string | null
@@ -681,10 +692,15 @@ export type Database = {
         Insert: {
           address?: string | null
           cache?: number
+          cash_tracking?: boolean
           combustivel?: number
           consumacao?: number
           created_at?: string
           date: string
+          deduct_team?: boolean
+          deposit_amount?: number
+          deposit_date?: string | null
+          deposit_received?: boolean
           end_time?: string | null
           equipamentos?: number
           id?: string
@@ -697,6 +713,9 @@ export type Database = {
           pedagio?: number
           realizado?: boolean
           roupas?: number
+          settled?: boolean
+          settlement_date?: string | null
+          team_payment_date?: string | null
           time?: string | null
           tipo?: string
           title?: string | null
@@ -706,10 +725,15 @@ export type Database = {
         Update: {
           address?: string | null
           cache?: number
+          cash_tracking?: boolean
           combustivel?: number
           consumacao?: number
           created_at?: string
           date?: string
+          deduct_team?: boolean
+          deposit_amount?: number
+          deposit_date?: string | null
+          deposit_received?: boolean
           end_time?: string | null
           equipamentos?: number
           id?: string
@@ -722,6 +746,9 @@ export type Database = {
           pedagio?: number
           realizado?: boolean
           roupas?: number
+          settled?: boolean
+          settlement_date?: string | null
+          team_payment_date?: string | null
           time?: string | null
           tipo?: string
           title?: string | null
@@ -805,6 +832,10 @@ export type Database = {
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       move_financial_goal: {
         Args: { p_goal_id: string; p_tipo: string; p_valor: number }
+        Returns: number
+      }
+      move_piggy_bank: {
+        Args: { p_bank_id: string; p_tipo: string; p_valor: number }
         Returns: number
       }
     }

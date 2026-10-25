@@ -1,6 +1,7 @@
 import { Fuel, Shirt, Music, PiggyBank, Home as HomeIcon, TrendingDown, TrendingUp, AlertTriangle, Plus, Trash2, ArrowUp, ArrowDown, Edit } from "lucide-react";
 import { FixedExpenseForm } from '@/components/FixedExpenseForm';
-import type { FixedExpense } from '@/types';
+import type { FixedExpense, Show } from '@/types';
+import { ShowForm } from '@/components/ShowForm';
 import StatCard from "@/components/StatCard";
 import ModuleArtwork from "@/components/ModuleArtwork";
 import { Card } from "@/components/ui/card";
@@ -9,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { useFinancialData } from "@/hooks/useFinancialData";
 import { useToast } from "@/hooks/use-toast";
-import { calculateMonthlyFinancials, formatCurrency, formatPercentage } from "@/lib/calculations";
+import { calculateMonthlyFinancials, showOutstanding, showCashReceipts, formatCurrency, formatPercentage } from "@/lib/calculations";
 import { ExpenseForm } from "@/components/ExpenseForm";
 import { PiggyBankForm } from "@/components/PiggyBankForm";
 import { PiggyBankTransactionForm } from "@/components/PiggyBankTransactionForm";
@@ -22,20 +23,21 @@ const Financas = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const {
-    shows, expenses, fixedExpenses, incomes, saveFixedExpense,
-    generalExpenses, piggyBanks,
+    shows, expenses, fixedExpenses, incomes, saveFixedExpense, updateShow,
+    generalExpenses, piggyBanks, goalMovements,
     addGeneralExpense, deleteGeneralExpense,
     addPiggyBank, addToPiggyBank, withdrawFromPiggyBank, deletePiggyBank,
   } = useFinancialData();
 
   const [showFixedForm, setShowFixedForm] = useState(false);
+  const [editingPayment, setEditingPayment] = useState<Show | undefined>();
   const [editingFixed, setEditingFixed] = useState<FixedExpense | undefined>();
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showPiggyForm, setShowPiggyForm] = useState(false);
   const [transactionPiggyId, setTransactionPiggyId] = useState<string | null>(null);
   const [transactionType, setTransactionType] = useState<'deposito' | 'retirada'>('deposito');
 
-  const monthly = calculateMonthlyFinancials(shows, expenses, fixedExpenses, incomes);
+  const monthly = calculateMonthlyFinancials(shows, expenses, fixedExpenses, incomes, new Date(), { goalMovements, piggyBanks });
   const totalFixas = monthly.despesasFixas;
   const totalGeneralExpenses = generalExpenses.reduce((sum, e) => sum + e.valor, 0);
   const totalPiggyBanks = piggyBanks.reduce((sum, pb) => sum + pb.valorAtual, 0);
@@ -50,6 +52,7 @@ const Financas = () => {
 
   return (
     <div className="space-y-6">
+      <ShowForm open={!!editingPayment} onOpenChange={open => { if (!open) setEditingPayment(undefined); }} initialData={editingPayment} onSubmit={data => editingPayment ? updateShow(editingPayment.id, data) : false} />
       <FixedExpenseForm open={showFixedForm} onOpenChange={setShowFixedForm} initialData={editingFixed} onSubmit={async data => { const ok = await saveFixedExpense(data, editingFixed?.id); if (ok) toast({ title: 'Despesa fixa salva' }); return ok; }} />
       <ExpenseForm
         open={showExpenseForm}
@@ -70,13 +73,13 @@ const Financas = () => {
       <PiggyBankTransactionForm
         open={!!transactionPiggyId}
         onOpenChange={(open) => { if (!open) setTransactionPiggyId(null); }}
-        onSubmit={(valor) => {
-          if (!transactionPiggyId) return;
+        onSubmit={async (valor) => {
+          if (!transactionPiggyId) return false;
           if (transactionType === 'deposito') {
-            addToPiggyBank(transactionPiggyId, valor);
+            if (!await addToPiggyBank(transactionPiggyId, valor)) return false;
             toast({ title: "Depósito realizado!", description: `${formatCurrency(valor)} adicionado.` });
           } else {
-            withdrawFromPiggyBank(transactionPiggyId, valor);
+            if (!await withdrawFromPiggyBank(transactionPiggyId, valor)) return false;
             toast({ title: "Retirada realizada!", description: `${formatCurrency(valor)} retirado.` });
           }
           setTransactionPiggyId(null);
@@ -95,7 +98,11 @@ const Financas = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatCard title="Total de Gastos do Mês" value={formatCurrency(monthly.totalGastos)} icon={TrendingDown} trend={`${generalExpenses.length} gasto(s) registrado(s)`} variant="default" artwork="/receitas" />
+        <StatCard title="Custos Totais" value={formatCurrency(monthly.totalGastos)} icon={TrendingDown} trend={`${generalExpenses.length} gasto(s) registrado(s)`} variant="default" artwork="/receitas" />
+        <StatCard title="Faturamento Bruto" value={formatCurrency(monthly.faturamentoBruto)} icon={TrendingUp} artwork="/financas" />
+        <StatCard title="Lucro Líquido Real" value={formatCurrency(monthly.lucroLiquidoReal)} icon={TrendingUp} trend={`${formatPercentage(dre.margemFinal)} de margem`} artwork="/financas" />
+        <StatCard title="Saldo Disponível no Caixa" value={formatCurrency(monthly.saldoDisponivel)} icon={PiggyBank} artwork="savings" />
+        <StatCard title="Projeção de Caixa Futura" value={formatCurrency(monthly.projecaoCaixa)} icon={TrendingUp} artwork="/agenda" />
         <StatCard title="Cofrinhos" value={formatCurrency(totalPiggyBanks)} icon={PiggyBank} trend={`${piggyBanks.length} cofrinho(s) ativo(s)`} variant="gold" artwork="savings" />
         <StatCard title="Despesas Fixas" value={formatCurrency(totalFixas)} icon={HomeIcon} trend="Compromissos recorrentes" variant="default" artwork="/agenda" />
       </div>
@@ -116,7 +123,7 @@ const Financas = () => {
           <div className="flex items-center justify-between p-4 bg-background/50 rounded-xl border border-border">
             <div>
               <p className="text-sm text-muted-foreground">Receita Bruta</p>
-              <p className="text-xs text-muted-foreground mt-1">Soma de todos os cachês</p>
+              <p className="text-xs text-muted-foreground mt-1">Sinais e pagamentos recebidos</p>
             </div>
             <span className="text-2xl font-bold text-success">{formatCurrency(dre.receitaBruta)}</span>
           </div>
@@ -134,10 +141,12 @@ const Financas = () => {
             </div>
             <span className="text-2xl font-bold text-destructive">-{formatCurrency(dre.despesasFixas)}</span>
           </div>
+          <div className="flex flex-wrap justify-between gap-3 border-t border-border pt-4"><span>Margem de Contribuição</span><strong>{formatCurrency(monthly.margemContribuicao)}</strong></div>
+          <div className="flex flex-wrap justify-between gap-3"><span>Aportes líquidos em Metas</span><strong>{formatCurrency(monthly.aportesMetas)}</strong></div>
           <div className="h-px bg-gold/20 my-4"></div>
           <div className="flex items-center justify-between p-5 bg-gradient-to-r from-primary/10 to-gold/10 rounded-xl border-2 border-gold/30">
             <div>
-              <p className="font-semibold text-lg">Resultado Operacional</p>
+              <p className="font-semibold text-lg">Lucro Líquido Real</p>
               <p className="text-xs text-muted-foreground mt-1">Lucro líquido do período</p>
             </div>
             <div className="text-right">
@@ -157,6 +166,7 @@ const Financas = () => {
       </Card>
 
       {/* Tabs */}
+      <section className="space-y-3"><h2 className="text-xl font-semibold text-gold">Cachês e Pagamentos</h2>{shows.length === 0 && <p className="text-muted-foreground">Nenhum show cadastrado</p>}{shows.map(show => <div key={show.id} className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-border"><div className="min-w-0"><h3 className="font-semibold break-words">{show.title || show.local}</h3><p className="text-xs text-muted-foreground">{formatDateBR(show.date)} · {show.realizado ? 'Realizado' : 'Agendado'} · {showOutstanding(show) === 0 ? 'Quitado' : 'A receber'}</p><p className="text-sm mt-1">Recebido: {formatCurrency(showCashReceipts(show).reduce((sum, receipt) => sum + receipt.amount, 0))} · Restante: {formatCurrency(showOutstanding(show))}</p>{!show.cashTracking && <p className="text-xs text-muted-foreground mt-1">Registro anterior · pagamentos a conferir</p>}</div><Button variant="outline" size="sm" onClick={() => setEditingPayment(show)}>Editar Pagamentos</Button></div>)}</section>
       <Tabs defaultValue="gastos" className="space-y-4">
         <TabsList className="financial-tabs grid grid-cols-2 md:grid-cols-4 w-full">
           <TabsTrigger className="thematic-tab" value="gastos"><ModuleArtwork module="/receitas" />Gastos</TabsTrigger>
@@ -205,7 +215,7 @@ const Financas = () => {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-lg font-semibold text-destructive">{formatCurrency(exp.valor)}</span>
-                      <Button size="icon" variant="ghost" onClick={() => { deleteGeneralExpense(exp.id); toast({ title: "Gasto removido" }); }}>
+                      <Button size="icon" variant="ghost" disabled={exp.origin === 'team_payment'} onClick={() => { deleteGeneralExpense(exp.id); toast({ title: "Gasto removido" }); }}>
                         <Trash2 className="h-4 w-4 text-muted-foreground" />
                       </Button>
                     </div>

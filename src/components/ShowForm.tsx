@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { TrendingUp, DollarSign, Users } from "lucide-react";
 import { Show } from "@/types";
-import { calculateShow, formatCurrency, formatPercentage } from "@/lib/calculations";
+import { calculateShow, formatCurrency, formatPercentage, toISODate } from "@/lib/calculations";
 import { useEffect, useState } from "react";
 
 const showSchema = z.object({
@@ -34,6 +34,18 @@ const showSchema = z.object({
   outrosCustos: z.number().min(0, "Valor não pode ser negativo"),
   pagamentoMusicos: z.number().min(0, "Valor não pode ser negativo"),
   realizado: z.boolean().default(false),
+  cashTracking: z.boolean().default(true),
+  depositAmount: z.number().min(0).default(0),
+  depositReceived: z.boolean().default(false),
+  depositDate: z.string().optional(),
+  settled: z.boolean().default(false),
+  settlementDate: z.string().optional(),
+  deductTeam: z.boolean().default(false),
+  teamPaymentDate: z.string().optional(),
+}).superRefine((data, ctx) => {
+  if (data.depositAmount > data.cache) ctx.addIssue({ code: 'custom', path: ['depositAmount'], message: 'Sinal não pode superar o cachê' });
+  if (data.depositReceived && !data.depositDate) ctx.addIssue({ code: 'custom', path: ['depositDate'], message: 'Informe a data do sinal' });
+  if (data.settled && !data.settlementDate) ctx.addIssue({ code: 'custom', path: ['settlementDate'], message: 'Informe a data da quitação' });
 });
 
 type ShowFormData = z.infer<typeof showSchema>;
@@ -71,6 +83,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
       outrosCustos: 0,
       pagamentoMusicos: 0,
       realizado: false,
+      cashTracking: true, depositAmount: 0, depositReceived: false, settled: false, deductTeam: false,
     },
   });
 
@@ -83,6 +96,15 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
   });
 
   const watchedValues = watch();
+
+  useEffect(() => {
+    if (!open) return;
+    reset(initialData ? { ...initialData, cashTracking: true, depositAmount: initialData.depositAmount ?? 0 } : {
+      date: '', time: '', local: '', tipo: '', cache: 0, numMusicos: 1, consumacao: 0, kmRodados: 0,
+      combustivel: 0, pedagio: 0, roupas: 0, equipamentos: 0, outrosCustos: 0, pagamentoMusicos: 0,
+      realizado: false, cashTracking: true, depositAmount: 0, depositReceived: false, settled: false, deductTeam: false,
+    });
+  }, [open, initialData, reset]);
 
   useEffect(() => {
     const mockShow: Show = {
@@ -108,7 +130,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
 
   const handleFormSubmit = async (data: ShowFormData) => {
     // Após validação do zod, todos os campos estarão presentes
-    if (await onSubmit(data as Omit<Show, 'id'>) === false) return;
+    if (await onSubmit({ ...data, cashTracking: true } as Omit<Show, 'id'>) === false) return;
     reset();
     onOpenChange(false);
   };
@@ -195,7 +217,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
               </div>
 
               <div>
-                <Label htmlFor="cache">Valor do Cachê (R$) *</Label>
+                <Label htmlFor="cache">Valor Total do Cachê (R$) *</Label>
                 <Input
                   id="cache"
                   type="number"
@@ -207,6 +229,18 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
                 {errors.cache && (
                   <p className="text-xs text-destructive mt-1">{errors.cache.message}</p>
                 )}
+              </div>
+
+              <div className="md:col-span-2 space-y-4 border-y border-border py-4">
+                <h3 className="font-semibold text-gold">Recebimentos</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div><Label htmlFor="depositAmount">Sinal (R$)</Label><div className="flex gap-2"><Input id="depositAmount" type="number" step="0.01" {...register('depositAmount', { valueAsNumber: true })} /><Button type="button" variant="outline" onClick={() => setValue('depositAmount', Math.round((watchedValues.cache || 0) * 50) / 100)}>50%</Button></div>{errors.depositAmount && <p className="text-xs text-destructive">{errors.depositAmount.message}</p>}</div>
+                  <div><Label>Valor Restante</Label><p className="text-xl font-semibold text-gold mt-2">{formatCurrency(Math.max(0, (watchedValues.cache || 0) - (watchedValues.depositAmount || 0)))}</p></div>
+                </div>
+                <div className="flex items-center justify-between gap-3"><Label htmlFor="depositReceived">Sinal recebido</Label><Switch id="depositReceived" checked={!!watchedValues.depositReceived} onCheckedChange={value => { setValue('depositReceived', value); if (value && !watchedValues.depositDate) setValue('depositDate', toISODate(new Date())); }} /></div>
+                {watchedValues.depositReceived && <div><Label htmlFor="depositDate">Data de recebimento do sinal</Label><Input id="depositDate" type="date" {...register('depositDate')} />{errors.depositDate && <p className="text-xs text-destructive">{errors.depositDate.message}</p>}</div>}
+                <div className="flex items-center justify-between gap-3"><Label htmlFor="settled">Quitado (100% Pago)</Label><Switch id="settled" checked={!!watchedValues.settled} onCheckedChange={value => { setValue('settled', value); if (value && !watchedValues.settlementDate) setValue('settlementDate', toISODate(new Date())); }} /></div>
+                {watchedValues.settled && <div><Label htmlFor="settlementDate">Data da quitação</Label><Input id="settlementDate" type="date" {...register('settlementDate')} />{errors.settlementDate && <p className="text-xs text-destructive">{errors.settlementDate.message}</p>}</div>}
               </div>
 
               <div className="md:col-span-2 p-4 rounded-xl border-2 border-gold/40 bg-gold/5">
@@ -234,7 +268,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
                 <div>
                   <Label htmlFor="realizado" className="text-base font-semibold">Show finalizado</Label>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Marque quando o show já aconteceu — ele passa a contar nas suas metas
+                    Show realizado
                   </p>
                 </div>
                 <Switch
@@ -356,6 +390,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData }: ShowForm
           </div>
 
           {/* Cálculo em Tempo Real */}
+          <div className="space-y-3 border-y border-border py-4"><div className="flex items-start gap-3"><input id="deductTeam" type="checkbox" className="mt-1 h-4 w-4 accent-primary" checked={!!watchedValues.deductTeam} onChange={event => { setValue('deductTeam', event.target.checked); if (event.target.checked && !watchedValues.teamPaymentDate) setValue('teamPaymentDate', toISODate(new Date())); }} /><Label htmlFor="deductTeam">Descontar Cachês da Equipe/Músicos do Caixa</Label></div>{watchedValues.deductTeam && <div><Label htmlFor="teamPaymentDate">Data do pagamento da equipe</Label><Input id="teamPaymentDate" type="date" {...register('teamPaymentDate')} /></div>}</div>
           <Card className="p-6 bg-gradient-to-br from-primary/5 to-gold/5 border-gold/20">
             <h3 className="text-lg font-semibold text-gold mb-4">Resultado do Show</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

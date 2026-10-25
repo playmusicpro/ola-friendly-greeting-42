@@ -28,9 +28,13 @@ import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { GoogleCalendarSyncIndicator } from '@/components/GoogleCalendarSyncIndicator';
 import { GoogleCalendarShowButton } from '@/components/GoogleCalendarShowButton';
+import { ShowForm } from '@/components/ShowForm';
+import type { Show } from '@/types';
 
 export default function Agenda() {
-  const { events, addEvent, updateEvent, deleteEvent, duplicateEvent, markEventAsRealizado, shows } = useFinancialData();
+  const { events, addEvent, updateEvent, deleteEvent, duplicateEvent, markEventAsRealizado, shows, addShow, updateShow } = useFinancialData();
+  const [financialShow, setFinancialShow] = useState<Show | undefined>();
+  const [showFinancialForm, setShowFinancialForm] = useState(false);
   const { setlists, songs } = useRepertoire();
   const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -113,8 +117,8 @@ export default function Agenda() {
     });
   };
 
-  const handleMarkRealizado = (id: string) => {
-    markEventAsRealizado(id);
+  const handleMarkRealizado = async (id: string) => {
+    if (!await markEventAsRealizado(id)) return;
     toast({
       title: "Evento marcado como realizado",
       description: "O status do evento foi atualizado.",
@@ -183,6 +187,7 @@ export default function Agenda() {
           <p className="text-muted-foreground">Gerencie seus eventos e compromissos</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => { setFinancialShow(undefined); setShowFinancialForm(true); }}>Novo Show</Button>
           <GoogleCalendarSyncIndicator />
           <Button onClick={() => { setEditingEvent(null); setIsFormOpen(true); }}>
             <Plus className="h-4 w-4 mr-2" />
@@ -256,6 +261,7 @@ export default function Agenda() {
 
                         <div className="flex flex-wrap gap-2 mt-4">
                           {event.tipo === 'Show' && <GoogleCalendarShowButton show={{ date: event.date, time: event.startTime, endTime: event.endTime, local: event.local || event.title, title: event.title, address: event.local, notes: event.notes }} />}
+                          {linkedShow && <Button variant="outline" size="sm" onClick={() => { setFinancialShow(linkedShow); setShowFinancialForm(true); }}>Cachê e Pagamentos</Button>}
                           <Button
                             variant="outline"
                             size="sm"
@@ -298,7 +304,7 @@ export default function Agenda() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleMaps(event.local!)}
+                              onClick={() => { if (event.local) handleMaps(event.local); }}
                             >
                               <MapPin className="h-3 w-3 mr-1" />
                               Maps
@@ -329,6 +335,7 @@ export default function Agenda() {
         onSubmit={editingEvent ? handleUpdateEvent : handleAddEvent}
         initialData={editingEvent || undefined}
       />
+      <ShowForm open={showFinancialForm} onOpenChange={setShowFinancialForm} initialData={financialShow} onSubmit={data => financialShow ? updateShow(financialShow.id, data) : addShow(data)} />
 
       <AlertDialog open={!!deletingEventId} onOpenChange={() => setDeletingEventId(null)}>
         <AlertDialogContent>
