@@ -662,6 +662,7 @@ export type Database = {
           cash_tracking: boolean
           combustivel: number
           consumacao: number
+          contractor: string | null
           created_at: string
           date: string
           deduct_team: boolean
@@ -695,6 +696,7 @@ export type Database = {
           cash_tracking?: boolean
           combustivel?: number
           consumacao?: number
+          contractor?: string | null
           created_at?: string
           date: string
           deduct_team?: boolean
@@ -728,6 +730,7 @@ export type Database = {
           cash_tracking?: boolean
           combustivel?: number
           consumacao?: number
+          contractor?: string | null
           created_at?: string
           date?: string
           deduct_team?: boolean

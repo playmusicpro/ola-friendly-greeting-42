@@ -1,3 +1,4 @@
+- Show creation uses only shared ShowForm; other-event forms cannot create Show events, and legacy unlinked shows require full financial registration before completion so zero-value implicit shows never bypass the cash workflow.
 - Keep login photography, overlays and glass styles scoped to login-scene; render the supplied brand image without redrawing it and preserve authentication handlers so visual changes cannot alter sign-in behavior.
 - Administrative routes mount data pages only after the server-backed role check; database RLS remains authoritative for every request.
 - Administrative queries use user-scoped query keys and paginated reads so cached cross-account data and the default row limit do not distort reports.

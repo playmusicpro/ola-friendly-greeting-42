@@ -17,9 +17,13 @@ import {
   YAxis,
 } from "recharts";
 import { useToast } from "@/hooks/use-toast";
+import { ShowForm } from '@/components/ShowForm';
+import type { Show } from '@/types';
 
 const Analises = () => {
-  const { shows, duplicateShow } = useFinancialData();
+  const { shows, addShow } = useFinancialData();
+  const [copyPrefill, setCopyPrefill] = useState<Partial<Show> | undefined>();
+  const [copyOpen, setCopyOpen] = useState(false);
   const { toast } = useToast();
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -27,17 +31,19 @@ const Analises = () => {
   const analysis = getShowsAnalysis(shows, startDate, endDate);
 
   const handleDuplicate = (showId: string) => {
-    const duplicated = duplicateShow(showId);
-    if (duplicated) {
-      toast({
-        title: "Show duplicado!",
-        description: `"${duplicated.local}" foi criado com sucesso.`,
-      });
-    }
+    const original = shows.find(show => show.id === showId);
+    if (!original) return;
+    setCopyPrefill({ ...original, title: `${original.title || original.local} (cópia)`, realizado: false, depositReceived: false, settled: false, deductTeam: false, depositDate: undefined, settlementDate: undefined, teamPaymentDate: undefined });
+    setCopyOpen(true);
   };
 
   return (
     <div className="space-y-6">
+      <ShowForm open={copyOpen} onOpenChange={setCopyOpen} prefill={copyPrefill} onSubmit={async data => {
+        if (!await addShow(data)) return false;
+        toast({ title: 'Show duplicado', description: 'O cadastro completo da cópia foi salvo.' });
+        return true;
+      }} />
       {/* Header */}
       <div className="mb-2">
         <h1 className="text-4xl font-bold mb-3 bg-gradient-to-r from-gold via-primary to-gold bg-clip-text text-transparent">

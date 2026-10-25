@@ -98,7 +98,7 @@ export function EventForm({ open, onOpenChange, onSubmit, initialData }: EventFo
                 <SelectValue />
               </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Show">Show</SelectItem>
+              {initialData?.tipo === 'Show' && <SelectItem value="Show">Show</SelectItem>}
               <SelectItem value="Ensaio">Ensaio</SelectItem>
               <SelectItem value="Aula">Aula</SelectItem>
               <SelectItem value="Gravação">Gravação</SelectItem>
