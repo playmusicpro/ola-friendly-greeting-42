@@ -35,7 +35,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData, prefill }:
     defaultValues: showFormDefaults(initialData || prefill),
   });
   const watchedValues = watch();
-  const calculations = calculateShow({ ...watchedValues, id: 'preview' });
+  const calculations = calculateShow({ ...showFormDefaults(watchedValues), id: 'preview' });
   const outstanding = watchedValues.settled ? 0 : Math.max(0, (watchedValues.cache || 0) - (watchedValues.depositReceived ? watchedValues.depositAmount || 0 : 0));
   useEffect(() => {
     if (open) reset(showFormDefaults(initialData || prefill));

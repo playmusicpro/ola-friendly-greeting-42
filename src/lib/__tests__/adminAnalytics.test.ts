@@ -3,7 +3,7 @@ import { summarizeAdminShows, type AdminShow } from '@/lib/adminAnalytics';
 
 const show: AdminShow = {
   cash_tracking: false, deposit_amount: 0, deposit_received: false, deposit_date: null, settled: false, settlement_date: null, deduct_team: false, team_payment_date: null,
-  title: null, address: null, notes: null, end_time: null,
+  title: null, contractor: null, address: null, notes: null, end_time: null,
   id: 'show-1', user_id: 'user-1', date: '2026-10-18', time: null, local: 'Evento', tipo: 'Bar',
   cache: 1000, num_musicos: 2, consumacao: 50, km_rodados: 100, combustivel: 100,
   pedagio: 20, roupas: 30, equipamentos: 40, outros_custos: 60, pagamento_musicos: 200,
