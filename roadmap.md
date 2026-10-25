@@ -1,4 +1,5 @@
-- [x] Redistribuir gráficos/indicadores para Panorama Visual via Play; simplificar Painel e preservar metas, aportes/resgates e acesso a receitas/relatórios em Finanças. Testes e navegação isolada aprovados; validação autenticada segue indisponível.
+- [x] Restaurar cards financeiros, meta atual, eventos, gastos recentes, cofrinhos e gestão de metas no scroll do Painel; gráficos/tendências exclusivos do Panorama via Play. 48 testes aprovados; revisão isolada com dados de demonstração em 393/1280 px confirmou scroll, aporte e sigilo sem overflow. Validação autenticada segue indisponível.
+- [x] Redistribuir gráficos/indicadores para Panorama Visual via Play; preservar metas, aportes/resgates e acesso a receitas/relatórios em Finanças. Testes e navegação isolada aprovados; validação autenticada segue indisponível.
 - [x] Conferir itens 1–6 existentes; adicionar áreas de receitas/despesas, filtros Mês/3 Meses/Ano, donut reconciliado com gastos e sigilo no Painel; testes e revisão isolada em telas pequenas/grandes aprovados.
 - [x] Substituir Cifra Club por afinador cromático interno: 24 testes aprovados; módulo isolado detectou A4/440 Hz offline e desligou o microfone; compilação OK. Acesso pelo Painel autenticado aguarda sessão disponível.
 - [x] Dock do Painel com Afinador à esquerda, Play central e Menu à direita restaurado.
