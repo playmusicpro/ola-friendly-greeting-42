@@ -37,7 +37,7 @@ describe('Play do Painel', () => {
   it('mantém Finanças acessível pelo Menu', () => {
     render(<MemoryRouter initialEntries={['/']}><MobileNav /><CurrentPath /></MemoryRouter>);
     fireEvent.click(screen.getByRole('button', { name: 'Abrir menu' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Finanças', exact: true }));
+    fireEvent.click(screen.getByRole('button', { name: /^Finanças$/ }));
     expect(screen.getByTestId('current-path').textContent).toBe('/financas');
   });
 });
