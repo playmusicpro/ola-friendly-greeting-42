@@ -10,7 +10,12 @@ vi.mock('@/components/HelpCenter', () => ({ default: () => null }));
 import Configuracoes from './Configuracoes';
 
 describe('Configurações do perfil e aparência', () => {
-  beforeEach(() => { vi.clearAllMocks(); localStorage.clear(); });
+  beforeEach(() => {
+    vi.clearAllMocks(); localStorage.clear();
+    HTMLElement.prototype.scrollIntoView = vi.fn();
+    HTMLElement.prototype.hasPointerCapture = vi.fn(() => false);
+    HTMLElement.prototype.releasePointerCapture = vi.fn();
+  });
   const setup = () => render(<ThemeProvider attribute="data-theme" defaultTheme="classic" themes={['classic', 'soft-pink']} enableSystem={false} storageKey="playpro_appearance"><Configuracoes /></ThemeProvider>);
 
   it('salva o nome editado e aguarda a confirmação antes de mostrar sucesso', async () => {
