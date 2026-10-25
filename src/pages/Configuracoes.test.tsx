@@ -1,0 +1,40 @@
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ThemeProvider } from 'next-themes';
+const mocks = vi.hoisted(() => ({ save: vi.fn(), toast: vi.fn() }));
+vi.mock('@/hooks/useProfile', () => ({ useProfile: () => ({ profile: { name: 'Nome Supabase', email: '', generoMusical: '', cidade: '', telefone: '' }, isLoading: false, updateProfile: { mutateAsync: mocks.save } }) }));
+vi.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast: mocks.toast }) }));
+vi.mock('@/hooks/useOnboarding', () => ({ useOnboarding: () => ({}) }));
+vi.mock('@/components/Onboarding', () => ({ default: () => null }));
+vi.mock('@/components/HelpCenter', () => ({ default: () => null }));
+import Configuracoes from './Configuracoes';
+
+describe('Configurações do perfil e aparência', () => {
+  beforeEach(() => { vi.clearAllMocks(); localStorage.clear(); });
+  const setup = () => render(<ThemeProvider attribute="data-theme" defaultTheme="classic" themes={['classic', 'soft-pink']} enableSystem={false} storageKey="playpro_appearance"><Configuracoes /></ThemeProvider>);
+
+  it('salva o nome editado e aguarda a confirmação antes de mostrar sucesso', async () => {
+    let resolveSave: (() => void) | undefined;
+    mocks.save.mockReturnValue(new Promise<void>((resolve) => { resolveSave = resolve; }));
+    setup();
+    fireEvent.change(screen.getByLabelText('Nome Artístico'), { target: { value: 'Maria do Som' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar Alterações' }));
+    expect(mocks.save).toHaveBeenCalledWith(expect.objectContaining({ name: 'Maria do Som' }));
+    expect(mocks.toast).not.toHaveBeenCalled();
+    await act(async () => { resolveSave?.(); });
+    await waitFor(() => expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({ title: 'Configurações salvas!' })));
+  });
+
+  it('persiste a escolha Rosa Neon Suave e restaura a aparência após remontar', async () => {
+    const view = setup();
+    // Native keyboard selection is represented by the Select's hidden native control.
+    const nativeSelect = view.container.querySelector('select');
+    if (!nativeSelect) throw new Error('Seletor de tema ausente');
+    fireEvent.change(nativeSelect, { target: { value: 'soft-pink' } });
+    await waitFor(() => expect(localStorage.getItem('playpro_appearance')).toBe('soft-pink'));
+    expect(document.documentElement.dataset.theme).toBe('soft-pink');
+    view.unmount();
+    setup();
+    await waitFor(() => expect(document.documentElement.dataset.theme).toBe('soft-pink'));
+  });
+});
