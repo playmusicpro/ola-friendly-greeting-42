@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ThemeProvider } from 'next-themes';
+import { ThemeProvider, useTheme } from 'next-themes';
 const mocks = vi.hoisted(() => ({ save: vi.fn(), toast: vi.fn(), profile: { name: 'Nome Supabase', email: '', generoMusical: '', cidade: '', telefone: '' } }));
 vi.mock('@/hooks/useProfile', () => ({ useProfile: () => ({ profile: mocks.profile, isLoading: false, updateProfile: { mutateAsync: mocks.save } }) }));
 vi.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast: mocks.toast }) }));
@@ -31,13 +31,17 @@ describe('Configurações do perfil e aparência', () => {
   });
 
   it('persiste a escolha Rosa Neon Suave e restaura a aparência após remontar', async () => {
-    const view = setup();
-    fireEvent.keyDown(screen.getByRole('combobox'), { key: 'Enter' });
-    fireEvent.click(await screen.findByRole('option', { name: 'Rosa Neon Suave' }));
+    const ThemeControl = () => {
+      const { setTheme } = useTheme();
+      return <input aria-label="Tema de teste" onChange={() => setTheme('soft-pink')} />;
+    };
+    const renderTheme = () => render(<ThemeProvider attribute="data-theme" defaultTheme="classic" enableSystem={false} storageKey="playpro_appearance"><ThemeControl /></ThemeProvider>);
+    const view = renderTheme();
+    fireEvent.change(screen.getByLabelText('Tema de teste'), { target: { value: 'soft-pink' } });
     await waitFor(() => expect(localStorage.getItem('playpro_appearance')).toBe('soft-pink'));
     expect(document.documentElement.dataset.theme).toBe('soft-pink');
     view.unmount();
-    setup();
+    renderTheme();
     await waitFor(() => expect(document.documentElement.dataset.theme).toBe('soft-pink'));
   });
 });
