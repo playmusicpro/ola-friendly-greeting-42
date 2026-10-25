@@ -11,10 +11,10 @@ function CurrentPath() {
 }
 
 describe('Play do Painel', () => {
-  it('abre Finanças ao clicar no Play central', () => {
+  it('abre Panorama Visual ao clicar no Play central', () => {
     render(<MemoryRouter initialEntries={['/']}><MobileNav /><CurrentPath /></MemoryRouter>);
-    fireEvent.click(screen.getByRole('button', { name: 'Abrir Finanças' }));
-    expect(screen.getByTestId('current-path').textContent).toBe('/financas');
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir Panorama Visual' }));
+    expect(screen.getByTestId('current-path').textContent).toBe('/panorama');
   });
 
   it('abre o afinador interno sem sair do Painel nem abrir sites externos', () => {
@@ -33,5 +33,11 @@ describe('Play do Painel', () => {
     render(<MemoryRouter initialEntries={['/']}><MobileNav /><CurrentPath /></MemoryRouter>);
     fireEvent.click(screen.getByRole('button', { name: 'Abrir menu' }));
     expect(screen.getByRole('button', { name: /Repertório/ })).toBeInTheDocument();
+  });
+  it('mantém Finanças acessível pelo Menu', () => {
+    render(<MemoryRouter initialEntries={['/']}><MobileNav /><CurrentPath /></MemoryRouter>);
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir menu' }));
+    fireEvent.click(screen.getByRole('button', { name: /^Finanças$/ }));
+    expect(screen.getByTestId('current-path').textContent).toBe('/financas');
   });
 });

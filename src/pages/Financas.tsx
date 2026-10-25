@@ -15,8 +15,11 @@ import { PiggyBankForm } from "@/components/PiggyBankForm";
 import { PiggyBankTransactionForm } from "@/components/PiggyBankTransactionForm";
 import { formatDateBR } from "@/lib/dateUtils";
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import FinancialGoals from '@/components/FinancialGoals';
 
 const Financas = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const {
     shows, expenses, fixedExpenses, incomes, saveFixedExpense,
@@ -155,12 +158,15 @@ const Financas = () => {
 
       {/* Tabs */}
       <Tabs defaultValue="gastos" className="space-y-4">
-        <TabsList className="financial-tabs grid grid-cols-2 md:grid-cols-5 w-full">
+        <TabsList className="financial-tabs grid grid-cols-2 md:grid-cols-4 w-full">
           <TabsTrigger className="thematic-tab" value="gastos"><ModuleArtwork module="/receitas" />Gastos</TabsTrigger>
           <TabsTrigger value="combustivel">Combustível</TabsTrigger>
           <TabsTrigger value="equipamentos">Equipamentos</TabsTrigger>
           <TabsTrigger className="thematic-tab" value="cofrinho"><ModuleArtwork module="savings" />Cofrinhos</TabsTrigger>
           <TabsTrigger className="thematic-tab" value="fixas"><ModuleArtwork module="/agenda" />Despesas Fixas</TabsTrigger>
+          <TabsTrigger value="metas">Metas</TabsTrigger>
+          <TabsTrigger value="relatorios">Relatórios</TabsTrigger>
+          <TabsTrigger value="receitas">Receitas</TabsTrigger>
         </TabsList>
 
         {/* Gastos Gerais */}
@@ -415,6 +421,9 @@ const Financas = () => {
             </div>
           </Card>
         </TabsContent>
+        <TabsContent value="metas"><FinancialGoals /></TabsContent>
+        <TabsContent value="relatorios" className="space-y-4"><h2 className="text-xl font-semibold text-gold">Relatórios Analíticos</h2><div className="flex flex-wrap gap-3"><Button onClick={() => navigate('/panorama')}>Panorama Visual</Button><Button variant="outline" onClick={() => navigate('/analises')}>Análise por Evento</Button></div></TabsContent>
+        <TabsContent value="receitas"><Button onClick={() => navigate('/receitas')}>Gerenciar Receitas e Lançamentos</Button></TabsContent>
       </Tabs>
     </div>
   );
