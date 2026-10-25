@@ -39,10 +39,10 @@ export default function Dashboard() {
   const monthly = calculateMonthlyFinancials(shows, expenses, fixedExpenses, incomes, new Date(), { goalMovements, piggyBanks });
   const projection = calculateProjectedRevenue(shows);
   const metrics = [
-    { title: 'Faturamento Projetado', value: projection.faturamentoProjetado, module: '/financas' },
     { title: 'Faturamento Bruto', value: monthly.faturamentoBruto, module: '/financas' },
-    { title: 'Lucro Líquido Real', value: monthly.lucroLiquidoReal, module: '/financas' },
     { title: 'Custos Totais', value: monthly.totalGastos, module: '/receitas' },
+    { title: 'Lucro Líquido Real', value: monthly.lucroLiquidoReal, module: '/financas' },
+    { title: 'Faturamento Projetado', value: projection.faturamentoProjetado, module: '/financas' },
     { title: 'Projeção de Caixa Futura', value: monthly.projecaoCaixa, module: '/financas' },
     { title: 'Reservas', value: piggyBanks.reduce((sum, bank) => sum + bank.valorAtual, 0), module: 'savings' },
   ];
