@@ -40,6 +40,8 @@ All colors MUST be HSL.
 
     --gold: 45 75% 53%;
     --royal-blue: 220 100% 50%;
+    --soft-pink: 330 100% 70.59%;
+    --soft-pink-light: 350.96 100% 85.69%;
     --success: 142 76% 36%;
     
     --gradient-primary: linear-gradient(135deg, hsl(220 100% 50%) 0%, hsl(220 100% 35%) 100%);
@@ -80,6 +82,26 @@ All colors MUST be HSL.
     --tuner-scale: linear-gradient(90deg, hsl(var(--tuner-warning) / 0.45), hsl(var(--muted)) 40%, hsl(var(--neon-green) / 0.45) 50%, hsl(var(--muted)) 60%, hsl(var(--tuner-warning) / 0.45));
   }
 
+  :root[data-theme="soft-pink"] {
+    color-scheme: dark;
+    --primary: var(--soft-pink);
+    --primary-foreground: 0 0% 5%;
+    --accent: var(--soft-pink-light);
+    --accent-foreground: 0 0% 5%;
+    --ring: var(--soft-pink);
+    --gold: var(--soft-pink-light);
+    --royal-blue: var(--soft-pink);
+    --stage-amber: var(--soft-pink-light);
+    --stage-blue: 330 35% 22%;
+    --stage-violet: var(--soft-pink);
+    --neon-blue: var(--soft-pink);
+    --neon-violet: var(--soft-pink-light);
+    --gradient-primary: linear-gradient(135deg, hsl(var(--soft-pink)), hsl(var(--soft-pink-light)));
+    --gradient-gold: linear-gradient(135deg, hsl(var(--soft-pink-light)), hsl(var(--soft-pink)));
+    --shadow-glow: 0 0 22px hsl(var(--soft-pink) / 0.18);
+    --play-shadow: 0 0 20px hsl(var(--soft-pink) / 0.2), 0 8px 24px hsl(var(--soft-pink-light) / 0.15), inset 0 2px 3px hsl(var(--foreground) / 0.25);
+  }
+
   /* High Contrast Mode */
   .high-contrast {
     --background: 0 0% 0%;
@@ -115,6 +137,9 @@ All colors MUST be HSL.
 }
 
 @layer components {
+  .theme-swatch { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+  .theme-swatch-classic { background: hsl(220 100% 50%); }
+  .theme-swatch-pink { background: hsl(var(--soft-pink)); box-shadow: 0 0 8px hsl(var(--soft-pink) / 0.2); }
   .login-scene {
     position: relative;
     isolation: isolate;
