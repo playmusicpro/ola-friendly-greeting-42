@@ -76,7 +76,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="thematic-card"><ModuleArtwork module="/financas" /><CardContent className="p-5"><div className="flex justify-between items-center gap-3"><h2 className="text-sm text-muted-foreground">Resumo do Saldo · Mês</h2><Button variant="ghost" size="icon" aria-label="Abrir Finanças" onClick={() => navigate('/financas')}><ArrowUpRight className="h-4 w-4 text-gold" /></Button></div><p className="dashboard-financial-value text-gold font-semibold mt-2">{money(monthly.dre.resultadoOperacional)}</p><div className="flex flex-wrap justify-between gap-3 mt-4 text-xs text-muted-foreground"><span>Gastos: {money(monthly.totalGastos)}</span><span>Reservas: {money(piggyBanks.reduce((sum, bank) => sum + bank.valorAtual, 0))}</span></div></CardContent></Card>
+        <Card className="thematic-card"><ModuleArtwork module="/financas" /><CardContent className="p-5"><div className="flex justify-between items-center gap-3"><h2 className="text-sm text-muted-foreground">Saldo Disponível no Caixa · Mês</h2><Button variant="ghost" size="icon" aria-label="Abrir Finanças" onClick={() => navigate('/financas')}><ArrowUpRight className="h-4 w-4 text-gold" /></Button></div><p className="dashboard-financial-value text-gold font-semibold mt-2">{money(monthly.saldoDisponivel)}</p><div className="flex flex-wrap justify-between gap-3 mt-4 text-xs text-muted-foreground"><span>Gastos: {money(monthly.totalGastos)}</span><span>Reservas: {money(piggyBanks.reduce((sum, bank) => sum + bank.valorAtual, 0))}</span></div></CardContent></Card>
         {/* Quick Actions */}
         <Card className="p-6 shadow-lg border-primary/10">
           <h2 className="text-xl font-semibold mb-4 text-gold">Atalhos Rápidos</h2>
@@ -104,7 +104,7 @@ export default function Dashboard() {
           </div>
         </Card>
 
-        <div className="grid grid-cols-2 gap-3 sm:gap-5">{metrics.map(metric => <Card key={metric.title} className="thematic-card min-w-0"><ModuleArtwork module={metric.module} /><CardContent className="p-4 sm:p-5"><h2 className="text-sm text-muted-foreground">{metric.title}</h2><p className="dashboard-financial-value mt-3 font-semibold text-gold tabular-nums">{money(metric.value)}</p>{metric.title === 'Resultado do Mês' && !hidden && <Badge variant="outline" className="mt-3 text-xs text-gold">{formatPercentage(monthly.dre.margemFinal)} de margem</Badge>}</CardContent></Card>)}</div>
+        <div className="grid grid-cols-2 gap-3 sm:gap-5">{metrics.map(metric => <Card key={metric.title} className="thematic-card min-w-0"><ModuleArtwork module={metric.module} /><CardContent className="p-4 sm:p-5"><h2 className="text-sm text-muted-foreground">{metric.title}</h2><p className="dashboard-financial-value mt-3 font-semibold text-gold tabular-nums">{money(metric.value)}</p>{metric.title === 'Lucro Líquido Real' && !hidden && <Badge variant="outline" className="mt-3 text-xs text-gold">{formatPercentage(monthly.dre.margemFinal)} de margem</Badge>}</CardContent></Card>)}</div>
         <DashboardOperations hidden={hidden} />
     </div>
   </>;

@@ -23,7 +23,7 @@ const Financas = () => {
   const { toast } = useToast();
   const {
     shows, expenses, fixedExpenses, incomes, saveFixedExpense,
-    generalExpenses, piggyBanks,
+    generalExpenses, piggyBanks, goalMovements,
     addGeneralExpense, deleteGeneralExpense,
     addPiggyBank, addToPiggyBank, withdrawFromPiggyBank, deletePiggyBank,
   } = useFinancialData();
@@ -35,7 +35,7 @@ const Financas = () => {
   const [transactionPiggyId, setTransactionPiggyId] = useState<string | null>(null);
   const [transactionType, setTransactionType] = useState<'deposito' | 'retirada'>('deposito');
 
-  const monthly = calculateMonthlyFinancials(shows, expenses, fixedExpenses, incomes);
+  const monthly = calculateMonthlyFinancials(shows, expenses, fixedExpenses, incomes, new Date(), { goalMovements, piggyBanks });
   const totalFixas = monthly.despesasFixas;
   const totalGeneralExpenses = generalExpenses.reduce((sum, e) => sum + e.valor, 0);
   const totalPiggyBanks = piggyBanks.reduce((sum, pb) => sum + pb.valorAtual, 0);
@@ -95,7 +95,11 @@ const Financas = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <StatCard title="Total de Gastos do Mês" value={formatCurrency(monthly.totalGastos)} icon={TrendingDown} trend={`${generalExpenses.length} gasto(s) registrado(s)`} variant="default" artwork="/receitas" />
+        <StatCard title="Custos Totais" value={formatCurrency(monthly.totalGastos)} icon={TrendingDown} trend={`${generalExpenses.length} gasto(s) registrado(s)`} variant="default" artwork="/receitas" />
+        <StatCard title="Faturamento Bruto" value={formatCurrency(monthly.faturamentoBruto)} icon={TrendingUp} artwork="/financas" />
+        <StatCard title="Lucro Líquido Real" value={formatCurrency(monthly.lucroLiquidoReal)} icon={TrendingUp} trend={`${formatPercentage(dre.margemFinal)} de margem`} artwork="/financas" />
+        <StatCard title="Saldo Disponível no Caixa" value={formatCurrency(monthly.saldoDisponivel)} icon={PiggyBank} artwork="savings" />
+        <StatCard title="Projeção de Caixa Futura" value={formatCurrency(monthly.projecaoCaixa)} icon={TrendingUp} artwork="/agenda" />
         <StatCard title="Cofrinhos" value={formatCurrency(totalPiggyBanks)} icon={PiggyBank} trend={`${piggyBanks.length} cofrinho(s) ativo(s)`} variant="gold" artwork="savings" />
         <StatCard title="Despesas Fixas" value={formatCurrency(totalFixas)} icon={HomeIcon} trend="Compromissos recorrentes" variant="default" artwork="/agenda" />
       </div>
@@ -116,7 +120,7 @@ const Financas = () => {
           <div className="flex items-center justify-between p-4 bg-background/50 rounded-xl border border-border">
             <div>
               <p className="text-sm text-muted-foreground">Receita Bruta</p>
-              <p className="text-xs text-muted-foreground mt-1">Soma de todos os cachês</p>
+              <p className="text-xs text-muted-foreground mt-1">Sinais e pagamentos recebidos</p>
             </div>
             <span className="text-2xl font-bold text-success">{formatCurrency(dre.receitaBruta)}</span>
           </div>
@@ -134,10 +138,12 @@ const Financas = () => {
             </div>
             <span className="text-2xl font-bold text-destructive">-{formatCurrency(dre.despesasFixas)}</span>
           </div>
+          <div className="flex flex-wrap justify-between gap-3 border-t border-border pt-4"><span>Margem de Contribuição</span><strong>{formatCurrency(monthly.margemContribuicao)}</strong></div>
+          <div className="flex flex-wrap justify-between gap-3"><span>Aportes líquidos em Metas</span><strong>{formatCurrency(monthly.aportesMetas)}</strong></div>
           <div className="h-px bg-gold/20 my-4"></div>
           <div className="flex items-center justify-between p-5 bg-gradient-to-r from-primary/10 to-gold/10 rounded-xl border-2 border-gold/30">
             <div>
-              <p className="font-semibold text-lg">Resultado Operacional</p>
+              <p className="font-semibold text-lg">Lucro Líquido Real</p>
               <p className="text-xs text-muted-foreground mt-1">Lucro líquido do período</p>
             </div>
             <div className="text-right">
