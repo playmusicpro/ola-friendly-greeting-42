@@ -22,7 +22,7 @@ export const showSchema = z.object({
 export type ShowFormData = z.infer<typeof showSchema>;
 export function showFormDefaults(show?: Partial<Show>): ShowFormData {
   return {
-    title: '', contractor: '', address: '', notes: '', endTime: '', date: '', time: '', local: '', tipo: 'Bar',
+    address: '', notes: '', endTime: '', date: '', time: '', local: '', tipo: 'Bar',
     cache: 0, numMusicos: 1, consumacao: 0, kmRodados: 0, combustivel: 0, pedagio: 0, roupas: 0,
     equipamentos: 0, outrosCustos: 0, pagamentoMusicos: 0, realizado: false, depositAmount: 0,
     depositReceived: false, settled: false, deductTeam: false, ...show,
