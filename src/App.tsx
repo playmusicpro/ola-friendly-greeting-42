@@ -30,6 +30,7 @@ import DesktopSidebar from "./components/DesktopSidebar";
 import MusicianProfileGate from "./components/MusicianProfileGate";
 import AdminRoute from "./components/AdminRoute";
 import { lazy, Suspense } from 'react';
+import { ThemeProvider } from 'next-themes';
 const Panorama = lazy(() => import('./pages/Panorama'));
 
 const queryClient = new QueryClient();
@@ -84,6 +85,7 @@ const AppLayout = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <ThemeProvider attribute="data-theme" defaultTheme="classic" themes={['classic', 'soft-pink']} enableSystem={false} storageKey="playpro_appearance" enableColorScheme={false}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
@@ -131,6 +133,7 @@ const App = () => (
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

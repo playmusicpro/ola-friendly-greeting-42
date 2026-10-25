@@ -6,6 +6,7 @@ export interface MusicianProfile {
   id: string;
   name: string;
   email: string | null;
+  telefone: string | null;
   generoMusical: string | null;
   cidade: string | null;
   estado: string | null;
@@ -21,10 +22,11 @@ export const useProfile = () => {
     queryKey: ['profile', user?.id],
     enabled: isAuthenticated && !!user?.id,
     queryFn: async (): Promise<MusicianProfile | null> => {
+      if (!user?.id) return null;
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user!.id)
+        .eq('id', user.id)
         .maybeSingle();
       if (error) {
         console.error('[useProfile] erro ao carregar perfil:', error);
@@ -35,12 +37,48 @@ export const useProfile = () => {
         id: data.id,
         name: data.name,
         email: data.email,
+        telefone: data.whatsapp,
         generoMusical: data.genero_musical,
         cidade: data.cidade,
         estado: data.estado,
         tipoMusico: data.tipo_musico,
         onboardingCompleted: data.onboarding_completed,
       };
+    },
+  });
+
+  const updateProfile = useMutation({
+    mutationFn: async (values: { name: string; email: string; generoMusical: string; cidade: string; telefone: string }) => {
+      if (!user?.id) throw new Error('Sessão expirada. Faça login novamente.');
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({
+          name: values.name,
+          email: values.email,
+          genero_musical: values.generoMusical,
+          cidade: values.cidade,
+          whatsapp: values.telefone,
+        })
+        .eq('id', user.id)
+        .select('*')
+        .single();
+      if (error) throw error;
+      if (!data) throw new Error('Perfil não encontrado. Não foi possível salvar.');
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData<MusicianProfile>(['profile', data.id], {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        telefone: data.whatsapp,
+        generoMusical: data.genero_musical,
+        cidade: data.cidade,
+        estado: data.estado,
+        tipoMusico: data.tipo_musico,
+        onboardingCompleted: data.onboarding_completed,
+      });
+      void queryClient.invalidateQueries({ queryKey: ['profile', data.id] });
     },
   });
 
@@ -84,11 +122,13 @@ export const useProfile = () => {
       return data;
     },
     onSuccess: (data) => {
+      if (!user?.id) return;
       // Atualiza o estado local imediatamente (onboarding concluído)
       queryClient.setQueryData(['profile', user?.id], (prev: MusicianProfile | null | undefined) => ({
-        id: user!.id,
+        id: user.id,
         name: (data as any)?.name ?? prev?.name ?? '',
         email: (data as any)?.email ?? prev?.email ?? null,
+        telefone: data?.whatsapp ?? prev?.telefone ?? null,
         generoMusical: (data as any)?.genero_musical ?? prev?.generoMusical ?? null,
         cidade: (data as any)?.cidade ?? prev?.cidade ?? null,
         estado: (data as any)?.estado ?? prev?.estado ?? null,
@@ -104,5 +144,6 @@ export const useProfile = () => {
     isLoading: query.isLoading,
     needsOnboarding: query.isSuccess && (!query.data || !query.data.onboardingCompleted),
     saveProfile,
+    updateProfile,
   };
 };

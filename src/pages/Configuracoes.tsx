@@ -5,16 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { useSettings } from "@/hooks/useSettings";
+import { useProfile } from "@/hooks/useProfile";
+import { useTheme } from "next-themes";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { useToast } from "@/hooks/use-toast";
 import HelpCenter from "@/components/HelpCenter";
 import Onboarding from "@/components/Onboarding";
-import GoogleCalendarSettings from "@/components/GoogleCalendarSettings";
 import { useOnboarding } from "@/hooks/useOnboarding";
 
 const Configuracoes = () => {
-  const { settings, updateSettings, isLoaded } = useSettings();
+  const { profile, updateProfile, isLoading } = useProfile();
+  const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const { openOnboarding, showOnboarding, setShowOnboarding, completeOnboarding } = useOnboarding();
   
@@ -30,33 +32,44 @@ const Configuracoes = () => {
   const [showHelpCenter, setShowHelpCenter] = useState(false);
 
   useEffect(() => {
-    if (isLoaded) {
+    if (profile) {
       setFormData({
-        nomeArtistico: settings.nomeArtistico,
-        email: settings.email,
-        generoMusical: settings.generoMusical,
-        cidade: settings.cidade,
-        telefone: settings.telefone,
+        nomeArtistico: profile.name,
+        email: profile.email ?? '',
+        generoMusical: profile.generoMusical ?? '',
+        cidade: profile.cidade ?? '',
+        telefone: profile.telefone ?? '',
       });
     }
-  }, [isLoaded, settings]);
+  }, [profile]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsSaving(true);
-    
-    updateSettings(formData);
-    
-    setTimeout(() => {
-      setIsSaving(false);
+    try {
+      await updateProfile.mutateAsync({
+        name: formData.nomeArtistico,
+        email: formData.email,
+        generoMusical: formData.generoMusical,
+        cidade: formData.cidade,
+        telefone: formData.telefone,
+      });
       toast({
         title: "Configurações salvas!",
         description: "Suas alterações foram salvas com sucesso.",
       });
-    }, 500);
+    } catch {
+      toast({
+        title: "Não foi possível salvar",
+        description: "Suas alterações não foram salvas. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -142,8 +155,8 @@ const Configuracoes = () => {
       {/* Save Button */}
       <Button 
         onClick={handleSave}
-        disabled={isSaving}
-        className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white rounded-xl shadow-md px-8 py-2 gap-2"
+        disabled={isSaving || isLoading || !profile}
+        className="w-full md:w-auto bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-md px-8 py-2 gap-2"
       >
         {isSaving ? (
           <>
@@ -183,14 +196,23 @@ const Configuracoes = () => {
 
           <Separator />
 
-          <div className="flex items-center justify-between py-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 py-3">
             <div>
-              <p className="font-medium">Tema</p>
-              <p className="text-sm text-muted-foreground">Preto, Azul e Dourado</p>
+              <Label htmlFor="appearance-theme" className="font-medium">Tema / Aparência</Label>
+              <p className="text-sm text-muted-foreground">Escuro</p>
             </div>
-            <Button variant="outline" size="sm" disabled>
-              Tema Fixo
-            </Button>
+            <Select value={theme ?? 'classic'} onValueChange={(value) => {
+              setTheme(value);
+              toast({ title: "Tema atualizado" });
+            }}>
+              <SelectTrigger id="appearance-theme" className="w-full sm:w-60">
+                <SelectValue placeholder="Selecione o tema" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="classic"><span className="inline-flex items-center gap-2"><span className="theme-swatch theme-swatch-classic" />Preto, Azul e Dourado</span></SelectItem>
+                <SelectItem value="soft-pink"><span className="inline-flex items-center gap-2"><span className="theme-swatch theme-swatch-pink" />Rosa Neon Suave</span></SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <Separator />
@@ -206,9 +228,6 @@ const Configuracoes = () => {
           </div>
         </div>
       </Card>
-
-      {/* Google Calendar Integration */}
-      <GoogleCalendarSettings />
 
       {/* Notifications */}
       <Card className="p-6">
