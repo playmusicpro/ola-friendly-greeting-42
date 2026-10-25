@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculateMonthlyFinancials, financialDiagnosis, showOutstanding, calculateGoalProgress } from '../calculations';
+import { calculateMonthlyFinancials, financialDiagnosis, showOutstanding, calculateGoalProgress, calculateProjectedRevenue } from '../calculations';
 import { buildDashboardFinancialCharts } from '../dashboardFinancialCharts';
 import type { Show, GoalMovement, PiggyBank } from '@/types';
 
@@ -18,6 +18,7 @@ describe('Matriz financeira de caixa', () => {
   it('realização não implica quitação', () => {
     expect(calc({...show,realizado:true}).faturamentoBruto).toBe(500);
     expect(calc({...show,realizado:true}).projecaoCaixa).toBe(500);
+    expect(calculateProjectedRevenue([{...show,realizado:true}],now).previstoMesAtual).toBe(500);
   });
   it('quitação transfere restante para faturamento sem duplicar sinal', () => {
     const result=calc({...show,realizado:true,settled:true,settlementDate:'2026-10-28'});
@@ -48,6 +49,12 @@ describe('Matriz financeira de caixa', () => {
     const result=calc(show,[],[bank]);
     expect(result.lucroLiquidoReal).toBe(500);
     expect(result.saldoDisponivel).toBe(420);
+    expect(result.faturamentoBruto).toBe(500);
+  });
+  it('resgate de meta devolve caixa sem aumentar faturamento bruto',()=>{
+    const result=calc(show,[{id:'g',goalId:'g',tipo:'deposito',valor:200,date:'2026-10-24'},{id:'r',goalId:'g',tipo:'retirada',valor:50,date:'2026-10-25'}]);
+    expect(result.aportesMetas).toBe(150);
+    expect(result.lucroLiquidoReal).toBe(350);
     expect(result.faturamentoBruto).toBe(500);
   });
   it('não transforma faturamento em saldo reservado da meta',()=>{

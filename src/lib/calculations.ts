@@ -346,17 +346,18 @@ export function calculateProjectedRevenue(
   const { start: inicioMes, end: fimMes } = getPeriodRange('mensal', reference);
 
   const realizados = shows.filter(
-    (s) => s.realizado && s.date >= inicio && s.date <= hoje
+    (s) => !s.cashTracking && s.realizado && s.date >= inicio && s.date <= hoje
   );
   const totalRealizado = realizados.reduce(
     (sum, s) => sum + calculateShow(s).faturamentoReal,
     0
   );
-  const mediaMensal = totalRealizado / 3;
+  const cashHistory = shows.filter(s => s.cashTracking).flatMap(showCashReceipts).filter(row => row.date >= inicio && row.date <= hoje).reduce((sum, row) => sum + row.amount, 0);
+  const mediaMensal = (totalRealizado + cashHistory) / 3;
 
   const previstoMesAtual = shows
-    .filter((s) => !s.realizado && inRange(s.date, inicioMes, fimMes) && s.date >= hoje)
-    .reduce((sum, s) => sum + calculateShow(s).faturamentoReal, 0);
+    .filter((s) => inRange(s.date, inicioMes, fimMes) && (s.cashTracking || (!s.realizado && s.date >= hoje)))
+    .reduce((sum, s) => sum + (s.cashTracking ? showOutstanding(s) : calculateShow(s).faturamentoReal), 0);
 
   return {
     faturamentoProjetado: mediaMensal + previstoMesAtual,
