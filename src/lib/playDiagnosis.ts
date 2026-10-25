@@ -15,9 +15,7 @@ export function buildPlayDiagnosis(monthly: ReturnType<typeof calculateMonthlyFi
   const band = marginBand(monthly.faturamentoBruto, monthly.dre.margemFinal);
   const rows = shows.flatMap(showCashCosts).filter(row => row.date >= start && row.date <= end);
   const percent = (amount: number) => monthly.faturamentoBruto > 0 ? amount / monthly.faturamentoBruto * 100 : 0;
-  const logisticsPercent = percent(rows.filter(row => ['combustivel', 'outros'].includes(row.category)).reduce((sum, row) => sum + row.amount, 0));
-  // Separate tolls from the broad "outros" bucket: clothes and other costs are not logistics.
-  const transport = shows.reduce((sum, show) => sum + (rows.some(row => row.date === show.date) && (!show.cashTracking || show.realizado) && show.date >= start && show.date <= end ? show.combustivel + show.pedagio : 0), 0);
+  const transport = shows.filter(show => (!show.cashTracking || show.realizado) && show.date >= start && show.date <= end).reduce((sum, show) => sum + show.combustivel + show.pedagio, 0);
   const teamPercent = percent(rows.filter(row => row.category === 'musicos').reduce((sum, row) => sum + row.amount, 0));
   const pending = Math.round(shows.filter(show => show.realizado && show.date >= start && show.date <= end).reduce((sum, show) => sum + showOutstanding(show), 0) * 100) / 100;
   const goal = goals.find(goal => (goal.saldoAjuste ?? 0) < goal.valorMeta);
