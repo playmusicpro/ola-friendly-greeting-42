@@ -51,6 +51,10 @@ All colors MUST be HSL.
     --ring: 220 100% 50%;
 
     --radius: 0.75rem;
+    --dock-layer: 40;
+    --card-action-border: hsl(var(--neon-violet) / 0.4);
+    --card-action-shadow: 0 0 10px hsl(var(--neon-violet) / 0.25), inset 0 0 6px hsl(var(--neon-blue) / 0.15);
+    --card-action-active-shadow: 0 0 14px hsl(var(--neon-blue) / 0.35);
     --ambient-strength: 0.2;
     --ambient-base: hsl(var(--background));
     --ambient-mesh: linear-gradient(
@@ -733,7 +737,7 @@ All colors MUST be HSL.
   }
   .mobile-floating-dock {
     left: 50%;
-    bottom: calc(16px + env(safe-area-inset-bottom));
+    bottom: 16px;
     transform: translateX(-50%);
     width: min(420px, calc(100% - 24px));
     padding: 6px;
@@ -746,7 +750,9 @@ All colors MUST be HSL.
   }
   .mobile-floating-dock,
   .dashboard-dock {
-    z-index: 999999 !important;
+    position: fixed;
+    z-index: var(--dock-layer);
+    overflow: visible;
     padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
   }
   .mobile-floating-dock .mobile-dock-item {
@@ -766,6 +772,9 @@ All colors MUST be HSL.
     width: 22px;
     height: 22px;
     flex-shrink: 0;
+  }
+  .app-foreground main {
+    padding-bottom: calc(136px + env(safe-area-inset-bottom, 0px));
   }
   .finance-page {
     padding-bottom: 24px;
@@ -866,12 +875,16 @@ All colors MUST be HSL.
     border-color: hsl(var(--gold) / 0.4);
   }
   .dashboard-dock {
-    width: min(340px, calc(100% - 40px));
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    width: min(340px, calc(100% - 24px));
     height: calc(72px + env(safe-area-inset-bottom, 0px));
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 80px minmax(0, 1fr);
     align-items: center;
-    justify-content: space-between;
-    padding-inline: 22px;
+    justify-items: center;
+    padding-inline: 12px;
     border-radius: 28px;
     border: 1px solid hsl(var(--glass-border) / 0.2);
     background: hsl(var(--background) / 0.4);
@@ -879,31 +892,42 @@ All colors MUST be HSL.
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
     box-shadow: var(--glass-shadow);
-    margin-bottom: env(safe-area-inset-bottom);
+
   }
   .dashboard-dock .dashboard-dock-tab {
     width: 64px;
     height: 60px;
+    min-width: 0;
+    position: relative;
+    z-index: 1;
+    padding: 4px;
+    border: 0;
+    box-shadow: none;
     display: flex;
     flex-direction: column;
     gap: 4px;
     color: hsl(var(--stage-amber));
-    filter: drop-shadow(0 0 5px hsl(var(--stage-amber) / 0.22));
+
     font-size: 11px;
     background: transparent;
   }
+  .dashboard-dock-tab:first-child { grid-column: 1; grid-row: 1; }
+  .dashboard-dock-tab:last-child { grid-column: 3; grid-row: 1; }
   .dashboard-dock .dashboard-play {
-    position: absolute;
-    left: 50%;
+    position: relative;
+    grid-column: 2;
+    grid-row: 1;
+    left: auto;
     top: -18px;
-    transform: translateX(-50%);
+    transform: none;
     height: 66px;
     width: 66px;
     border-radius: 50%;
     border: 1px solid hsl(var(--foreground) / 0.3);
     color: hsl(var(--primary-foreground));
     background: var(--play-gradient);
-    box-shadow: var(--play-shadow);
+    box-shadow: var(--glass-shadow);
+    z-index: 2;
     transition:
       filter 180ms ease,
       translate 180ms ease;
@@ -943,6 +967,15 @@ All colors MUST be HSL.
   .dashboard-show-title {
     max-width: 76%;
   }
+  .app-glass-card .app-button:not(.module-navigation):not(.dashboard-avatar-button) {
+    border: 1px solid var(--card-action-border);
+    box-shadow: var(--card-action-shadow);
+    transition: border-color 180ms ease, box-shadow 180ms ease;
+  }
+  .app-glass-card .app-button:not(.module-navigation):not(.dashboard-avatar-button):is(:hover, :active) {
+    border-color: hsl(var(--neon-blue) / 0.65);
+    box-shadow: var(--card-action-active-shadow);
+  }
   .dashboard-content .dashboard-itinerary {
     border-radius: 999px;
     border: 1px solid transparent;
@@ -956,8 +989,7 @@ All colors MUST be HSL.
     -webkit-backdrop-filter: blur(24px);
     text-shadow: var(--module-text-shadow);
     box-shadow:
-      inset 0 1px 0 hsl(var(--foreground) / 0.12),
-      0 0 14px hsl(var(--neon-blue) / 0.1);
+      var(--card-action-shadow);
   }
   .dashboard-status {
     white-space: normal;
@@ -1024,253 +1056,4 @@ All colors MUST be HSL.
   :focus-visible {
     @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
   }
-}
-html,
-body,
-#root {
-  min-height: 100vh !important;
-  background: linear-gradient(-45deg, #0a0a0f, #121225, #1a0b2e, #0a0a0f) !important;
-  background-size: 400% 400% !important;
-  animation: ambientMeshGlow 18s ease infinite !important;
-}
-
-@keyframes ambientMeshGlow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-[class*="card"],
-[class*="bg-card"],
-nav,
-header {
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-} /* Fundo animado com alto movimento e luminosidade Neon Glow */
-html,
-body,
-#root {
-  min-height: 100vh !important;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.25) 0%, transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.25) 0%, transparent 40%),
-    linear-gradient(-45deg, #070710, #13112c, #210d38, #0b1528) !important;
-  background-size: 200% 200% !important;
-  animation: ambientMeshGlow 8s ease-in-out infinite alternate !important;
-}
-
-/* Animação fluida de luz e posição */
-@keyframes ambientMeshGlow {
-  0% {
-    background-position: 0% 0%;
-    filter: brightness(1) contrast(1);
-  }
-  50% {
-    background-position: 100% 100%;
-    filter: brightness(1.25) contrast(1.1);
-  }
-  100% {
-    background-position: 0% 100%;
-    filter: brightness(1.1) contrast(1.05);
-  }
-}
-
-/* Efeito Glassmorphism com bordas iluminadas nos cards */
-[class*="card"],
-[class*="bg-card"],
-nav,
-header {
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-} /* Fundo dinâmico leve e fluido - Performance máxima */
-html,
-body,
-#root {
-  min-height: 100vh !important;
-  background: linear-gradient(-45deg, #0d0d14, #151328, #1c1033, #0d0d14) !important;
-  background-size: 300% 300% !important;
-  animation: ambientMeshGlow 14s ease infinite !important;
-  will-change: background-position;
-}
-
-@keyframes ambientMeshGlow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Transparência otimizada nos cards */
-[class*="card"],
-[class*="bg-card"],
-nav,
-header {
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-}
-
-/* Contorno brilhante com efeito Neon nos Botões */
-button,
-.button,
-[role="button"] {
-  position: relative !important;
-  border: 1px solid rgba(168, 85, 247, 0.5) !important;
-  box-shadow:
-    0 0 12px rgba(168, 85, 247, 0.35),
-    inset 0 0 8px rgba(56, 189, 248, 0.2) !important;
-  transition: all 0.25s ease-in-out !important;
-}
-
-/* Realce extra ao passar o dedo ou clicar */
-button:active,
-button:hover {
-  border-color: rgba(56, 189, 248, 0.8) !important;
-  box-shadow:
-    0 0 18px rgba(56, 189, 248, 0.6),
-    inset 0 0 12px rgba(168, 85, 247, 0.4) !important;
-  transform: scale(1.01) !important;
-}
-/* Fundo dinâmico leve e fluido - Performance máxima */
-html,
-body,
-#root {
-  min-height: 100vh !important;
-  background: linear-gradient(-45deg, #0d0d14, #151328, #1c1033, #0d0d14) !important;
-  background-size: 300% 300% !important;
-  animation: ambientMeshGlow 14s ease infinite !important;
-  will-change: background-position;
-}
-
-@keyframes ambientMeshGlow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Transparência otimizada nos cards */
-[class*="card"],
-[class*="bg-card"],
-nav,
-header {
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-}
-
-/* Borda com brilho apenas em botões secundários / dentro de conteúdo (preserva navegação) */
-main button:not([class*="rounded-full"]),
-.card button,
-[class*="card"] button {
-  border: 1px solid rgba(168, 85, 247, 0.4) !important;
-  box-shadow:
-    0 0 10px rgba(168, 85, 247, 0.25),
-    inset 0 0 6px rgba(56, 189, 248, 0.15) !important;
-  transition: all 0.2s ease-in-out !important;
-}
-
-main button:not([class*="rounded-full"]):active,
-.card button:active {
-  border-color: rgba(56, 189, 248, 0.8) !important;
-  box-shadow: 0 0 14px rgba(56, 189, 248, 0.5) !important;
-} /* Fundo dinâmico leve e fluido - Performance máxima */
-html,
-body,
-#root {
-  min-height: 100vh !important;
-  background: linear-gradient(-45deg, #0d0d14, #151328, #1c1033, #0d0d14) !important;
-  background-size: 300% 300% !important;
-  animation: ambientMeshGlow 14s ease infinite !important;
-  will-change: background-position;
-}
-
-@keyframes ambientMeshGlow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Transparência otimizada nos cards */
-[class*="card"],
-[class*="bg-card"] {
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
-}
-
-/* Contorno brilhante APENAS em botões de conteúdo dentro dos cards */
-main button:not(nav button):not(footer button),
-[class*="card"] button {
-  position: relative;
-  border: 1px solid rgba(168, 85, 247, 0.4) !important;
-  box-shadow:
-    0 0 10px rgba(168, 85, 247, 0.25),
-    inset 0 0 6px rgba(56, 189, 248, 0.15) !important;
-  transition: all 0.2s ease-in-out !important;
-}
-
-/* Efeito ao clicar nos botões de conteúdo */
-main button:not(nav button):not(footer button):active,
-[class*="card"] button:active {
-  border-color: rgba(56, 189, 248, 0.8) !important;
-  box-shadow: 0 0 14px rgba(56, 189, 248, 0.5) !important;
-}
-
-/* Proteção estrita do menu e barra inferior - NENHUM estilo injetado entra aqui */
-nav,
-nav *,
-footer,
-footer *,
-[class*="bottom"],
-[class*="navigation"] {
-  box-shadow: none;
-} /* Fundo animado global leve e seguro */
-html,
-body,
-#root {
-  min-height: 100vh !important;
-  background: linear-gradient(-45deg, #0d0d14, #151328, #1c1033, #0d0d14) !important;
-  background-size: 300% 300% !important;
-  animation: ambientMeshGlow 14s ease infinite !important;
-  will-change: background-position;
-}
-
-@keyframes ambientMeshGlow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Transparência suave nos cards sem interferir em botões ou navegação */
-[class*="card"],
-[class*="bg-card"] {
-  backdrop-filter: blur(8px) !important;
-  -webkit-backdrop-filter: blur(8px) !important;
 }
