@@ -10,8 +10,6 @@ import {
 } from "@/components/ui/select";
 import { useProfile } from "@/hooks/useProfile";
 import { useToast } from "@/hooks/use-toast";
-import OnboardingThemePicker from "@/components/OnboardingThemePicker";
-import { useOnboarding } from "@/hooks/useOnboarding";
 
 const GENEROS = [
   "Sertanejo", "MPB", "Pagode/Samba", "Rock", "Pop", "Gospel",
@@ -40,8 +38,6 @@ const MusicianProfileGate = ({ children }: Props) => {
   const { needsOnboarding, isLoading, saveProfile, profile } = useProfile();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { completeOnboarding } = useOnboarding();
-  const [step, setStep] = useState<'profile' | 'theme'>('profile');
   const [form, setForm] = useState({
     name: "",
     generoMusical: "",
@@ -66,10 +62,6 @@ const MusicianProfileGate = ({ children }: Props) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValid) return;
-    if (step === 'profile') {
-      setStep('theme');
-      return;
-    }
     try {
       await saveProfile.mutateAsync({
         name: form.name.trim() || profile?.name || undefined,
@@ -78,7 +70,6 @@ const MusicianProfileGate = ({ children }: Props) => {
         estado: form.estado,
         tipoMusico: form.tipoMusico,
       });
-      completeOnboarding(null);
       toast({ title: "Perfil criado!", description: "Bem-vindo ao Play Pro." });
       navigate("/", { replace: true });
     } catch (err: any) {
@@ -101,16 +92,15 @@ const MusicianProfileGate = ({ children }: Props) => {
           </div>
           <div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-gold bg-clip-text text-transparent">
-              {step === 'profile' ? 'Complete seu Perfil do Músico' : 'Escolha seu tema'}
+              Complete seu Perfil do Músico
             </h1>
             <p className="text-sm text-muted-foreground">
-              Passo {step === 'profile' ? '1' : '2'} de 2
+              Precisamos dessas informações para personalizar sua experiência.
             </p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {step === 'profile' ? <>
           <div className="space-y-2">
             <Label htmlFor="nome">Nome Artístico</Label>
             <Input
@@ -168,17 +158,15 @@ const MusicianProfileGate = ({ children }: Props) => {
             </Select>
           </div>
 
-          </> : <OnboardingThemePicker />}
-          {step === 'theme' && <Button type="button" variant="ghost" disabled={saveProfile.isPending} onClick={() => setStep('profile')}>Voltar</Button>}
           <Button
             type="submit"
             disabled={!isValid || saveProfile.isPending}
-            className="w-full font-semibold rounded-xl py-6"
+            className="w-full bg-gradient-to-r from-primary to-gold text-primary-foreground font-semibold rounded-xl py-6"
           >
             {saveProfile.isPending ? (
               <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Salvando...</>
             ) : (
-              step === 'profile' ? 'Continuar' : 'Salvar e entrar'
+              "Salvar e Continuar"
             )}
           </Button>
         </form>

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { onboardingSteps } from "@/lib/helpContent";
 import { UserActivity } from "@/hooks/useOnboarding";
+import OnboardingThemePicker from "@/components/OnboardingThemePicker";
 
 interface OnboardingProps {
   isOpen: boolean;
@@ -23,13 +24,13 @@ interface OnboardingProps {
   onClose: () => void;
 }
 
-type Step = 'welcome' | 'activity' | 'import' | 'tour';
+type Step = 'welcome' | 'activity' | 'import' | 'tour' | 'theme';
 
 const Onboarding = ({ isOpen, onComplete, onClose }: OnboardingProps) => {
   const [currentStep, setCurrentStep] = useState<Step>('welcome');
   const [selectedActivity, setSelectedActivity] = useState<UserActivity>(null);
 
-  const steps: Step[] = ['welcome', 'activity', 'import', 'tour'];
+  const steps: Step[] = ['welcome', 'activity', 'import', 'tour', 'theme'];
   const currentIndex = steps.indexOf(currentStep);
   const progress = ((currentIndex + 1) / steps.length) * 100;
 
@@ -62,7 +63,7 @@ const Onboarding = ({ isOpen, onComplete, onClose }: OnboardingProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-lg p-0 gap-0 bg-card border-gold/20 overflow-hidden">
+      <DialogContent className="sm:max-w-lg p-0 gap-0 bg-card border-gold/20 max-h-[calc(100dvh-32px)] overflow-y-auto">
         {/* Progress Bar */}
         <div className="p-4 border-b border-border/50">
           <div className="flex items-center justify-between mb-2">
@@ -198,6 +199,13 @@ const Onboarding = ({ isOpen, onComplete, onClose }: OnboardingProps) => {
               <p className="text-xs text-center text-muted-foreground">
                 {onboardingSteps.import.description}
               </p>
+            </div>
+          )}
+
+          {currentStep === 'theme' && (
+            <div className="space-y-6">
+              <h2 className="text-xl font-bold text-center">Escolha seu tema</h2>
+              <OnboardingThemePicker />
             </div>
           )}
 

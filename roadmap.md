@@ -1,4 +1,4 @@
-- [x] Adicionar segunda etapa visual de tema no cadastro, aplicar imediatamente a preferência persistente e abrir o Painel sem alterar a troca nas Configurações. 173 testes aprovados; prévias e aplicação de ambos os temas conferidas isoladamente; compilação automática OK.
+- [ ] Restaurar cadastro e boas-vindas originais, sem conclusão automática do tutorial; acrescentar somente um quinto passo visual de tema após o tour, preservando perguntas, navegação e Configurações.
 - [ ] Validar cadastro completo e entrada no Painel com conta real — bloqueado: Supabase externo sem sessão autenticada disponível; testes do fluxo e prévias isoladas aprovados.
 - [x] Corrigir nome do perfil com UPDATE confirmado e cache compartilhado imediato; remover Google Agenda das configurações; adicionar tema persistente Rosa Neon Suave. 169 testes aprovados e compilação automática OK.
 - [ ] Validar alteração e releitura do nome com conta real e conferir aparência autenticada — bloqueado: Supabase externo sem sessão disponível; teste visual isolado não concluído.
