@@ -2,6 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ScrollToTop from "@/components/ScrollToTop";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -96,6 +97,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <AppUsageTracker />
+          <ScrollToTop />
           <Routes>
             {/* Public Route - Login */}
             <Route path="/login" element={<LoginRoute />} />

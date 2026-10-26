@@ -1,6 +1,6 @@
 import { PiggyBank, Home as HomeIcon, TrendingDown, TrendingUp, AlertTriangle, Plus, Trash2, ArrowUp, ArrowDown, Edit } from "lucide-react";
 import { FixedExpenseForm } from '@/components/FixedExpenseForm';
-import type { FixedExpense, Show } from '@/types';
+import type { FixedExpense, Show, ShowMusician } from '@/types';
 import { ShowForm } from '@/components/ShowForm';
 import StatCard from "@/components/StatCard";
 import ModuleArtwork from "@/components/ModuleArtwork";
@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { useFinancialData } from "@/hooks/useFinancialData";
 import { useToast } from "@/hooks/use-toast";
-import { calculateMonthlyFinancials, showOutstanding, showCashReceipts, formatCurrency, formatPercentage } from "@/lib/calculations";
+import { calculateMonthlyFinancials, calculateCashProjection, showOutstanding, showCashReceipts, formatCurrency, formatPercentage } from "@/lib/calculations";
 import { ExpenseForm } from "@/components/ExpenseForm";
 import { PiggyBankForm } from "@/components/PiggyBankForm";
 import { PiggyBankTransactionForm } from "@/components/PiggyBankTransactionForm";
@@ -34,6 +34,7 @@ const Financas = () => {
     addPiggyBank, addToPiggyBank, withdrawFromPiggyBank, deletePiggyBank,
   } = useFinancialData();
 
+  const [musicianToDelete, setMusicianToDelete] = useState<ShowMusician | null>(null);
   const [pendingDelete, setPendingDelete] = useState<{ kind: 'expense' | 'piggy'; id: string; nome: string } | null>(null);
   const [showFixedForm, setShowFixedForm] = useState(false);
   const [editingPayment, setEditingPayment] = useState<Show | undefined>();
@@ -43,6 +44,7 @@ const Financas = () => {
   const [transactionPiggyId, setTransactionPiggyId] = useState<string | null>(null);
   const [transactionType, setTransactionType] = useState<'deposito' | 'retirada'>('deposito');
 
+  const projection = calculateCashProjection(shows, showMusicians);
   const monthly = calculateMonthlyFinancials(shows, expenses, fixedExpenses, incomes, new Date(), { goalMovements, piggyBanks });
   const totalFixas = monthly.despesasFixas;
   const [category, setCategory] = useState("todos");
