@@ -163,19 +163,17 @@ const Projeto = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border">
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-1">Objetivo</p>
-              <p className="text-xl font-bold text-gold">{formatCurrency(form.totalValue || project.totalValue)}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-1">Guardado</p>
-              <p className="text-xl font-bold text-success">{formatCurrency(project.savedValue)}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-1">Progresso</p>
-              <p className="text-xl font-bold text-primary">{formatPercentage(progress)}</p>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-border">
+            {[
+              { label: 'Objetivo', value: formatCurrency(form.totalValue || project.totalValue), tone: 'text-gold' },
+              { label: 'Guardado', value: formatCurrency(project.savedValue), tone: 'text-success' },
+              { label: 'Progresso', value: formatPercentage(progress), tone: 'text-primary' },
+            ].map(item => (
+              <div key={item.label} className="min-w-0 rounded-xl border border-border/60 bg-card/40 backdrop-blur-md p-4">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{item.label}</p>
+                <p className={`text-xl font-bold tabular-nums break-words ${item.tone}`}>{item.value}</p>
+              </div>
+            ))}
           </div>
 
           {calc.weeksToComplete && !calc.metaAlcancada && form.weeklyDeposit > 0 && (
