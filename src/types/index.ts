@@ -28,6 +28,18 @@ export interface Show {
   settlementDate?: string;
   deductTeam?: boolean;
   teamPaymentDate?: string;
+  /** Músicos contratados; ao salvar o show, a lista é sincronizada. */
+  musicians?: ShowMusician[];
+}
+
+export interface ShowMusician {
+  id?: string;
+  showId?: string;
+  name: string;
+  instrument: string;
+  cache: number;
+  paid: boolean;
+  paidDate?: string;
 }
 
 export interface ShowCalculations {
