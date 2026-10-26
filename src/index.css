@@ -892,7 +892,6 @@ All colors MUST be HSL.
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
     box-shadow: var(--glass-shadow);
-
   }
   .dashboard-dock .dashboard-dock-tab {
     width: 64px;
@@ -911,8 +910,14 @@ All colors MUST be HSL.
     font-size: 11px;
     background: transparent;
   }
-  .dashboard-dock-tab:first-child { grid-column: 1; grid-row: 1; }
-  .dashboard-dock-tab:last-child { grid-column: 3; grid-row: 1; }
+  .dashboard-dock-tab:first-child {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dashboard-dock-tab:last-child {
+    grid-column: 3;
+    grid-row: 1;
+  }
   .dashboard-dock .dashboard-play {
     position: relative;
     grid-column: 2;
@@ -970,7 +975,9 @@ All colors MUST be HSL.
   .app-glass-card .app-button:not(.module-navigation):not(.dashboard-avatar-button) {
     border: 1px solid var(--card-action-border);
     box-shadow: var(--card-action-shadow);
-    transition: border-color 180ms ease, box-shadow 180ms ease;
+    transition:
+      border-color 180ms ease,
+      box-shadow 180ms ease;
   }
   .app-glass-card .app-button:not(.module-navigation):not(.dashboard-avatar-button):is(:hover, :active) {
     border-color: hsl(var(--neon-blue) / 0.65);
@@ -988,8 +995,7 @@ All colors MUST be HSL.
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     text-shadow: var(--module-text-shadow);
-    box-shadow:
-      var(--card-action-shadow);
+    box-shadow: var(--card-action-shadow);
   }
   .dashboard-status {
     white-space: normal;
@@ -1056,4 +1062,33 @@ All colors MUST be HSL.
   :focus-visible {
     @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
   }
+} /* Fundo dinâmico com mais movimento e tons mais claros (fantasma / neon glow) */
+html,
+body,
+#root {
+  min-height: 100vh !important;
+  background: linear-gradient(-45deg, #131224, #1f1b40, #2c1650, #131c38) !important;
+  background-size: 300% 300% !important;
+  animation: ambientMeshGlow 10s ease infinite alternate !important;
+  will-change: background-position;
+}
+
+/* Animação fluida em diagonal */
+@keyframes ambientMeshGlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Glassmorphism leve nos cards sem interferir nos botões */
+[class*="card"],
+[class*="bg-card"] {
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
 }
