@@ -28,7 +28,7 @@ const Financas = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const {
-    shows, showMusicians, setMusicianPaid, setShowSettled, expenses, fixedExpenses, incomes, saveFixedExpense, updateShow,
+    shows, showMusicians, setMusicianPaid, deleteShowMusician, setShowSettled, expenses, fixedExpenses, incomes, saveFixedExpense, updateShow,
     generalExpenses, piggyBanks, goalMovements,
     addGeneralExpense, deleteGeneralExpense,
     addPiggyBank, addToPiggyBank, withdrawFromPiggyBank, deletePiggyBank,
@@ -55,6 +55,7 @@ const Financas = () => {
 
   return (
     <div className="finance-page space-y-6">
+      <ConfirmDeleteDialog open={!!musicianToDelete} itemName={musicianToDelete ? `o cachê de ${musicianToDelete.name}` : undefined} description={musicianToDelete?.paid ? 'Este cachê está pago: o valor será retirado das despesas do mês e do show.' : 'Esta ação não pode ser desfeita.'} onCancel={() => setMusicianToDelete(null)} onConfirm={async () => { const m = musicianToDelete; setMusicianToDelete(null); if (m && await deleteShowMusician(m)) toast({ title: 'Cachê excluído', description: m.paid ? 'Valor retirado das despesas.' : undefined }); }} />
       <ConfirmDeleteDialog open={!!pendingDelete} itemName={pendingDelete?.nome} onCancel={() => setPendingDelete(null)} onConfirm={async () => {
         const item = pendingDelete; setPendingDelete(null); if (!item) return;
         const ok = item.kind === 'expense' ? await deleteGeneralExpense(item.id) : await deletePiggyBank(item.id);
@@ -109,7 +110,7 @@ const Financas = () => {
         <StatCard title="Faturamento Bruto" value={formatCurrency(monthly.faturamentoBruto)} icon={TrendingUp} artwork="/financas" />
         <StatCard title="Lucro Líquido Real" value={formatCurrency(monthly.lucroLiquidoReal)} icon={TrendingUp} trend={`${formatPercentage(dre.margemFinal)} de margem`} artwork="/financas" />
         <StatCard title="Saldo Disponível no Caixa" value={formatCurrency(monthly.saldoDisponivel)} icon={PiggyBank} artwork="savings" />
-        <StatCard title="Projeção de Caixa Futura" value={formatCurrency(monthly.projecaoCaixa)} icon={TrendingUp} artwork="/agenda" />
+        <StatCard title="Projeção de Caixa Futura" value={formatCurrency(projection.saldo)} icon={TrendingUp} trend={`+${formatCurrency(projection.receitas)} a receber · −${formatCurrency(projection.despesas)} músicos (${projection.shows} show(s))`} artwork="/agenda" />
         <StatCard title="Cofrinhos" value={formatCurrency(totalPiggyBanks)} icon={PiggyBank} trend={`${piggyBanks.length} cofrinho(s) ativo(s)`} variant="gold" artwork="savings" />
         <StatCard title="Despesas Fixas" value={formatCurrency(totalFixas)} icon={HomeIcon} trend="Compromissos recorrentes" variant="default" artwork="/agenda" />
       </div>
@@ -128,7 +129,7 @@ const Financas = () => {
         <div key={show.id} className="py-3 border-b border-border space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3"><div className="min-w-0"><h3 className="font-semibold break-words">{show.title || show.local}</h3><p className="text-xs text-muted-foreground">{formatDateBR(show.date)} · {show.realizado ? 'Realizado' : 'Agendado'}</p><p className="text-sm mt-1">Recebido: {formatCurrency(showCashReceipts(show).reduce((sum, receipt) => sum + receipt.amount, 0))} · Restante: {formatCurrency(showOutstanding(show))}</p>{!show.cashTracking && <p className="text-xs text-muted-foreground mt-1">Registro anterior · pagamentos a conferir</p>}</div>
             <div className="flex flex-wrap items-center gap-2"><Badge variant="outline" className={paid ? 'border-success/40 bg-success/10 text-success' : 'border-gold/40 bg-gold/10 text-gold'}>{paid ? 'Pago' : 'A Receber'}</Badge><Switch checked={paid} aria-label={`Status de recebimento de ${show.title || show.local}`} className={paid ? 'data-[state=checked]:bg-success' : 'data-[state=unchecked]:bg-gold/60'} onCheckedChange={async value => { if (await setShowSettled(show.id, value)) toast({ title: value ? 'Cachê marcado como pago' : 'Cachê voltou para A Receber' }); }} /><Button variant="outline" size="sm" onClick={() => setEditingPayment(show)}>Editar</Button></div></div>
-          {team.map(m => <div key={m.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-secondary/40 p-3 ml-0 sm:ml-4"><div className="min-w-0"><p className="text-sm font-medium break-words">{m.name}{m.instrument ? ` · ${m.instrument}` : ''}</p><p className="text-xs text-muted-foreground">Cachê {formatCurrency(m.cache)}</p></div><div className="flex flex-wrap items-center gap-2"><Badge variant="outline" className={m.paid ? 'border-success/40 bg-success/10 text-success' : 'border-gold/40 bg-gold/10 text-gold'}>{m.paid ? 'Pago' : 'A Pagar'}</Badge><Switch checked={m.paid} aria-label={`Pagamento de ${m.name}`} className={m.paid ? 'data-[state=checked]:bg-success' : 'data-[state=unchecked]:bg-gold/60'} onCheckedChange={async value => { if (m.id && await setMusicianPaid(m.id, value)) toast({ title: value ? `Cachê de ${m.name} lançado nos gastos` : `Cachê de ${m.name} retirado dos gastos` }); }} /><MusicianReceiptActions show={show} musician={m} /></div></div>)}
+          {team.map(m => <div key={m.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-secondary/40 p-3 ml-0 sm:ml-4"><div className="min-w-0"><p className="text-sm font-medium break-words">{m.name}{m.instrument ? ` · ${m.instrument}` : ''}</p><p className="text-xs text-muted-foreground">Cachê {formatCurrency(m.cache)}</p></div><div className="flex flex-wrap items-center gap-2"><Badge variant="outline" className={m.paid ? 'border-success/40 bg-success/10 text-success' : 'border-gold/40 bg-gold/10 text-gold'}>{m.paid ? 'Pago' : 'A Pagar'}</Badge><Switch checked={m.paid} aria-label={`Pagamento de ${m.name}`} className={m.paid ? 'data-[state=checked]:bg-success' : 'data-[state=unchecked]:bg-gold/60'} onCheckedChange={async value => { if (m.id && await setMusicianPaid(m.id, value)) toast({ title: value ? `Cachê de ${m.name} lançado nos gastos` : `Cachê de ${m.name} retirado dos gastos` }); }} /><MusicianReceiptActions show={show} musician={m} /><Button size="icon" variant="ghost" className="text-destructive" aria-label={`Excluir cachê de ${m.name}`} onClick={() => setMusicianToDelete(m)}><Trash2 className="h-4 w-4" /></Button></div></div>)}
         </div>); })}</section>
 
           <Card className="thematic-card p-4 sm:p-6 border-primary/10">

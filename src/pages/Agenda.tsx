@@ -35,9 +35,10 @@ import { recordAppUsage } from '@/lib/appUsage';
 import { OpenInMapsButton } from '@/components/OpenInMapsButton';
 import { mapsDirectionsUrl } from '@/lib/musicianReceipt';
 import { formatDateBR } from '@/lib/dateUtils';
+import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog';
 
 export default function Agenda() {
-  const { events, addEvent, updateEvent, deleteEvent, duplicateEvent, markEventAsRealizado, shows, addShow, updateShow } = useFinancialData();
+  const { events, addEvent, updateEvent, deleteEvent, duplicateEvent, markEventAsRealizado, shows, addShow, updateShow, deleteShow, markShowRealizado } = useFinancialData();
   const [financialShow, setFinancialShow] = useState<Show | undefined>();
   const [showFinancialForm, setShowFinancialForm] = useState(false);
   const [sourceEvent, setSourceEvent] = useState<Event | undefined>();
@@ -55,6 +56,14 @@ export default function Agenda() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
+  const [deletingShow, setDeletingShow] = useState<Show | null>(null);
+  const editShow = (show: Show) => { setFinancialShow(show); setSourceEvent(undefined); setShowPrefill(undefined); setShowFinancialForm(true); };
+  const duplicateShowCard = (show: Show) => { const { id: _id, ...rest } = show; setFinancialShow(undefined); setSourceEvent(undefined); setShowPrefill({ ...rest, title: `${show.title || show.local} (cópia)`, realizado: false, depositReceived: false, settled: false }); setShowFinancialForm(true); };
+  const completeShow = async (show: Show) => { if (await markShowRealizado(show.id, true)) toast({ title: 'Show realizado', description: 'O calendário já mostra a data em verde.' }); };
+  const shareShow = (show: Show) => {
+    const msg = `*${show.title || show.local}*\nData: ${formatDateBR(show.date)}\nHorário: ${show.time}${show.endTime ? ` - ${show.endTime}` : ''}\nLocal: ${show.local}${show.address ? `\nEndereço: ${show.address}` : ''}${show.contractor ? `\nContratante: ${show.contractor}` : ''}${show.notes ? `\n\nNotas: ${show.notes}` : ''}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  };
 
   const getEventIcon = (tipo: Event['tipo']) => {
     switch (tipo) {
@@ -195,13 +204,15 @@ export default function Agenda() {
     });
   };
 
+  // Amarelo = agendado (ainda não realizado); verde neon = todos os itens da data realizados.
+  const dateStatus = new Map<string, boolean>();
+  [...events.map(e => ({ d: e.date, done: e.realizado })), ...shows.map(sh => ({ d: sh.date, done: sh.realizado }))].forEach(({ d, done }) => dateStatus.set(d, (dateStatus.get(d) ?? true) && !!done));
+  const toDate = (d: string) => new Date(d + 'T00:00:00');
   const modifiers = {
-    hasEvents: [...events.map(e => e.date), ...shows.map(s => s.date)].map(d => new Date(d + 'T00:00:00'))
+    scheduled: [...dateStatus].filter(([, done]) => !done).map(([d]) => toDate(d)),
+    completed: [...dateStatus].filter(([, done]) => done).map(([d]) => toDate(d)),
   };
-
-  const modifiersClassNames = {
-    hasEvents: 'font-bold text-primary'
-  };
+  const modifiersClassNames = { scheduled: 'calendar-dot calendar-dot-scheduled', completed: 'calendar-dot calendar-dot-completed' };
 
   return (
     <div className="space-y-6">
@@ -252,7 +263,7 @@ export default function Agenda() {
                 <div className="flex flex-wrap gap-2 pt-2">
                   <GoogleCalendarShowButton show={show} />
                   <OpenInMapsButton destination={show.address || show.local} />
-                  <Button variant="outline" size="sm" onClick={() => { setFinancialShow(show); setSourceEvent(undefined); setShowPrefill(undefined); setShowFinancialForm(true); }}><Edit className="h-4 w-4 mr-2" />Editar</Button>
+                  <Button variant="outline" size="sm" onClick={() => editShow(show)}><Edit className="h-4 w-4 mr-2" />Editar</Button>
                 </div>
               </CardContent></Card>
             ))}
@@ -374,7 +385,14 @@ export default function Agenda() {
                 <p className="font-semibold break-words">{show.title || show.local}</p>
                 <p className="text-xs text-muted-foreground">{formatDateBR(show.date)} · {show.time} · {show.local}</p>
               </button>
-              <OpenInMapsButton destination={show.address || show.local} />
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => editShow(show)}><Edit className="h-3 w-3 mr-1" />Editar</Button>
+                <Button size="sm" variant="outline" onClick={() => duplicateShowCard(show)}><Copy className="h-3 w-3 mr-1" />Duplicar</Button>
+                <Button size="sm" variant="outline" onClick={() => completeShow(show)}><CheckCircle className="h-3 w-3 mr-1" />Marcar Realizado</Button>
+                <Button size="sm" variant="outline" onClick={() => shareShow(show)}><ExternalLink className="h-3 w-3 mr-1" />WhatsApp</Button>
+                <OpenInMapsButton destination={show.address || show.local} />
+                <Button size="sm" variant="destructive" aria-label={`Excluir ${show.title || show.local}`} onClick={() => setDeletingShow(show)}><Trash2 className="h-3 w-3" /></Button>
+              </div>
             </div>
           ))}
         </CardContent>
@@ -385,8 +403,10 @@ export default function Agenda() {
         onOpenChange={setIsFormOpen}
         onSubmit={editingEvent ? handleUpdateEvent : handleAddEvent}
         initialData={editingEvent || undefined}
+        onDelete={editingEvent ? () => setDeletingEventId(editingEvent.id) : undefined}
       />
-      <ShowForm open={showFinancialForm} onOpenChange={setShowFinancialForm} initialData={financialShow} prefill={showPrefill} onSubmit={async data => {
+      <ConfirmDeleteDialog open={!!deletingShow} itemName={deletingShow?.title || deletingShow?.local} onCancel={() => setDeletingShow(null)} onConfirm={async () => { const target = deletingShow; setDeletingShow(null); if (target && await deleteShow(target.id)) toast({ title: 'Show excluído' }); }} />
+      <ShowForm open={showFinancialForm} onOpenChange={setShowFinancialForm} initialData={financialShow} prefill={showPrefill} onDelete={financialShow ? async () => { const ok = await deleteShow(financialShow.id); if (ok) toast({ title: 'Show excluído' }); return ok; } : undefined} onSubmit={async data => {
         const saved = financialShow ? await updateShow(financialShow.id, data) : await addShow(data, sourceEvent?.id);
         if (!saved) return false;
         if (financialShow && sourceEvent) {
