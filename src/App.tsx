@@ -32,6 +32,7 @@ import AdminRoute from "./components/AdminRoute";
 import { AppUsageTracker } from './components/AppUsageTracker';
 import { lazy, Suspense } from 'react';
 import { ThemeProvider } from 'next-themes';
+import AmbientBackground from './components/AmbientBackground';
 const Panorama = lazy(() => import('./pages/Panorama'));
 
 const queryClient = new QueryClient();
@@ -87,6 +88,8 @@ const AppLayout = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="data-theme" defaultTheme="classic" themes={['classic', 'soft-pink']} enableSystem={false} storageKey="playpro_appearance" enableColorScheme={false}>
+    <AmbientBackground />
+    <div className="app-foreground">
     <TooltipProvider>
       <Toaster />
       <Sonner />
@@ -135,6 +138,7 @@ const App = () => (
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
+    </div>
     </ThemeProvider>
   </QueryClientProvider>
 );

@@ -6,7 +6,7 @@
 - Admin show reports use the shared typed analytics helper and distinguish completed financial results from scheduled shows.
 - Market intelligence reuses completed-show economics (net after recorded show costs, not personal cash profit), groups by musician-profile genre/location, and labels the basis explicitly to avoid fabricating venue or personal-profit data.
 - App engagement and module logs live in separate telemetry tables with server-assigned identity/time; public invoker RPCs delegate to private owner/admin-validated functions, and telemetry never blocks application workflows or stores content, credentials, or locations.
-- Scope the dashboard visual theme and navigation exception to the home route so other pages retain their established layout; dashboard trend charts use actual financial records without placeholder trends.
+- Mount AmbientBackground once inside the root theme provider, below the foreground on every route; use semantic gradient tokens, transform-only motion, reduced-motion/visibility pausing and one mobile animation layer to limit rendering cost. Dashboard navigation exceptions remain home-only and trend charts use actual records.
 - Use shared ModuleArtwork for module navigation, dashboard quick actions, and themed financial/event cards so photography keeps one consistent overlay and glass treatment; StatCard artwork is opt-in.
 - Store rasterized avatars in private Storage under the authenticated user's folder; keep avatar_path and avatar_url in Auth metadata and renew signed display URLs instead of persisting expired links alone.
 - Use calculateMonthlyFinancials for Dashboard and Finance monthly totals; expenses and generalExpenses are two views of the same rows and must never be summed together.

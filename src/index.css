@@ -51,6 +51,12 @@ All colors MUST be HSL.
     --ring: 220 100% 50%;
 
     --radius: 0.75rem;
+    --ambient-strength: 0.2;
+    --ambient-base: hsl(var(--background));
+    --ambient-mesh: linear-gradient(118deg, transparent 12%, hsl(var(--primary) / 0.14) 28%, transparent 44%, hsl(var(--accent) / 0.08) 68%, transparent 86%);
+    --ambient-edge: conic-gradient(from 120deg at 12% 72%, transparent 0deg, hsl(var(--primary) / 0.55) 26deg, transparent 52deg 180deg, hsl(var(--accent) / 0.32) 210deg, transparent 246deg), linear-gradient(154deg, transparent 48%, hsl(var(--accent) / 0.16) 49%, transparent 53%);
+    --card-glass-surface: hsl(var(--card) / 0.82);
+    --card-glass-border: hsl(var(--border) / 0.8);
 
     --gold: 45 75% 53%;
     --royal-blue: 220 100% 50%;
@@ -117,6 +123,29 @@ All colors MUST be HSL.
   }
 
   /* High Contrast Mode */
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --background: 220 20% 96%;
+    --foreground: 225 20% 12%;
+    --card: 220 20% 99%;
+    --card-foreground: 225 20% 12%;
+    --popover: 220 20% 99%;
+    --popover-foreground: 225 20% 12%;
+    --secondary: 220 16% 90%;
+    --secondary-foreground: 225 20% 12%;
+    --muted: 220 16% 90%;
+    --muted-foreground: 225 12% 38%;
+    --accent: 220 12% 62%;
+    --accent-foreground: 225 20% 12%;
+    --border: 220 12% 78%;
+    --input: 220 12% 78%;
+    --glass: 220 20% 98%;
+    --glass-border: 220 12% 60%;
+    --ambient-strength: 0.14;
+    --ambient-mesh: linear-gradient(118deg, transparent 12%, hsl(var(--accent) / 0.2) 28%, transparent 44%, hsl(var(--primary) / 0.06) 68%, transparent 86%);
+    --card-glass-surface: hsl(var(--card) / 0.88);
+  }
+
   .high-contrast {
     --background: 0 0% 0%;
     --foreground: 0 0% 100%;
@@ -151,6 +180,60 @@ All colors MUST be HSL.
 }
 
 @layer components {
+  #root { isolation: isolate; }
+  .ambient-background {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background: var(--ambient-mesh), var(--ambient-base);
+    contain: strict;
+  }
+  .ambient-background::before,
+  .ambient-background::after {
+    content: '';
+    position: absolute;
+    inset: -12%;
+    background: var(--ambient-edge);
+    opacity: var(--ambient-strength);
+    animation: ambient-drift 32s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+  .ambient-background::after {
+    animation-duration: 46s;
+    animation-direction: alternate-reverse;
+    transform: rotate(180deg);
+  }
+  .app-foreground { position: relative; z-index: 1; min-height: 100svh; }
+  .app-foreground .min-h-screen.bg-background,
+  .app-foreground .dashboard-stage { background: transparent; }
+  .app-glass-card {
+    background-color: var(--card-glass-surface);
+    border-color: var(--card-glass-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  /* Keep the supplied studio photography, allowing the shared light through. */
+  .app-foreground .login-scene { background: transparent; }
+  .app-foreground .login-background { opacity: 0.8; }
+  .ambient-background[data-paused="true"]::before,
+  .ambient-background[data-paused="true"]::after { animation-play-state: paused; }
+  @keyframes ambient-drift {
+    from { transform: translate3d(-3%, -2%, 0) rotate(-6deg) scale(1); }
+    to { transform: translate3d(3%, 2%, 0) rotate(6deg) scale(1.06); }
+  }
+  @media (max-width: 767px) {
+    .ambient-background::after { display: none; }
+    .ambient-background::before { animation-duration: 42s; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ambient-background::before, .ambient-background::after { animation: none; will-change: auto; }
+  }
+  .reduce-motion .ambient-background::before,
+  .reduce-motion .ambient-background::after,
+  .high-contrast .ambient-background::before,
+  .high-contrast .ambient-background::after { animation: none; will-change: auto; }
   .onboarding-theme-option {
     display: flex; flex-direction: column; align-items: stretch; gap: 16px;
     height: auto; min-width: 0; padding: 12px; border-radius: 8px;
