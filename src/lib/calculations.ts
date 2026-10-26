@@ -413,9 +413,12 @@ export function calculateMonthlyFinancials(shows: Show[], expenses: Expense[], f
   const activeFixed = fixedExpenses.filter(e => e.active !== false);
   const monthIncome = incomes.filter(i => inRange(i.date, start, end));
   const roundMoney = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100;
-  const custosShows = roundMoney(shows.flatMap(showCashCosts).filter(row => inRange(row.date, start, end)).reduce((sum, row) => sum + row.amount, 0));
+  // Cachês individuais pagos (origin musician:*) são custo direto do show, não saída avulsa.
+  const isMusicianPayment = (e: Expense) => !!e.origin?.startsWith('musician:');
+  const musicianCosts = monthExpenses.filter(isMusicianPayment).reduce((sum, e) => sum + e.amount, 0);
+  const custosShows = roundMoney(shows.flatMap(showCashCosts).filter(row => inRange(row.date, start, end)).reduce((sum, row) => sum + row.amount, 0) + musicianCosts);
   const despesasFixas = activeFixed.reduce((sum, e) => sum + e.amount, 0);
-  const saidasAvulsas = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const saidasAvulsas = monthExpenses.filter(e => !isMusicianPayment(e)).reduce((sum, e) => sum + e.amount, 0);
   const faturamentoBruto = roundMoney(shows.flatMap(showCashReceipts).filter(row => inRange(row.date, start, end)).reduce((sum, row) => sum + row.amount, 0) + monthIncome.reduce((sum, row) => sum + row.amount, 0));
   const goalMovements = reserves.goalMovements ?? [];
   const aportesMetas = roundMoney(goalMovements.filter(row => inRange(row.date, start, end)).reduce((sum, row) => sum + (row.tipo === 'deposito' ? row.valor : -row.valor), 0));
