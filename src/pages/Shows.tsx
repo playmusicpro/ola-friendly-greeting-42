@@ -252,6 +252,7 @@ const Shows = () => {
         }}
         onSubmit={editingShow ? handleUpdateShow : handleAddShow}
         initialData={editingShow}
+        onDelete={editingShow ? () => setShowToDelete(editingShow.id) : undefined}
       />
 
       {/* Delete Confirmation Dialog */}

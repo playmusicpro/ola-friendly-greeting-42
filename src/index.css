@@ -1246,3 +1246,9 @@ footer button,
   position: static !important;
   box-shadow: none !important;
 }
+
+/* Marcadores do calendário da Agenda: amarelo = agendado, verde neon = realizado */
+.calendar-dot { position: relative; font-weight: 700; }
+.calendar-dot::after { content: ""; position: absolute; bottom: 3px; left: 50%; width: 6px; height: 6px; border-radius: 9999px; transform: translateX(-50%); }
+.calendar-dot-scheduled::after { background: hsl(var(--calendar-scheduled, 45 95% 55%)); }
+.calendar-dot-completed::after { background: hsl(var(--success)); box-shadow: 0 0 6px hsl(var(--success)); }

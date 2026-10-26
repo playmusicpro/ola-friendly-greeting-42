@@ -1,3 +1,4 @@
+import { Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,9 +15,10 @@ interface EventFormProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (event: Omit<Event, 'id'>) => void | Promise<boolean | void>;
   initialData?: Event;
+  onDelete?: () => void | Promise<boolean | void>;
 }
 
-export function EventForm({ open, onOpenChange, onSubmit, initialData }: EventFormProps) {
+export function EventForm({ open, onOpenChange, onSubmit, initialData, onDelete }: EventFormProps) {
   const { setlists } = useRepertoire();
   const { shows } = useFinancialData();
   const [saving, setSaving] = useState(false);
@@ -211,6 +213,11 @@ export function EventForm({ open, onOpenChange, onSubmit, initialData }: EventFo
               {initialData ? 'Atualizar' : 'Criar'} Evento
             </Button>
           </div>
+          {initialData && onDelete && (
+            <Button type="button" variant="destructive" className="w-full" onClick={() => { onOpenChange(false); void onDelete(); }}>
+              <Trash2 className="h-4 w-4 mr-2" />Excluir Evento
+            </Button>
+          )}
         </form>
       </DialogContent>
     </Dialog>

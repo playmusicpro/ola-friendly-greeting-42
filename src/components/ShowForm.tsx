@@ -1,3 +1,4 @@
+import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { showSchema, showFormDefaults, type ShowFormData } from "@/lib/showForm";
@@ -24,9 +25,10 @@ interface ShowFormProps {
   onSubmit: (show: Omit<Show, 'id'>) => boolean | void | Promise<boolean | void>;
   initialData?: Show;
   prefill?: Partial<Show>;
+  onDelete?: () => boolean | void | Promise<boolean | void>;
 }
 
-export function ShowForm({ open, onOpenChange, onSubmit, initialData, prefill }: ShowFormProps) {
+export function ShowForm({ open, onOpenChange, onSubmit, initialData, prefill, onDelete }: ShowFormProps) {
   const {
     register,
     handleSubmit,
@@ -39,6 +41,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData, prefill }:
     defaultValues: showFormDefaults(initialData || prefill),
   });
   const { showMusicians } = useFinancialData();
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [musicians, setMusicians] = useState<ShowMusician[]>([]);
   const watchedValues = watch();
   const musiciansTotal = musicians.reduce((sum, m) => sum + (Number(m.cache) || 0), 0);
@@ -374,7 +377,13 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData, prefill }:
               {isSubmitting ? "Salvando…" : initialData ? "Salvar Alterações" : "Salvar Show"}
             </Button>
           </div>
+          {initialData && onDelete && (
+            <Button type="button" variant="destructive" className="w-full" disabled={isSubmitting} onClick={() => setConfirmDelete(true)}>
+              <Trash2 className="h-4 w-4 mr-2" />Excluir Show
+            </Button>
+          )}
         </form>
+        <ConfirmDeleteDialog open={confirmDelete} itemName={initialData?.title || initialData?.local} onCancel={() => setConfirmDelete(false)} onConfirm={async () => { setConfirmDelete(false); if (await onDelete?.() !== false) onOpenChange(false); }} />
       </DialogContent>
     </Dialog>
   );
