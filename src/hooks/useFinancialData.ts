@@ -179,7 +179,8 @@ const EMPTY_PROJECT: Project = {
 /* ------------------------------------------------------------------ */
 
 const notifyError = (context: string, error: unknown) => {
-  const message = error instanceof Error ? error.message : String(error);
+  const raw = (error as { message?: unknown } | null)?.message;
+  const message = typeof raw === 'string' && raw.trim() ? raw : `Erro ao ${context}`;
   toast({ variant: 'destructive', title: `Erro ao ${context}`, description: message });
 };
 
@@ -506,8 +507,8 @@ export function useFinancialData() {
   const deleteGoal = (id: string) =>
     run('excluir meta', async (ownerId) => {
       if (((goalsQ.data ?? []).find(goal => goal.id === id)?.saldoAjuste ?? 0) > 0) throw new Error('Resgate o valor reservado antes de excluir a meta.');
-      await req(supabase.from('financial_goals').delete().eq('id', id));
-    }, 'financial_goals');
+      await req(supabase.rpc('delete_financial_goal' as never, { p_goal_id: id } as never));
+    }, 'financial_goals', 'goal_movements');
 
   const moveGoal = (id: string, valor: number, tipo: 'deposito' | 'retirada') =>
     run('movimentar meta', async () => {
