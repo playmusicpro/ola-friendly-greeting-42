@@ -7,23 +7,26 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { GoalForm } from '@/components/GoalForm';
 import { GoalTransactionForm } from '@/components/GoalTransactionForm';
+import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog';
 import { PRIVATE_CURRENCY } from '@/lib/dashboardFinancialCharts';
 
 export default function FinancialGoals({ hidden = false }: { hidden?: boolean }) {
   const { goals, shows, incomes, addGoal, deleteGoal, moveGoal } = useFinancialData();
   const [creating, setCreating] = useState(false);
   const [movement, setMovement] = useState<{ id: string; nome: string; tipo: 'deposito' | 'retirada' } | null>(null);
+  const [toDelete, setToDelete] = useState<{ id: string; nome: string } | null>(null);
   const selected = goals.find(goal => goal.id === movement?.id);
   const money = (value: number) => hidden ? PRIVATE_CURRENCY : formatCurrency(value);
   return <section className="space-y-4" aria-label="Metas financeiras">
     <div className="flex flex-wrap justify-between items-center gap-3"><h2 className="flex items-center gap-2 text-xl font-semibold text-gold"><Target className="h-5 w-5" />Metas Financeiras</h2><Button onClick={() => setCreating(true)} className="gap-2"><Plus className="h-4 w-4" />Adicionar Meta</Button></div>
     <GoalForm open={creating} onOpenChange={setCreating} onSubmit={data => { void addGoal(data); }} />
     <GoalTransactionForm goal={movement} tipo={movement?.tipo ?? 'deposito'} balance={Math.max(0, selected?.saldoAjuste ?? 0)} onClose={() => setMovement(null)} onSubmit={moveGoal} />
+    <ConfirmDeleteDialog open={!!toDelete} itemName={toDelete?.nome} description="A meta e todo o histórico de aportes e resgates serão removidos. Esta ação não pode ser desfeita." onCancel={() => setToDelete(null)} onConfirm={() => { if (toDelete) void deleteGoal(toDelete.id); setToDelete(null); }} />
     {goals.length === 0 && <p className="py-8 text-center text-muted-foreground">Nenhuma meta cadastrada</p>}
     {goals.map(goal => {
       const gp = calculateGoalProgress(goal, shows, incomes);
       return <div key={goal.id} className="rounded-lg border border-border p-4 space-y-3">
-        <div className="flex justify-between gap-3 items-center"><h3 className="font-semibold break-words">{goal.nome}</h3><div className="flex gap-2 items-center"><Badge variant="outline">{goal.periodo}</Badge><Button variant="ghost" size="icon" aria-label={`Excluir meta ${goal.nome}`} onClick={() => { void deleteGoal(goal.id); }}><Trash2 className="h-4 w-4" /></Button></div></div>
+        <div className="flex justify-between gap-3 items-center"><h3 className="font-semibold break-words">{goal.nome}</h3><div className="flex gap-2 items-center"><Badge variant="outline">{goal.periodo}</Badge><Button variant="ghost" size="icon" aria-label={`Excluir meta ${goal.nome}`} onClick={() => setToDelete({ id: goal.id, nome: goal.nome })}><Trash2 className="h-4 w-4" /></Button></div></div>
         <Progress value={hidden ? 0 : gp.progressoPercentual} className="h-2" />
         <p className="text-sm text-muted-foreground">{hidden ? '•••' : formatPercentage(gp.progressoPercentual)} · {money(gp.realizado)} / {money(goal.valorMeta)}</p>
         <p className="text-xs text-muted-foreground">Faltam {money(gp.restante)}</p>
