@@ -23,7 +23,7 @@ export function AdminModuleUsage() {
         <ChartContainer config={{ percentage: { label: 'Uso', color: 'hsl(var(--primary))' } }} className="h-[260px] w-full">
           <BarChart data={chart} layout="vertical" margin={{ left: 20 }}><XAxis type="number" tickFormatter={value => `${value}%`} /><YAxis type="category" dataKey="name" width={160} /><ChartTooltip content={<ChartTooltipContent />} formatter={value => `${Number(value).toFixed(1)}%`} /><Bar dataKey="percentage" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} /></BarChart>
         </ChartContainer>
-        <p className="mt-3 text-xs text-muted-foreground">{total} acessos/ações · Percentual sobre os módulos monitorados; navegação interna e abertura de Maps.</p>
+        <p className="mt-3 text-xs text-muted-foreground">{total} acessos/ações · Percentual sobre os módulos monitorados; navegação interna, geração de prompts e abertura de Maps.</p>
       </>)}
     </CardContent>
   </Card>;

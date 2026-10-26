@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { FlyerData, FLYER_PROMPTS } from "@/types/challenges";
 import { useChallenges } from "@/hooks/useChallenges";
 import { shareViaWhatsApp } from "@/lib/shareUtils";
+import { recordAppUsage } from '@/lib/appUsage';
 
 interface FlyerGeneratorProps {
   onBack: () => void;
@@ -68,6 +69,7 @@ const FlyerGenerator = ({ onBack }: FlyerGeneratorProps) => {
     saveFlyerData(formData);
     completeChallenge('create-flyer');
     setShowPrompts(true);
+    void recordAppUsage('prompts', 'action');
     toast.success("Dados salvos! Agora use os prompts para criar seu flyer.");
   };
 

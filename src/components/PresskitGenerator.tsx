@@ -12,6 +12,7 @@ import { PresskitData, PRESSKIT_PROMPTS } from "@/types/challenges";
 import { useChallenges } from "@/hooks/useChallenges";
 import { generatePresskitPDF } from "@/lib/pdfGenerator";
 import { shareViaWhatsApp } from "@/lib/shareUtils";
+import { recordAppUsage } from '@/lib/appUsage';
 
 interface PresskitGeneratorProps {
   onBack: () => void;
@@ -81,6 +82,7 @@ const PresskitGenerator = ({ onBack }: PresskitGeneratorProps) => {
     completeChallenge('create-presskit');
     toast.success("Presskit salvo! Agora use os prompts para gerar seu conteúdo.");
     setStep(4);
+    void recordAppUsage('prompts', 'action');
   };
 
   const handleExportPDF = async () => {
