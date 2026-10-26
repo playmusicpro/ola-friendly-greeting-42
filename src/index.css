@@ -137,6 +137,26 @@ All colors MUST be HSL.
 }
 
 @layer components {
+  .onboarding-theme-option {
+    display: flex; flex-direction: column; align-items: stretch; gap: 16px;
+    height: auto; min-width: 0; padding: 12px; border-radius: 8px;
+    white-space: normal; background: hsl(var(--card)); color: hsl(var(--foreground));
+  }
+  .onboarding-theme-option:hover { background: hsl(var(--secondary)); color: hsl(var(--foreground)); }
+  .onboarding-theme-option[aria-pressed="true"] { border-color: hsl(var(--primary)); box-shadow: var(--shadow-glow); }
+  .onboarding-theme-option[data-preview-theme="classic"] { --preview-accent: 220 100% 50%; --preview-detail: 45 75% 53%; }
+  .onboarding-theme-option[data-preview-theme="soft-pink"] { --preview-accent: var(--soft-pink); --preview-detail: var(--soft-pink-light); }
+  .onboarding-theme-preview {
+    display: flex; flex-direction: column; gap: 14px; padding: 14px;
+    background: hsl(var(--stage)); color: hsl(var(--foreground)); border-radius: 6px;
+    border: 1px solid hsl(var(--preview-accent) / 0.3); min-height: 170px;
+  }
+  .onboarding-theme-preview > span:first-child { color: hsl(var(--preview-detail)); }
+  .onboarding-preview-balance { display: flex; flex-direction: column; gap: 6px; text-align: left; padding: 10px; border-radius: 6px; background: hsl(var(--glass)); border: 1px solid hsl(var(--preview-detail) / 0.25); }
+  .onboarding-preview-balance > span:last-child { color: hsl(var(--preview-detail)); }
+  .onboarding-preview-play { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: hsl(var(--preview-accent)); color: hsl(var(--stage)); box-shadow: 0 0 12px hsl(var(--preview-accent) / 0.25); }
+  .onboarding-preview-line { width: 24%; height: 3px; border-radius: 2px; background: hsl(var(--preview-detail) / 0.5); }
+  .onboarding-theme-check { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; flex-shrink: 0; }
   .theme-swatch { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
   .theme-swatch-classic { background: hsl(220 100% 50%); }
   .theme-swatch-pink { background: hsl(var(--soft-pink)); box-shadow: 0 0 8px hsl(var(--soft-pink) / 0.2); }
