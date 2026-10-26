@@ -29,6 +29,7 @@ import MobileHeader from "./components/MobileHeader";
 import DesktopSidebar from "./components/DesktopSidebar";
 import MusicianProfileGate from "./components/MusicianProfileGate";
 import AdminRoute from "./components/AdminRoute";
+import { AppUsageTracker } from './components/AppUsageTracker';
 import { lazy, Suspense } from 'react';
 import { ThemeProvider } from 'next-themes';
 const Panorama = lazy(() => import('./pages/Panorama'));
@@ -91,6 +92,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <AppUsageTracker />
           <Routes>
             {/* Public Route - Login */}
             <Route path="/login" element={<LoginRoute />} />

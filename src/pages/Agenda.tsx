@@ -31,6 +31,7 @@ import { GoogleCalendarShowButton } from '@/components/GoogleCalendarShowButton'
 import { ShowForm } from '@/components/ShowForm';
 import type { Show } from '@/types';
 import { showFromEvent } from '@/lib/showForm';
+import { recordAppUsage } from '@/lib/appUsage';
 
 export default function Agenda() {
   const { events, addEvent, updateEvent, deleteEvent, duplicateEvent, markEventAsRealizado, shows, addShow, updateShow } = useFinancialData();
@@ -145,6 +146,7 @@ export default function Agenda() {
   };
 
   const handleMaps = (local: string) => {
+    void recordAppUsage('maps', 'action');
     const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(local)}`;
     window.open(url, '_blank');
   };
