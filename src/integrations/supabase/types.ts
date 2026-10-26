@@ -89,6 +89,54 @@ export type Database = {
         }
         Relationships: []
       }
+      app_usage_logs: {
+        Row: {
+          created_at: string
+          event_kind: string
+          id: string
+          module: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_kind: string
+          id?: string
+          module: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_kind?: string
+          id?: string
+          module?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      app_user_activity: {
+        Row: {
+          created_at: string
+          last_active_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          last_active_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          last_active_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           created_at: string
@@ -825,6 +873,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_module_usage: {
+        Args: { p_since: string }
+        Returns: {
+          accesses: number
+          module: string
+          users_count: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -840,6 +896,10 @@ export type Database = {
       move_piggy_bank: {
         Args: { p_bank_id: string; p_tipo: string; p_valor: number }
         Returns: number
+      }
+      record_app_usage: {
+        Args: { p_event_kind?: string; p_module?: string }
+        Returns: undefined
       }
     }
     Enums: {
