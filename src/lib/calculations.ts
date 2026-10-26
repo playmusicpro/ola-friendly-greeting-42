@@ -439,6 +439,7 @@ export function calculateCashProjection(
   musicians: { showId?: string; cache: number; paid: boolean }[],
   today: string = new Date().toISOString().split('T')[0],
 ) {
+  const roundMoney = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100;
   const scheduled = shows.filter(s => !s.realizado && s.date >= today);
   const ids = new Set(scheduled.map(s => s.id));
   const receitas = roundMoney(scheduled.reduce((sum, s) => sum + showOutstanding(s), 0));
