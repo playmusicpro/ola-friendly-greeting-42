@@ -1091,4 +1091,51 @@ body,
 [class*="bg-card"] {
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
+} /* Fundo Dinâmico com Iluminação Glow e Profundidade Tridimensional */
+body {
+  position: relative !important;
+  background-color: #080711 !important;
+  overflow-x: hidden;
+}
+
+/* Camada de luz fluida e animada no fundo */
+body::before {
+  content: "" !important;
+  position: fixed !important;
+  top: -50% !important;
+  left: -50% !important;
+  width: 200% !important;
+  height: 200% !important;
+  z-index: -1 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(168, 85, 247, 0.35) 0%, transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(56, 189, 248, 0.3) 0%, transparent 50%),
+    linear-gradient(-45deg, #0d0b1a, #1a1538, #261242, #0e172e) !important;
+  background-size:
+    100% 100%,
+    100% 100%,
+    200% 200% !important;
+  animation: ambientDepthGlow 12s ease-in-out infinite alternate !important;
+  will-change: transform;
+}
+
+/* Movimento suave em escala e translação */
+@keyframes ambientDepthGlow {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-3%, 3%) scale(1.08);
+  }
+  100% {
+    transform: translate(3%, -3%) scale(1);
+  }
+}
+
+/* Glassmorphism nos cartões para revelar a luz do fundo */
+[class*="card"],
+[class*="bg-card"] {
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
 }
