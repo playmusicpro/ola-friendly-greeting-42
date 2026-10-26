@@ -223,7 +223,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData, prefill }:
                   <div><Label htmlFor={`mus-cache-${i}`}>Cachê (R$)</Label><Input id={`mus-cache-${i}`} type="number" min={0} step="0.01" value={m.cache || ''} onChange={e => updateMusician(i, { cache: Math.max(0, Number(e.target.value) || 0) })} /></div>
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <label className="flex items-center gap-2 text-sm"><Switch checked={m.paid} onCheckedChange={paid => updateMusician(i, { paid })} aria-label={`Pagamento de ${m.name || 'músico'}`} /><span className={m.paid ? 'text-success' : 'text-warning'}>{m.paid ? 'Pago' : 'A Pagar'}</span></label>
+                  <label className="flex items-center gap-2 text-sm"><Switch checked={m.paid} onCheckedChange={paid => updateMusician(i, { paid })} aria-label={`Pagamento de ${m.name || 'músico'}`} /><span className={m.paid ? 'text-success' : 'text-gold'}>{m.paid ? 'Pago' : 'A Pagar'}</span></label>
                   <div className="flex flex-wrap gap-2">
                     <MusicianReceiptActions show={{ ...showFormDefaults(watchedValues), id: initialData?.id ?? 'novo' }} musician={m} />
                     <Button type="button" size="icon" variant="ghost" aria-label="Remover músico" onClick={() => setMusicians(list => list.filter((_, idx) => idx !== i))}><Trash2 className="h-4 w-4" /></Button>
