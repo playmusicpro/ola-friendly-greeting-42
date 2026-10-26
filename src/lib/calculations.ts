@@ -432,3 +432,16 @@ export function calculateMonthlyFinancials(shows: Show[], expenses: Expense[], f
   return { custosShows, despesasFixas, saidasAvulsas, totalGastos, faturamentoBruto, margemContribuicao, aportesMetas, aportesCofrinhos, lucroLiquidoReal, saldoDisponivel, projecaoCaixa,
     dre: { receitaBruta: faturamentoBruto, custosDirectos: custosShows, despesasFixas: despesasFixas + saidasAvulsas, resultadoOperacional: lucroLiquidoReal, margemFinal } };
 }
+
+/** Projeção automática: shows agendados (futuros, não realizados) somam receita a receber e cachês de músicos ainda não pagos. */
+export function calculateCashProjection(
+  shows: Show[],
+  musicians: { showId?: string; cache: number; paid: boolean }[],
+  today: string = new Date().toISOString().split('T')[0],
+) {
+  const scheduled = shows.filter(s => !s.realizado && s.date >= today);
+  const ids = new Set(scheduled.map(s => s.id));
+  const receitas = roundMoney(scheduled.reduce((sum, s) => sum + showOutstanding(s), 0));
+  const despesas = roundMoney(musicians.filter(m => m.showId && ids.has(m.showId) && !m.paid).reduce((sum, m) => sum + (Number(m.cache) || 0), 0));
+  return { shows: scheduled.length, receitas, despesas, saldo: roundMoney(receitas - despesas) };
+}

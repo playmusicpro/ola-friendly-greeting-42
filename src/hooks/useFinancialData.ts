@@ -393,6 +393,13 @@ export function useFinancialData() {
       await req(supabase.from('show_musicians').update({ paid, paid_date: paid ? toISODate(new Date()) : null }).eq('id', id));
     }, 'show_musicians', 'expenses');
 
+  const deleteShowMusician = (musician: ShowMusician) =>
+    run('excluir cachê do músico', async () => {
+      await req(supabase.from('show_musicians').delete().eq('id', musician.id ?? ''));
+      const rest = (musiciansQ.data ?? []).filter(m => m.showId === musician.showId && m.id !== musician.id);
+      if (musician.showId) await req(supabase.from('shows').update({ pagamento_musicos: rest.reduce((sum, m) => sum + (Number(m.cache) || 0), 0) }).eq('id', musician.showId));
+    }, 'show_musicians', 'expenses', 'shows');
+
   const setShowSettled = (id: string, settled: boolean) =>
     run('atualizar status do pagamento', async () => {
       await req(supabase.from('shows').update({ settled, settlement_date: settled ? toISODate(new Date()) : null, cash_tracking: true }).eq('id', id));
@@ -639,7 +646,7 @@ export function useFinancialData() {
     isLoading:
       showsQ.isLoading || expensesQ.isLoading || incomesQ.isLoading || eventsQ.isLoading,
 
-    addShow, updateShow, setMusicianPaid, setShowSettled, deleteShow, duplicateShow, markShowRealizado,
+    addShow, updateShow, setMusicianPaid, deleteShowMusician, setShowSettled, deleteShow, duplicateShow, markShowRealizado,
     saveProject, deleteProject, resetAllData, depositToProject, withdrawFromProject,
     addIncome, updateIncome, deleteIncome,
     updateNotificationSettings,
