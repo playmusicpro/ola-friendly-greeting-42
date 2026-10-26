@@ -583,18 +583,18 @@ const Repertorio = () => {
       <AlertDialog open={!!songToDelete} onOpenChange={() => setSongToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogTitle>Tem certeza que deseja excluir esta música?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir esta música? Ela será removida de todas as setlists. Esta ação não pode ser desfeita.
+              Ela será removida de todas as setlists. Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteSong}
-              className="bg-destructive hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Excluir
+              Confirmar Exclusão
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -604,18 +604,18 @@ const Repertorio = () => {
       <AlertDialog open={!!setlistToDelete} onOpenChange={() => setSetlistToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogTitle>Tem certeza que deseja excluir esta setlist?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir esta setlist? Esta ação não pode ser desfeita.
+              Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteSetlist}
-              className="bg-destructive hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Excluir
+              Confirmar Exclusão
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
