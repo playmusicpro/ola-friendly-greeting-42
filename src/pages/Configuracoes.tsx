@@ -10,6 +10,7 @@ import { useTheme } from "next-themes";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { useToast } from "@/hooks/use-toast";
+import ResetAllDataCard from "@/components/ResetAllDataCard";
 import HelpCenter from "@/components/HelpCenter";
 import Onboarding from "@/components/Onboarding";
 import { useOnboarding } from "@/hooks/useOnboarding";
@@ -287,6 +288,8 @@ const Configuracoes = () => {
         isOpen={showHelpCenter}
         onClose={() => setShowHelpCenter(false)}
       />
+
+      <ResetAllDataCard />
 
       {/* About */}
       <Card className="p-8 text-center shadow-lg border-gold/20 bg-gradient-to-b from-card to-gold/5">
