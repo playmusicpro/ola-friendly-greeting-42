@@ -1,5 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+vi.mock('@/hooks/useFinancialData', () => ({ useFinancialData: () => ({ showMusicians: [] }) }));
+vi.mock('@/components/MusicianReceiptActions', () => ({ MusicianReceiptActions: () => null }));
 import { ShowForm } from './ShowForm';
 import { showFormDefaults, showSchema } from '@/lib/showForm';
 

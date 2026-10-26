@@ -6,7 +6,7 @@ import { showSchema } from '@/lib/showForm';
 import { toast } from '@/hooks/use-toast';
 import {
   Show, Expense, FixedExpense, Project, Income, NotificationSettings,
-  Event, FinancialGoal, GeneralExpense, PiggyBank, GoalMovement,
+  Event, FinancialGoal, ShowMusician, GeneralExpense, PiggyBank, GoalMovement,
 } from '@/types';
 
 /* ------------------------------------------------------------------ */
@@ -203,6 +203,28 @@ export function useFinancialData() {
     },
   });
 
+  const musiciansQ = useQuery({
+    queryKey: key('show_musicians'), enabled,
+    queryFn: async (): Promise<ShowMusician[]> => {
+      const { data, error } = await supabase.from('show_musicians').select('*').eq('user_id', userId ?? '').order('created_at');
+      if (error) throw error;
+      return (data ?? []).map((r) => ({ id: r.id, showId: r.show_id, name: r.name, instrument: r.instrument, cache: num(r.cache), paid: r.paid, paidDate: r.paid_date ?? undefined }));
+    },
+  });
+
+  const syncMusicians = async (showId: string, list: ShowMusician[] | undefined) => {
+    if (!list) return;
+    const current = (musiciansQ.data ?? []).filter((m) => m.showId === showId);
+    const keep = new Set(list.map((m) => m.id).filter(Boolean));
+    const removed = current.filter((m) => !keep.has(m.id)).map((m) => m.id as string);
+    if (removed.length) await req(supabase.from('show_musicians').delete().in('id', removed));
+    for (const m of list) {
+      const row = { show_id: showId, name: m.name.trim(), instrument: m.instrument.trim(), cache: m.cache || 0, paid: m.paid, paid_date: m.paid ? (m.paidDate || toISODate(new Date())) : null };
+      if (m.id) await req(supabase.from('show_musicians').update(row).eq('id', m.id));
+      else await req(supabase.from('show_musicians').insert(row));
+    }
+  };
+
   const today = toISODate(new Date());
   const nextShowQ = useQuery({
     queryKey: [...key('next_show'), today], enabled,
@@ -356,13 +378,25 @@ export function useFinancialData() {
       const validation = showSchema.safeParse(showData);
       if (!validation.success) throw new Error(validation.error.issues[0]?.message || 'Complete o cadastro do show.');
       const saved = await req(supabase.from('shows').insert(fromShow(showData, ownerId)).select('id').single());
+      await syncMusicians(saved.id, showData.musicians);
       if (sourceEventId) await req(supabase.from('events').update({ linked_show_id: saved.id, title: showData.title || showData.local, date: showData.date, start_time: showData.time, end_time: showData.endTime || null, local: showData.local, notes: showData.notes || null, realizado: !!showData.realizado }).eq('id', sourceEventId));
-    }, 'shows', 'expenses', 'events');
+    }, 'shows', 'expenses', 'events', 'show_musicians', 'next_show');
 
   const updateShow = (id: string, showData: Omit<Show, 'id'>) =>
     run('atualizar show', async (ownerId) => {
       await req(supabase.from('shows').update(fromShow(showData, ownerId)).eq('id', id));
-    }, 'shows', 'expenses');
+      await syncMusicians(id, showData.musicians);
+    }, 'shows', 'expenses', 'show_musicians', 'next_show');
+
+  const setMusicianPaid = (id: string, paid: boolean) =>
+    run('atualizar pagamento do músico', async () => {
+      await req(supabase.from('show_musicians').update({ paid, paid_date: paid ? toISODate(new Date()) : null }).eq('id', id));
+    }, 'show_musicians', 'expenses');
+
+  const setShowSettled = (id: string, settled: boolean) =>
+    run('atualizar status do pagamento', async () => {
+      await req(supabase.from('shows').update({ settled, settlement_date: settled ? toISODate(new Date()) : null, cash_tracking: true }).eq('id', id));
+    }, 'shows');
 
   const deleteShow = (id: string) =>
     run('excluir show', async (ownerId) => {
@@ -590,6 +624,7 @@ export function useFinancialData() {
 
   return {
     shows: showsQ.data ?? [],
+    showMusicians: musiciansQ.data ?? [],
     nextShow: nextShowQ.data ?? null,
     expenses: expensesRaw.map(toExpense) as Expense[],
     fixedExpenses: fixedQ.data ?? [],
@@ -604,7 +639,7 @@ export function useFinancialData() {
     isLoading:
       showsQ.isLoading || expensesQ.isLoading || incomesQ.isLoading || eventsQ.isLoading,
 
-    addShow, updateShow, deleteShow, duplicateShow, markShowRealizado,
+    addShow, updateShow, setMusicianPaid, setShowSettled, deleteShow, duplicateShow, markShowRealizado,
     saveProject, deleteProject, resetAllData, depositToProject, withdrawFromProject,
     addIncome, updateIncome, deleteIncome,
     updateNotificationSettings,

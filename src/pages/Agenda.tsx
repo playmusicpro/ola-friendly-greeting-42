@@ -32,6 +32,9 @@ import { ShowForm } from '@/components/ShowForm';
 import type { Show } from '@/types';
 import { showFromEvent } from '@/lib/showForm';
 import { recordAppUsage } from '@/lib/appUsage';
+import { OpenInMapsButton } from '@/components/OpenInMapsButton';
+import { mapsDirectionsUrl } from '@/lib/musicianReceipt';
+import { formatDateBR } from '@/lib/dateUtils';
 
 export default function Agenda() {
   const { events, addEvent, updateEvent, deleteEvent, duplicateEvent, markEventAsRealizado, shows, addShow, updateShow } = useFinancialData();
@@ -89,6 +92,11 @@ export default function Agenda() {
 
   const selectedDateStr = selectedDate?.toISOString().split('T')[0] || '';
   const dayEvents = events.filter(event => event.date === selectedDateStr);
+  const linkedShowIds = new Set(events.map(e => e.linkedShowId).filter(Boolean));
+  // Shows cadastrados aparecem na agenda mesmo sem evento vinculado, ordenados por data/horário.
+  const dayShows = shows.filter(s => s.date === selectedDateStr && !linkedShowIds.has(s.id));
+  const todayStr = new Date().toISOString().split('T')[0];
+  const upcomingShows = [...shows].filter(s => s.date >= todayStr && !s.realizado).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
 
   const handleAddEvent = async (eventData: Omit<Event, 'id'>) => {
     if (!await addEvent(eventData)) return false;
@@ -147,7 +155,7 @@ export default function Agenda() {
 
   const handleMaps = (local: string) => {
     void recordAppUsage('maps', 'action');
-    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(local)}`;
+    const url = mapsDirectionsUrl(local);
     window.open(url, '_blank');
   };
 
@@ -188,7 +196,7 @@ export default function Agenda() {
   };
 
   const modifiers = {
-    hasEvents: events.map(e => new Date(e.date + 'T00:00:00'))
+    hasEvents: [...events.map(e => e.date), ...shows.map(s => s.date)].map(d => new Date(d + 'T00:00:00'))
   };
 
   const modifiersClassNames = {
@@ -236,7 +244,19 @@ export default function Agenda() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {dayEvents.length === 0 ? (
+            {dayShows.map(show => (
+              <Card key={show.id} className="mb-4"><CardContent className="pt-6 space-y-2">
+                <Badge className={getEventColor('Show')}><Music className="h-3 w-3 mr-1" />Show</Badge>
+                <h3 className="font-semibold text-lg">{show.title || show.local}</h3>
+                <p className="text-sm text-muted-foreground"><Clock className="h-3 w-3 inline mr-1" />{show.time}{show.endTime ? ` - ${show.endTime}` : ''} · {show.local}</p>
+                <div className="flex flex-wrap gap-2 pt-2">
+                  <GoogleCalendarShowButton show={show} />
+                  <OpenInMapsButton destination={show.address || show.local} />
+                  <Button variant="outline" size="sm" onClick={() => { setFinancialShow(show); setSourceEvent(undefined); setShowPrefill(undefined); setShowFinancialForm(true); }}><Edit className="h-4 w-4 mr-2" />Editar</Button>
+                </div>
+              </CardContent></Card>
+            ))}
+            {dayEvents.length === 0 && dayShows.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">
                 Nenhum evento agendado para este dia
               </p>
@@ -316,14 +336,14 @@ export default function Agenda() {
                             WhatsApp
                           </Button>
 
-                          {event.local && (
+                          {(linkedShow?.address || event.local) && (
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => { if (event.local) handleMaps(event.local); }}
+                              onClick={() => handleMaps(linkedShow?.address || event.local || '')}
                             >
                               <MapPin className="h-3 w-3 mr-1" />
-                              Maps
+                              Abrir no Maps
                             </Button>
                           )}
 
@@ -344,6 +364,21 @@ export default function Agenda() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader><CardTitle>Próximos Shows</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          {upcomingShows.length === 0 ? <p className="text-muted-foreground text-sm">Nenhum show agendado.</p> : upcomingShows.map(show => (
+            <div key={show.id} className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3 last:border-0">
+              <button type="button" className="text-left min-w-0" onClick={() => setSelectedDate(new Date(show.date + 'T00:00:00'))}>
+                <p className="font-semibold break-words">{show.title || show.local}</p>
+                <p className="text-xs text-muted-foreground">{formatDateBR(show.date)} · {show.time} · {show.local}</p>
+              </button>
+              <OpenInMapsButton destination={show.address || show.local} />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       <EventForm
         open={isFormOpen}

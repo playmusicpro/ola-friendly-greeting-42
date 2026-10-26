@@ -17,6 +17,7 @@ import DashboardOperations from '@/components/DashboardOperations';
 import { formatDateBR } from '@/lib/dateUtils';
 import Onboarding from '@/components/Onboarding';
 import { GoogleCalendarShowButton } from '@/components/GoogleCalendarShowButton';
+import { OpenInMapsButton } from '@/components/OpenInMapsButton';
 import { GoalForm } from '@/components/GoalForm';
 import { ExpenseForm } from '@/components/ExpenseForm';
 import { PiggyBankForm } from '@/components/PiggyBankForm';
@@ -69,7 +70,7 @@ export default function Dashboard() {
               </div>
               <Button variant="ghost" size="icon" aria-label={nextShow ? 'Ver próximo show' : 'Adicionar show'} className="shrink-0 rounded-full border border-gold/20 text-gold" onClick={() => nextShow ? navigate('/agenda') : setShowEventForm(true)}>{nextShow ? <ArrowUpRight className="h-5 w-5" /> : <Plus className="h-5 w-5" />}</Button>
             </div>
-            {nextShow && <div className="mt-4"><GoogleCalendarShowButton show={nextShow} /></div>}
+            {nextShow && <div className="mt-4 flex flex-wrap gap-2"><GoogleCalendarShowButton show={nextShow} /><OpenInMapsButton destination={nextShow.address || nextShow.local} /></div>}
             <Button variant="outline" className="dashboard-itinerary mt-5 gap-2 text-xs" onClick={() => navigate('/agenda')}>Ver Roteiro do Show<ChevronRight className="h-4 w-4" /></Button>
           </CardContent>
         </Card>
