@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({ save: vi.fn(), toast: vi.fn(), profile: { name
 vi.mock('@/hooks/useProfile', () => ({ useProfile: () => ({ profile: mocks.profile, isLoading: false, updateProfile: { mutateAsync: mocks.save } }) }));
 vi.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast: mocks.toast }) }));
 vi.mock('@/hooks/useOnboarding', () => ({ useOnboarding: () => ({}) }));
+vi.mock('@/components/ResetAllDataCard', () => ({ default: () => null }));
 vi.mock('@/components/Onboarding', () => ({ default: () => null }));
 vi.mock('@/components/HelpCenter', () => ({ default: () => null }));
 import Configuracoes from './Configuracoes';
