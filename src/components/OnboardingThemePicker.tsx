@@ -15,7 +15,7 @@ export default function OnboardingThemePicker() {
         <Button key={option.id} type="button" variant="outline"
           aria-pressed={(theme ?? 'classic') === option.id}
           onClick={() => setTheme(option.id)}
-          className="onboarding-theme-option" data-preview-theme={option.id}>
+          className="onboarding-theme-option h-auto flex-col items-stretch gap-4 whitespace-normal rounded-lg p-3 bg-card text-foreground hover:bg-secondary hover:text-foreground" data-preview-theme={option.id}>
           <span className="onboarding-theme-preview" aria-hidden="true">
             <span className="flex items-center gap-2 text-xs"><Music2 /><span>Meu palco</span></span>
             <span className="onboarding-preview-balance"><span className="text-xs">Saldo disponível</span><span className="text-lg font-semibold">R$ 2.450,00</span></span>
