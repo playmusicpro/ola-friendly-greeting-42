@@ -12,7 +12,11 @@ import { Switch } from "@/components/ui/switch";
 import { TrendingUp, DollarSign, Users } from "lucide-react";
 import { Show } from "@/types";
 import { calculateShow, formatCurrency, formatPercentage, toISODate } from "@/lib/calculations";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import type { ShowMusician } from "@/types";
+import { useFinancialData } from "@/hooks/useFinancialData";
+import { MusicianReceiptActions } from "@/components/MusicianReceiptActions";
+import { Plus, Trash2 } from "lucide-react";
 
 interface ShowFormProps {
   open: boolean;
@@ -34,16 +38,27 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData, prefill }:
     resolver: zodResolver(showSchema),
     defaultValues: showFormDefaults(initialData || prefill),
   });
+  const { showMusicians } = useFinancialData();
+  const [musicians, setMusicians] = useState<ShowMusician[]>([]);
   const watchedValues = watch();
+  const musiciansTotal = musicians.reduce((sum, m) => sum + (Number(m.cache) || 0), 0);
+  const updateMusician = (index: number, patch: Partial<ShowMusician>) => setMusicians(list => list.map((m, i) => i === index ? { ...m, ...patch } : m));
   const calculations = calculateShow({ ...showFormDefaults(watchedValues), id: 'preview' });
   const outstanding = watchedValues.settled ? 0 : Math.max(0, (watchedValues.cache || 0) - (watchedValues.depositReceived ? watchedValues.depositAmount || 0 : 0));
   useEffect(() => {
     if (open) reset(showFormDefaults(initialData || prefill));
+    if (open) setMusicians(initialData ? showMusicians.filter(m => m.showId === initialData.id) : []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialData, prefill, reset]);
+  useEffect(() => {
+    if (musicians.length) { setValue('pagamentoMusicos', musiciansTotal); setValue('deductTeam', false); }
+  }, [musicians.length, musiciansTotal, setValue]);
 
   const handleFormSubmit = async (data: ShowFormData) => {
     // Após validação do zod, todos os campos estarão presentes
-    if (await onSubmit({ ...data, cashTracking: true } as Omit<Show, 'id'>) === false) return;
+    const clean = musicians.filter(m => m.name.trim());
+    const payload = { ...data, cashTracking: true, musicians: clean, ...(clean.length ? { pagamentoMusicos: musiciansTotal, deductTeam: false, teamPaymentDate: undefined } : {}) };
+    if (await onSubmit(payload as Omit<Show, 'id'>) === false) return;
     reset();
     onOpenChange(false);
   };
@@ -194,6 +209,31 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData, prefill }:
             </div>
           </div>
 
+          <section className="space-y-3" aria-labelledby="musicians-title">
+            <div className="flex items-center justify-between gap-3">
+              <h3 id="musicians-title" className="text-lg font-semibold text-gold">Músicos do Show</h3>
+              <Button type="button" variant="outline" size="sm" onClick={() => setMusicians(list => [...list, { name: '', instrument: '', cache: 0, paid: false }])}><Plus className="h-4 w-4 mr-1" />Adicionar músico</Button>
+            </div>
+            {musicians.length === 0 && <p className="text-xs text-muted-foreground">Inclua nome, instrumento e cachê individual de cada músico para gerar recibos.</p>}
+            {musicians.map((m, i) => (
+              <div key={m.id ?? i} className="rounded-xl border border-border p-3 space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div><Label htmlFor={`mus-name-${i}`}>Nome</Label><Input id={`mus-name-${i}`} value={m.name} maxLength={120} onChange={e => updateMusician(i, { name: e.target.value })} /></div>
+                  <div><Label htmlFor={`mus-inst-${i}`}>Instrumento</Label><Input id={`mus-inst-${i}`} value={m.instrument} maxLength={80} onChange={e => updateMusician(i, { instrument: e.target.value })} /></div>
+                  <div><Label htmlFor={`mus-cache-${i}`}>Cachê (R$)</Label><Input id={`mus-cache-${i}`} type="number" min={0} step="0.01" value={m.cache || ''} onChange={e => updateMusician(i, { cache: Math.max(0, Number(e.target.value) || 0) })} /></div>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <label className="flex items-center gap-2 text-sm"><Switch checked={m.paid} onCheckedChange={paid => updateMusician(i, { paid })} aria-label={`Pagamento de ${m.name || 'músico'}`} /><span className={m.paid ? 'text-success' : 'text-warning'}>{m.paid ? 'Pago' : 'A Pagar'}</span></label>
+                  <div className="flex flex-wrap gap-2">
+                    <MusicianReceiptActions show={{ ...showFormDefaults(watchedValues), id: initialData?.id ?? 'novo' }} musician={m} />
+                    <Button type="button" size="icon" variant="ghost" aria-label="Remover músico" onClick={() => setMusicians(list => list.filter((_, idx) => idx !== i))}><Trash2 className="h-4 w-4" /></Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {musicians.length > 0 && <p className="text-sm text-muted-foreground">Total dos músicos: <strong className="text-foreground">{formatCurrency(musiciansTotal)}</strong> · cada cachê entra nos gastos quando marcado como Pago.</p>}
+          </section>
+
           {/* Custo Operacional Direto */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gold">Custo Operacional Direto</h3>
@@ -281,6 +321,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData, prefill }:
                   step="0.01"
                   placeholder="0.00"
                   {...register("pagamentoMusicos", { valueAsNumber: true })}
+                  readOnly={musicians.length > 0}
                   className="mt-1"
                 />
                 <p className="text-xs text-muted-foreground mt-1">Total pago aos demais músicos e equipe</p>
@@ -301,7 +342,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData, prefill }:
           </div>
 
           {/* Cálculo em Tempo Real */}
-          <div className="space-y-3 border-y border-border py-4"><div className="flex items-start gap-3"><input id="deductTeam" type="checkbox" className="mt-1 h-4 w-4 accent-primary" checked={!!watchedValues.deductTeam} onChange={event => { setValue('deductTeam', event.target.checked); if (event.target.checked && !watchedValues.teamPaymentDate) setValue('teamPaymentDate', toISODate(new Date())); }} /><Label htmlFor="deductTeam">Descontar Cachês da Equipe/Músicos do Caixa</Label></div>{watchedValues.deductTeam && <div><Label htmlFor="teamPaymentDate">Data do pagamento da equipe</Label><Input id="teamPaymentDate" type="date" {...register('teamPaymentDate')} />{errors.teamPaymentDate && <p className="text-xs text-destructive">{errors.teamPaymentDate.message}</p>}</div>}</div>
+          {musicians.length === 0 && <div className="space-y-3 border-y border-border py-4"><div className="flex items-start gap-3"><input id="deductTeam" type="checkbox" className="mt-1 h-4 w-4 accent-primary" checked={!!watchedValues.deductTeam} onChange={event => { setValue('deductTeam', event.target.checked); if (event.target.checked && !watchedValues.teamPaymentDate) setValue('teamPaymentDate', toISODate(new Date())); }} /><Label htmlFor="deductTeam">Descontar Cachês da Equipe/Músicos do Caixa</Label></div>{watchedValues.deductTeam && <div><Label htmlFor="teamPaymentDate">Data do pagamento da equipe</Label><Input id="teamPaymentDate" type="date" {...register('teamPaymentDate')} />{errors.teamPaymentDate && <p className="text-xs text-destructive">{errors.teamPaymentDate.message}</p>}</div>}</div>}
           <section className="border-t border-border pt-5">
             <h3 className="text-sm font-semibold text-muted-foreground mb-3">Resultado Previsto do Show</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
