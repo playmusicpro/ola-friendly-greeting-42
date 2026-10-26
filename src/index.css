@@ -1245,4 +1245,32 @@ footer *,
 [class*="bottom"],
 [class*="navigation"] {
   box-shadow: none;
+} /* Fundo animado global leve e seguro */
+html,
+body,
+#root {
+  min-height: 100vh !important;
+  background: linear-gradient(-45deg, #0d0d14, #151328, #1c1033, #0d0d14) !important;
+  background-size: 300% 300% !important;
+  animation: ambientMeshGlow 14s ease infinite !important;
+  will-change: background-position;
+}
+
+@keyframes ambientMeshGlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Transparência suave nos cards sem interferir em botões ou navegação */
+[class*="card"],
+[class*="bg-card"] {
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
 }
