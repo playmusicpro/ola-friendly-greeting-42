@@ -2,14 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Hide Netlify's floating deployment toolbar without affecting app controls. */
+/* Ocultar elementos injetados pela Netlify (barra flutuante, badge e iframes). */
 netlify-drawer,
 [data-netlify-deploy-id],
 #netlify-badge,
-iframe[src*="netlify"] {
+iframe[src*="netlify"],
+div[class*="netlify"] {
   display: none !important;
+  opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;
+  height: 0 !important;
+  width: 0 !important;
 }
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
@@ -264,7 +268,7 @@ All colors MUST be HSL.
   .mobile-floating-dock { left: 50%; bottom: calc(16px + env(safe-area-inset-bottom)); transform: translateX(-50%); width: min(420px, calc(100% - 24px)); padding: 6px; border-radius: 28px; background: hsl(var(--glass) / 0.82); border: 1px solid hsl(var(--glass-border) / 0.2); box-shadow: var(--glass-shadow); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
   .mobile-floating-dock,
   .dashboard-dock {
-    z-index: 9999;
+    z-index: 999999 !important;
     padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
   }
   .mobile-floating-dock .mobile-dock-item { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; width: 100%; height: 60px; min-width: 0; padding: 4px; border-radius: 22px; white-space: nowrap; }
