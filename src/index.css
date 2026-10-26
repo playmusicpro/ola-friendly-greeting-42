@@ -1199,4 +1199,63 @@ body::before {
 [class*="bg-card"] {
   backdrop-filter: blur(8px) !important;
   -webkit-backdrop-filter: blur(8px) !important;
+} /* Fundo dinâmico leve e fluido - Performance máxima */
+html,
+body,
+#root {
+  min-height: 100vh !important;
+  background: linear-gradient(-45deg, #0d0d14, #151328, #1c1033, #0d0d14) !important;
+  background-size: 300% 300% !important;
+  animation: ambientMeshGlow 14s ease infinite !important;
+  will-change: background-position;
+}
+
+@keyframes ambientMeshGlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Transparência otimizada nos cards */
+[class*="card"],
+[class*="bg-card"] {
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* Contorno brilhante com efeito Neon nos Botões (Protege o Menu Inferior e Navegação) */
+button:not(nav button):not(footer button):not([class*="fixed"]),
+.button:not(nav *):not(footer *),
+[role="button"]:not(nav *):not(footer *) {
+  border: 1px solid rgba(168, 85, 247, 0.5) !important;
+  box-shadow:
+    0 0 12px rgba(168, 85, 247, 0.35),
+    inset 0 0 8px rgba(56, 189, 248, 0.2) !important;
+  transition: all 0.25s ease-in-out !important;
+}
+
+/* Realce extra ao passar o dedo ou clicar */
+button:not(nav button):not(footer button):not([class*="fixed"]):active,
+button:not(nav button):not(footer button):not([class*="fixed"]):hover {
+  border-color: rgba(56, 189, 248, 0.8) !important;
+  box-shadow:
+    0 0 18px rgba(56, 189, 248, 0.6),
+    inset 0 0 12px rgba(168, 85, 247, 0.4) !important;
+  transform: scale(1.01) !important;
+}
+
+/* Isolamento do Menu Inferior e Botão Flutuante Central */
+nav,
+footer,
+nav button,
+footer button,
+[class*="bottom-"] {
+  position: fixed !important;
+  z-index: 50 !important;
 }
