@@ -919,6 +919,7 @@ export type Database = {
         Args: { p_event_kind?: string; p_module?: string }
         Returns: undefined
       }
+      reset_user_data: { Args: { p_email: string }; Returns: undefined }
     }
     Enums: {
       app_role: "owner" | "admin" | "user"

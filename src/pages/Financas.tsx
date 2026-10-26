@@ -19,6 +19,7 @@ import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import FinancialGoals from '@/components/FinancialGoals';
+import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog';
 
 const Financas = () => {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ const Financas = () => {
     addPiggyBank, addToPiggyBank, withdrawFromPiggyBank, deletePiggyBank,
   } = useFinancialData();
 
+  const [pendingDelete, setPendingDelete] = useState<{ kind: 'expense' | 'piggy'; id: string; nome: string } | null>(null);
   const [showFixedForm, setShowFixedForm] = useState(false);
   const [editingPayment, setEditingPayment] = useState<Show | undefined>();
   const [editingFixed, setEditingFixed] = useState<FixedExpense | undefined>();
@@ -50,6 +52,11 @@ const Financas = () => {
 
   return (
     <div className="finance-page space-y-6">
+      <ConfirmDeleteDialog open={!!pendingDelete} itemName={pendingDelete?.nome} onCancel={() => setPendingDelete(null)} onConfirm={async () => {
+        const item = pendingDelete; setPendingDelete(null); if (!item) return;
+        const ok = item.kind === 'expense' ? await deleteGeneralExpense(item.id) : await deletePiggyBank(item.id);
+        if (ok !== false) toast({ title: item.kind === 'expense' ? "Gasto removido" : "Cofrinho removido" });
+      }} />
       <ShowForm open={!!editingPayment} onOpenChange={open => { if (!open) setEditingPayment(undefined); }} initialData={editingPayment} onSubmit={data => editingPayment ? updateShow(editingPayment.id, data) : false} />
       <FixedExpenseForm open={showFixedForm} onOpenChange={setShowFixedForm} initialData={editingFixed} onSubmit={async data => { const ok = await saveFixedExpense(data, editingFixed?.id); if (ok) toast({ title: 'Despesa fixa salva' }); return ok; }} />
       <ExpenseForm
@@ -164,7 +171,7 @@ const Financas = () => {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-lg font-semibold text-destructive">{formatCurrency(exp.valor)}</span>
-                      <Button size="icon" variant="ghost" disabled={exp.origin === 'team_payment'} onClick={() => { deleteGeneralExpense(exp.id); toast({ title: "Gasto removido" }); }}>
+                      <Button size="icon" variant="ghost" disabled={exp.origin === 'team_payment'} aria-label={`Excluir ${exp.descricao}`} onClick={() => setPendingDelete({ kind: 'expense', id: exp.id, nome: exp.descricao })}>
                         <Trash2 className="h-4 w-4 text-muted-foreground" />
                       </Button>
                     </div>
@@ -247,7 +254,7 @@ const Financas = () => {
                   <div key={pb.id} className="p-5 rounded-xl border bg-card">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-semibold text-lg">{pb.nome}</h3>
-                      <Button size="icon" variant="ghost" onClick={() => { deletePiggyBank(pb.id); toast({ title: "Cofrinho removido" }); }}>
+                      <Button size="icon" variant="ghost" aria-label={`Excluir ${pb.nome}`} onClick={() => setPendingDelete({ kind: 'piggy', id: pb.id, nome: pb.nome })}>
                         <Trash2 className="h-4 w-4 text-muted-foreground" />
                       </Button>
                     </div>

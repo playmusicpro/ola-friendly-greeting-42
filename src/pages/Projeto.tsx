@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Video, Target, FileText, Plus, Calendar, Save, Minus } from "lucide-react";
+import { Video, Target, FileText, Plus, Calendar, Save, Minus, Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,11 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useFinancialData } from "@/hooks/useFinancialData";
+import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import { useToast } from "@/hooks/use-toast";
 import { calculateProjectProgress, formatCurrency, formatPercentage } from "@/lib/calculations";
 
 const Projeto = () => {
-  const { project, saveProject, depositToProject, withdrawFromProject } = useFinancialData();
+  const { project, saveProject, deleteProject, depositToProject, withdrawFromProject } = useFinancialData();
   const { toast } = useToast();
 
   const [form, setForm] = useState({
@@ -24,6 +25,7 @@ const Projeto = () => {
     cronograma: "",
   });
   const [valorMovimento, setValorMovimento] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     setForm({
@@ -274,6 +276,23 @@ const Projeto = () => {
         <Save className="h-5 w-5 mr-2" />
         Salvar projeto
       </Button>
+
+      {project.id && (
+        <Button variant="outline" className="w-full border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive rounded-xl" onClick={() => setConfirmDelete(true)}>
+          <Trash2 className="h-4 w-4 mr-2" />
+          Excluir projeto
+        </Button>
+      )}
+      <ConfirmDeleteDialog
+        open={confirmDelete}
+        itemName={project.name || "Projeto Audiovisual"}
+        description="O projeto, o valor guardado no cofrinho e todas as anotações serão removidos definitivamente."
+        onCancel={() => setConfirmDelete(false)}
+        onConfirm={async () => {
+          setConfirmDelete(false);
+          if (await deleteProject()) toast({ title: "Projeto excluído" });
+        }}
+      />
     </div>
   );
 };

@@ -419,6 +419,22 @@ export function useFinancialData() {
       await req(supabase.from('projects').update({ saved_value: novoValor }).eq('id', current.id));
     }, 'projects');
 
+  const deleteProject = () =>
+    run('excluir projeto', async (ownerId) => {
+      const current = projectQ.data ?? EMPTY_PROJECT;
+      if (!current.id) throw new Error('Nenhum projeto salvo para excluir.');
+      // O cofrinho do projeto é um campo do próprio registro: excluir a linha remove todo o histórico.
+      await req(supabase.from('projects').delete().eq('id', current.id).eq('user_id', ownerId));
+    }, 'projects');
+
+  const resetAllData = async (email: string) => {
+    const ok = await run('zerar dados', async () => {
+      await req(supabase.rpc('reset_user_data' as never, { p_email: email } as never));
+    });
+    if (ok) await qc.invalidateQueries();
+    return ok;
+  };
+
   const depositToProject = (valor: number) => moveProjectSavings(valor, 'deposito');
   const withdrawFromProject = (valor: number) => moveProjectSavings(valor, 'retirada');
 
@@ -589,7 +605,7 @@ export function useFinancialData() {
       showsQ.isLoading || expensesQ.isLoading || incomesQ.isLoading || eventsQ.isLoading,
 
     addShow, updateShow, deleteShow, duplicateShow, markShowRealizado,
-    saveProject, depositToProject, withdrawFromProject,
+    saveProject, deleteProject, resetAllData, depositToProject, withdrawFromProject,
     addIncome, updateIncome, deleteIncome,
     updateNotificationSettings,
     addEvent, updateEvent, deleteEvent, duplicateEvent, markEventAsRealizado,

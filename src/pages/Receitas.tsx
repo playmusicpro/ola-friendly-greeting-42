@@ -255,15 +255,15 @@ const Receitas = () => {
       <AlertDialog open={!!incomeToDelete} onOpenChange={() => setIncomeToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogTitle>Tem certeza que deseja excluir esta receita?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja remover esta receita? Esta ação não pode ser desfeita.
+              Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteIncome} className="bg-destructive hover:bg-destructive/90">
-              Excluir
+            <AlertDialogAction onClick={handleDeleteIncome} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Confirmar Exclusão
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
