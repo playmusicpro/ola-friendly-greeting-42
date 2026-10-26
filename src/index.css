@@ -1138,4 +1138,65 @@ body::before {
 [class*="bg-card"] {
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
+} /* ==========================================================================
+   FUNDO DINÂMICO DE ALTA PERFORMANCE (MESH GLOW & PROFUNDIDADE)
+   ========================================================================== */
+
+/* Configuração base da página */
+html,
+body,
+#root {
+  min-height: 100vh !important;
+  background-color: #080711 !important;
+  position: relative !important;
+  overflow-x: hidden;
+}
+
+/* Camada isolada de luz e movimento (não interfere na navegação) */
+body::before {
+  content: "" !important;
+  position: fixed !important;
+  top: -20% !important;
+  left: -20% !important;
+  width: 140% !important;
+  height: 140% !important;
+  z-index: -1 !important;
+  pointer-events: none !important;
+
+  /* Gradiente com tons mais claros e pontos de iluminação neon */
+  background:
+    radial-gradient(circle at 25% 25%, rgba(168, 85, 247, 0.4) 0%, transparent 45%),
+    radial-gradient(circle at 75% 75%, rgba(56, 189, 248, 0.35) 0%, transparent 45%),
+    linear-gradient(-45deg, #120e26, #1d1842, #2d184f, #121c38) !important;
+  background-size:
+    100% 100%,
+    100% 100%,
+    200% 200% !important;
+
+  /* Animação acelerada por hardware GPU */
+  animation: meshGlowMovement 10s ease-in-out infinite alternate !important;
+  will-change: transform;
+}
+
+/* Animação tridimensional com rotação suave e pulsação */
+@keyframes meshGlowMovement {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: translate3d(-2%, 2%, 0) scale(1.05);
+    filter: brightness(1.25);
+  }
+  100% {
+    transform: translate3d(2%, -2%, 0) scale(1);
+    filter: brightness(1.1);
+  }
+}
+
+/* Transparência elegante nos cartões para revelar a luz do fundo */
+[class*="card"],
+[class*="bg-card"] {
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
 }
