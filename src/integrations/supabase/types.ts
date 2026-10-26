@@ -898,6 +898,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      delete_financial_goal: { Args: { p_goal_id: string }; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
