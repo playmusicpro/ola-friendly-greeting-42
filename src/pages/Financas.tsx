@@ -20,12 +20,15 @@ import { useNavigate } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import FinancialGoals from '@/components/FinancialGoals';
 import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
+import { MusicianReceiptActions } from '@/components/MusicianReceiptActions';
 
 const Financas = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const {
-    shows, expenses, fixedExpenses, incomes, saveFixedExpense, updateShow,
+    shows, showMusicians, setMusicianPaid, setShowSettled, expenses, fixedExpenses, incomes, saveFixedExpense, updateShow,
     generalExpenses, piggyBanks, goalMovements,
     addGeneralExpense, deleteGeneralExpense,
     addPiggyBank, addToPiggyBank, withdrawFromPiggyBank, deletePiggyBank,
@@ -121,7 +124,12 @@ const Financas = () => {
 
         {/* Gastos Gerais */}
         <TabsContent value="lancamentos" className="space-y-6">
-      <section className="space-y-3"><h2 className="text-xl font-semibold text-gold">Cachês e Pagamentos</h2>{shows.length === 0 && <p className="text-muted-foreground">Nenhum show cadastrado</p>}{shows.map(show => <div key={show.id} className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-border"><div className="min-w-0"><h3 className="font-semibold break-words">{show.title || show.local}</h3><p className="text-xs text-muted-foreground">{formatDateBR(show.date)} · {show.realizado ? 'Realizado' : 'Agendado'} · {showOutstanding(show) === 0 ? 'Quitado' : 'A receber'}</p><p className="text-sm mt-1">Recebido: {formatCurrency(showCashReceipts(show).reduce((sum, receipt) => sum + receipt.amount, 0))} · Restante: {formatCurrency(showOutstanding(show))}</p>{!show.cashTracking && <p className="text-xs text-muted-foreground mt-1">Registro anterior · pagamentos a conferir</p>}</div><Button variant="outline" size="sm" onClick={() => setEditingPayment(show)}>Editar Pagamentos</Button></div>)}</section>
+      <section className="space-y-3"><h2 className="text-xl font-semibold text-gold">Cachês e Pagamentos</h2>{shows.length === 0 && <p className="text-muted-foreground">Nenhum show cadastrado</p>}{shows.map(show => { const paid = showOutstanding(show) === 0; const team = showMusicians.filter(m => m.showId === show.id); return (
+        <div key={show.id} className="py-3 border-b border-border space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-3"><div className="min-w-0"><h3 className="font-semibold break-words">{show.title || show.local}</h3><p className="text-xs text-muted-foreground">{formatDateBR(show.date)} · {show.realizado ? 'Realizado' : 'Agendado'}</p><p className="text-sm mt-1">Recebido: {formatCurrency(showCashReceipts(show).reduce((sum, receipt) => sum + receipt.amount, 0))} · Restante: {formatCurrency(showOutstanding(show))}</p>{!show.cashTracking && <p className="text-xs text-muted-foreground mt-1">Registro anterior · pagamentos a conferir</p>}</div>
+            <div className="flex flex-wrap items-center gap-2"><Badge variant="outline" className={paid ? 'border-success/40 bg-success/10 text-success' : 'border-gold/40 bg-gold/10 text-gold'}>{paid ? 'Pago' : 'A Receber'}</Badge><Switch checked={paid} aria-label={`Status de recebimento de ${show.title || show.local}`} className={paid ? 'data-[state=checked]:bg-success' : 'data-[state=unchecked]:bg-gold/60'} onCheckedChange={async value => { if (await setShowSettled(show.id, value)) toast({ title: value ? 'Cachê marcado como pago' : 'Cachê voltou para A Receber' }); }} /><Button variant="outline" size="sm" onClick={() => setEditingPayment(show)}>Editar</Button></div></div>
+          {team.map(m => <div key={m.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-secondary/40 p-3 ml-0 sm:ml-4"><div className="min-w-0"><p className="text-sm font-medium break-words">{m.name}{m.instrument ? ` · ${m.instrument}` : ''}</p><p className="text-xs text-muted-foreground">Cachê {formatCurrency(m.cache)}</p></div><div className="flex flex-wrap items-center gap-2"><Badge variant="outline" className={m.paid ? 'border-success/40 bg-success/10 text-success' : 'border-gold/40 bg-gold/10 text-gold'}>{m.paid ? 'Pago' : 'A Pagar'}</Badge><Switch checked={m.paid} aria-label={`Pagamento de ${m.name}`} className={m.paid ? 'data-[state=checked]:bg-success' : 'data-[state=unchecked]:bg-gold/60'} onCheckedChange={async value => { if (m.id && await setMusicianPaid(m.id, value)) toast({ title: value ? `Cachê de ${m.name} lançado nos gastos` : `Cachê de ${m.name} retirado dos gastos` }); }} /><MusicianReceiptActions show={show} musician={m} /></div></div>)}
+        </div>); })}</section>
 
           <Card className="thematic-card p-4 sm:p-6 border-primary/10">
             <ModuleArtwork module="/receitas" />
@@ -171,7 +179,7 @@ const Financas = () => {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-lg font-semibold text-destructive">{formatCurrency(exp.valor)}</span>
-                      <Button size="icon" variant="ghost" disabled={exp.origin === 'team_payment'} aria-label={`Excluir ${exp.descricao}`} onClick={() => setPendingDelete({ kind: 'expense', id: exp.id, nome: exp.descricao })}>
+                      <Button size="icon" variant="ghost" disabled={!!exp.origin} title={exp.origin ? 'Gerencie este pagamento pelo status do show' : undefined} aria-label={`Excluir ${exp.descricao}`} onClick={() => setPendingDelete({ kind: 'expense', id: exp.id, nome: exp.descricao })}>
                         <Trash2 className="h-4 w-4 text-muted-foreground" />
                       </Button>
                     </div>
