@@ -1052,4 +1052,41 @@ nav,
 header {
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
+} /* Fundo animado com alto movimento e luminosidade Neon Glow */
+html,
+body,
+#root {
+  min-height: 100vh !important;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.25) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.25) 0%, transparent 40%),
+    linear-gradient(-45deg, #070710, #13112c, #210d38, #0b1528) !important;
+  background-size: 200% 200% !important;
+  animation: ambientMeshGlow 8s ease-in-out infinite alternate !important;
+}
+
+/* Animação fluida de luz e posição */
+@keyframes ambientMeshGlow {
+  0% {
+    background-position: 0% 0%;
+    filter: brightness(1) contrast(1);
+  }
+  50% {
+    background-position: 100% 100%;
+    filter: brightness(1.25) contrast(1.1);
+  }
+  100% {
+    background-position: 0% 100%;
+    filter: brightness(1.1) contrast(1.05);
+  }
+}
+
+/* Efeito Glassmorphism com bordas iluminadas nos cards */
+[class*="card"],
+[class*="bg-card"],
+nav,
+header {
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
