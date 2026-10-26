@@ -703,6 +703,53 @@ export type Database = {
         }
         Relationships: []
       }
+      show_musicians: {
+        Row: {
+          cache: number
+          created_at: string
+          id: string
+          instrument: string
+          name: string
+          paid: boolean
+          paid_date: string | null
+          show_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cache?: number
+          created_at?: string
+          id?: string
+          instrument?: string
+          name: string
+          paid?: boolean
+          paid_date?: string | null
+          show_id: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          cache?: number
+          created_at?: string
+          id?: string
+          instrument?: string
+          name?: string
+          paid?: boolean
+          paid_date?: string | null
+          show_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "show_musicians_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shows: {
         Row: {
           address: string | null
