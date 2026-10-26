@@ -1142,3 +1142,51 @@ button:hover {
     inset 0 0 12px rgba(168, 85, 247, 0.4) !important;
   transform: scale(1.01) !important;
 }
+/* Fundo dinâmico leve e fluido - Performance máxima */
+html,
+body,
+#root {
+  min-height: 100vh !important;
+  background: linear-gradient(-45deg, #0d0d14, #151328, #1c1033, #0d0d14) !important;
+  background-size: 300% 300% !important;
+  animation: ambientMeshGlow 14s ease infinite !important;
+  will-change: background-position;
+}
+
+@keyframes ambientMeshGlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Transparência otimizada nos cards */
+[class*="card"],
+[class*="bg-card"],
+nav,
+header {
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* Borda com brilho apenas em botões secundários / dentro de conteúdo (preserva navegação) */
+main button:not([class*="rounded-full"]),
+.card button,
+[class*="card"] button {
+  border: 1px solid rgba(168, 85, 247, 0.4) !important;
+  box-shadow:
+    0 0 10px rgba(168, 85, 247, 0.25),
+    inset 0 0 6px rgba(56, 189, 248, 0.15) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+main button:not([class*="rounded-full"]):active,
+.card button:active {
+  border-color: rgba(56, 189, 248, 0.8) !important;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.5) !important;
+}
