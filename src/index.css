@@ -129,6 +129,9 @@ All colors MUST be HSL.
     --foreground: 225 20% 12%;
     --card: 220 20% 99%;
     --card-foreground: 225 20% 12%;
+    --primary: 220 85% 44%;
+    --primary-foreground: 0 0% 100%;
+    --ring: 220 85% 44%;
     --popover: 220 20% 99%;
     --popover-foreground: 225 20% 12%;
     --secondary: 220 16% 90%;
@@ -215,7 +218,11 @@ All colors MUST be HSL.
     -webkit-backdrop-filter: blur(12px);
   }
   /* Keep the supplied studio photography, allowing the shared light through. */
-  .app-foreground .login-scene { background: transparent; }
+  .app-foreground .login-scene {
+    background: transparent;
+    --foreground: 0 0% 100%;
+    --card-foreground: 0 0% 100%;
+  }
   .app-foreground .login-background { opacity: 0.8; }
   .ambient-background[data-paused="true"]::before,
   .ambient-background[data-paused="true"]::after { animation-play-state: paused; }
