@@ -1,3 +1,4 @@
+- [ ] Acrescentar inteligência de mercado no Admin: custos/tickets e margens por gênero/cidade/região, último acesso e engajamento 7/14 dias, logs separados de uso por módulo; preservar tabelas e fluxos existentes.
 - [x] Restaurar cadastro e boas-vindas originais, sem conclusão automática do tutorial; acrescentar somente um quinto passo visual de tema após o tour, preservando perguntas, navegação e Configurações. 174 testes aprovados; fluxo isolado conferido em 393px com atividade preservada e preferência persistida.
 - [ ] Validar cadastro completo e entrada no Painel com conta real — bloqueado: Supabase externo sem sessão autenticada disponível; testes do fluxo e prévias isoladas aprovados.
 - [x] Corrigir nome do perfil com UPDATE confirmado e cache compartilhado imediato; remover Google Agenda das configurações; adicionar tema persistente Rosa Neon Suave. 169 testes aprovados e compilação automática OK.
