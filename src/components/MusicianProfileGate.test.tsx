@@ -13,7 +13,7 @@ vi.mock('@/components/ui/select', () => ({
 }));
 import MusicianProfileGate from './MusicianProfileGate';
 
-describe('Tema na segunda etapa do cadastro', () => {
+describe('Preservação do cadastro original', () => {
   beforeEach(() => {
     vi.clearAllMocks(); mocks.needsOnboarding = true;
     const storage = new Map<string, string>();
@@ -28,44 +28,25 @@ describe('Tema na segunda etapa do cadastro', () => {
     fireEvent.change(fields[0], { target: { value: 'MPB' } });
     fireEvent.change(fields[1], { target: { value: 'SP' } });
     fireEvent.change(fields[2], { target: { value: 'Cantor(a) solo' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Continuar' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar e Continuar' }));
   };
 
-  it('não conclui nem salva o perfil antes das perguntas e da segunda etapa', () => {
+  it('mantém a validação e salva todas as respostas sem concluir o tutorial', async () => {
+    mocks.save.mockResolvedValue({});
     setup();
-    expect(screen.getByRole('button', { name: 'Continuar' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Salvar e Continuar' })).toBeDisabled();
     questions();
-    expect(mocks.save).not.toHaveBeenCalled();
-    expect(screen.getByRole('button', { name: 'Salvar e entrar' })).toBeEnabled();
-  });
-
-  it.each([['Rosa Neon Suave', 'soft-pink'], ['Dark Premium', 'classic']])('aplica e persiste %s imediatamente e abre o Painel após confirmação', async (label, theme) => {
-    const view = setup(); questions();
-    fireEvent.click(screen.getByRole('button', { name: new RegExp(label) }));
-    await waitFor(() => expect(document.documentElement.dataset.theme).toBe(theme));
-    expect(localStorage.getItem('playpro_appearance')).toBe(theme);
-    let resolve: (() => void) | undefined;
-    mocks.save.mockReturnValue(new Promise<void>(done => { resolve = done; }));
-    fireEvent.click(screen.getByRole('button', { name: 'Salvar e entrar' }));
-    expect(screen.getByTestId('location')).toHaveTextContent('/agenda');
-    await act(async () => { resolve?.(); });
+    await waitFor(() => expect(mocks.save).toHaveBeenCalledWith({ name: 'Ana', generoMusical: 'MPB', cidade: 'São Paulo', estado: 'SP', tipoMusico: 'Cantor(a) solo' }));
     await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent(/^\/$/));
-    expect(JSON.parse(localStorage.getItem('playPro_onboarding') ?? '{}').hasCompletedOnboarding).toBe(true);
-    mocks.needsOnboarding = false;
-    view.rerender(<ThemeProvider attribute="data-theme" defaultTheme="classic" enableSystem={false} storageKey="playpro_appearance"><MemoryRouter><MusicianProfileGate><p>Painel</p></MusicianProfileGate></MemoryRouter></ThemeProvider>);
-    expect(screen.getByText('Painel')).toBeInTheDocument();
-    expect(document.documentElement.dataset.theme).toBe(theme);
+    expect(localStorage.getItem('playPro_onboarding')).toBeNull();
   });
 
-  it('mantém a escolha e as perguntas se o salvamento falhar', async () => {
+  it('mantém as respostas para tentar novamente após erro', async () => {
     mocks.save.mockRejectedValue(new Error('Falha de conexão'));
     setup(); questions();
-    fireEvent.click(screen.getByRole('button', { name: /Rosa Neon Suave/ }));
-    fireEvent.click(screen.getByRole('button', { name: 'Salvar e entrar' }));
     await waitFor(() => expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({ variant: 'destructive' })));
     expect(screen.getByTestId('location')).toHaveTextContent('/agenda');
-    expect(document.documentElement.dataset.theme).toBe('soft-pink');
-    fireEvent.click(screen.getByRole('button', { name: 'Voltar' }));
     expect(screen.getByLabelText('Cidade *')).toHaveValue('São Paulo');
+    expect(localStorage.getItem('playPro_onboarding')).toBeNull();
   });
 });
