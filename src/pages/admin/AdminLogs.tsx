@@ -15,11 +15,18 @@ import {
 import type { LogEntry } from "@/types/admin";
 import { useAdminRows } from "@/hooks/useAdminData";
 import { AdminDataState } from "@/components/AdminDataState";
+import { useAdminIntelligenceRows } from '@/hooks/useAdminIntelligence';
+import { moduleLabels } from '@/lib/appUsage';
 
 const AdminLogs = () => {
   const notifications = useAdminRows('notification_logs');
   const audits = useAdminRows('admin_audit_logs');
+  const usage = useAdminIntelligenceRows('admin_usage_logs_page');
   const logs: LogEntry[] = [
+    ...(usage.data ?? []).map((row): LogEntry => ({
+      id: row.id, type: 'usage', message: `${moduleLabels[row.module] ?? row.module}: ${row.event_kind === 'action' ? 'ação' : 'acesso'}`,
+      userName: row.user_id, timestamp: row.created_at, status: 'success',
+    })),
     ...(notifications.data ?? []).map((row): LogEntry => ({
       id: row.id, type: row.delivery_status === 'failed' ? 'error' : 'whatsapp',
       message: row.message_body ?? `Notificação ${row.event_type}`, userId: row.user_id,
@@ -61,6 +68,7 @@ const AdminLogs = () => {
       case 'backup': return <Database className="h-4 w-4" />;
       case 'error': return <AlertCircle className="h-4 w-4" />;
       case 'system': return <Settings className="h-4 w-4" />;
+      case 'usage': return <Filter className="h-4 w-4" />;
     }
   };
 
@@ -70,6 +78,7 @@ const AdminLogs = () => {
       case 'backup': return 'secondary';
       case 'error': return 'destructive';
       case 'system': return 'outline';
+      case 'usage': return 'secondary';
     }
   };
 
@@ -83,6 +92,7 @@ const AdminLogs = () => {
 
   const logTypeCounts = useMemo(() => ({
     all: logs.length,
+    usage: logs.filter(l => l.type === 'usage').length,
     whatsapp: logs.filter(l => l.type === 'whatsapp').length,
     backup: logs.filter(l => l.type === 'backup').length,
     error: logs.filter(l => l.type === 'error').length,
@@ -91,6 +101,7 @@ const AdminLogs = () => {
 
   return (
     <AdminLayout title="Logs do Sistema">
+      <AdminDataState loading={usage.isLoading} error={usage.error} retry={usage.refetch} />
       <AdminDataState loading={notifications.isLoading || audits.isLoading} error={notifications.error || audits.error} retry={() => { void notifications.refetch(); void audits.refetch(); }} />
       {/* Filters */}
       <Card className="mb-6">
@@ -106,6 +117,7 @@ const AdminLogs = () => {
               />
             </div>
             <div className="flex gap-2 flex-wrap">
+              <Button variant={selectedType === 'usage' ? 'default' : 'outline'} size="sm" onClick={() => setSelectedType('usage')}><Filter className="h-3 w-3 mr-1" />Uso ({logTypeCounts.usage})</Button>
               <Button
                 variant={selectedType === 'all' ? 'default' : 'outline'}
                 size="sm"

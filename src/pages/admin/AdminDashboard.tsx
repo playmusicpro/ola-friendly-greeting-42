@@ -9,6 +9,9 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell } from "recharts";
+import { useAdminIntelligenceRows } from '@/hooks/useAdminIntelligence';
+import { AdminEngagement } from '@/components/AdminEngagement';
+import { AdminModuleUsage } from '@/components/AdminModuleUsage';
 
 type ProfileRow = {
   cidade: string | null;
@@ -46,6 +49,7 @@ const EmptyChart = () => (
 
 const AdminDashboard = () => {
   const query = useAdminRows('profiles');
+  const activity = useAdminIntelligenceRows('admin_activity_page');
   const { data: profiles = [], isLoading } = query;
 
   const generos = countBy(profiles, (r) => r.genero_musical).slice(0, 8);
@@ -69,6 +73,9 @@ const AdminDashboard = () => {
   return (
     <AdminLayout title="Visão Geral">
       <AdminDataState loading={isLoading} error={query.error} retry={query.refetch} />
+      <AdminDataState loading={activity.isLoading} error={activity.error} retry={activity.refetch} />
+      <AdminEngagement userIds={profiles.map(profile => profile.id)} activity={activity.data ?? []} unavailable={isLoading || activity.isLoading || !!query.error || !!activity.error} />
+      <AdminModuleUsage />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {stats.map((s) => (
           <Card key={s.label} className="border-primary/20">

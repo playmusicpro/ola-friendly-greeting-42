@@ -873,12 +873,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_activity_page: {
+        Args: { p_offset?: number }
+        Returns: {
+          last_active_at: string
+          user_id: string
+        }[]
+      }
       admin_module_usage: {
         Args: { p_since: string }
         Returns: {
           accesses: number
           module: string
           users_count: number
+        }[]
+      }
+      admin_usage_logs_page: {
+        Args: { p_offset?: number }
+        Returns: {
+          created_at: string
+          event_kind: string
+          id: string
+          module: string
+          user_id: string
         }[]
       }
       has_role: {

@@ -46,7 +46,7 @@ export interface CityAnalytics {
 
 export interface LogEntry {
   id: string;
-  type: 'whatsapp' | 'backup' | 'error' | 'system';
+  type: 'whatsapp' | 'backup' | 'error' | 'system' | 'usage';
   message: string;
   userId?: string;
   userName?: string;

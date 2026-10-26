@@ -28,15 +28,19 @@ import { supabase } from "@/integrations/supabase/client";
 
 type AdminUser = { id: string; name: string; email: string; plan: string; status: string; createdAt: string; showsCount: number; totalRevenue: number; lastLoginAt: string | null; premiumExpiresAt: string | null };
 import { useToast } from "@/hooks/use-toast";
+import { useAdminIntelligenceRows } from '@/hooks/useAdminIntelligence';
+import { AdminEngagement } from '@/components/AdminEngagement';
 
 const AdminUsers = () => {
   const profilesQuery = useAdminRows('profiles');
   const showsQuery = useAdminRows('shows');
+  const activityQuery = useAdminIntelligenceRows('admin_activity_page');
+  const activityByUser = new Map((activityQuery.data ?? []).map(row => [row.user_id, row.last_active_at]));
   const users: AdminUser[] = (profilesQuery.data ?? []).map(profile => ({
     id: profile.id, name: profile.name, email: profile.email ?? '',
     plan: profile.plan === 'default: free' ? 'free' : profile.plan ?? 'Não informado',
     status: profile.onboarding_completed ? 'Perfil completo' : 'Perfil pendente',
-    createdAt: profile.created_at, lastLoginAt: null, premiumExpiresAt: null,
+    createdAt: profile.created_at, lastLoginAt: activityByUser.get(profile.id) ?? null, premiumExpiresAt: null,
     showsCount: (showsQuery.data ?? []).filter(show => show.user_id === profile.id).length,
     totalRevenue: summarizeAdminShows((showsQuery.data ?? []).filter(show => show.user_id === profile.id)).net,
   }));
@@ -96,6 +100,8 @@ const AdminUsers = () => {
 
   return (
     <AdminLayout title="Gerenciamento de Usuários">
+      <AdminDataState loading={activityQuery.isLoading} error={activityQuery.error} retry={activityQuery.refetch} />
+      <AdminEngagement userIds={(profilesQuery.data ?? []).map(profile => profile.id)} activity={activityQuery.data ?? []} unavailable={profilesQuery.isLoading || activityQuery.isLoading || !!profilesQuery.error || !!activityQuery.error} />
       <AdminDataState loading={profilesQuery.isLoading || showsQuery.isLoading} error={profilesQuery.error || showsQuery.error} retry={() => { void profilesQuery.refetch(); void showsQuery.refetch(); }} />
       {/* Search */}
       <Card className="mb-6">
@@ -154,7 +160,7 @@ const AdminUsers = () => {
                     <td className="py-3 px-4 text-right font-medium">{user.showsCount}</td>
                     <td className="py-3 px-4 text-right font-medium">{formatCurrency(user.totalRevenue)}</td>
                     <td className="py-3 px-4 text-muted-foreground">
-                      {user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString('pt-BR') : 'Não registrado'}
+                      {activityQuery.isLoading || activityQuery.error ? '—' : user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString('pt-BR') : 'Não registrado'}
                     </td>
                     <td className="py-3 px-4 text-center">
                       <Button
@@ -221,7 +227,7 @@ const AdminUsers = () => {
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">Último acesso</p>
                   <p className="font-medium">
-                    {selectedUser.lastLoginAt ? new Date(selectedUser.lastLoginAt).toLocaleDateString('pt-BR') : 'Não registrado'}
+                    {activityByUser.get(selectedUser.id) ? new Date(activityByUser.get(selectedUser.id) ?? '').toLocaleString('pt-BR') : 'Não registrado'}
                   </p>
                 </div>
                 <div className="space-y-1">
