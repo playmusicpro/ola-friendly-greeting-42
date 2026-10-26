@@ -1,3 +1,4 @@
+- [ ] Adicionar segunda etapa visual de tema no cadastro, aplicar imediatamente a preferência persistente e abrir o Painel sem alterar a troca nas Configurações.
 - [x] Corrigir nome do perfil com UPDATE confirmado e cache compartilhado imediato; remover Google Agenda das configurações; adicionar tema persistente Rosa Neon Suave. 169 testes aprovados e compilação automática OK.
 - [ ] Validar alteração e releitura do nome com conta real e conferir aparência autenticada — bloqueado: Supabase externo sem sessão disponível; teste visual isolado não concluído.
 - [x] Unificar cadastro de shows no formulário completo, remover cadastro rápido e criação implícita sem finanças; incluir contratante persistido, saldo efetivamente a receber e custos operacionais. 165 testes aprovados, formulário conferido isoladamente em 393/587/1280 px e salvamento validado sem gravação real.
