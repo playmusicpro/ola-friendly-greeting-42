@@ -11,6 +11,7 @@ import {
 import { useAdminRows } from '@/hooks/useAdminData';
 import { AdminDataState } from '@/components/AdminDataState';
 import { summarizeAdminShows } from '@/lib/adminAnalytics';
+import { AdminMarketMetrics } from '@/components/AdminMarketMetrics';
 import {
   ChartContainer,
   ChartTooltip,
@@ -36,6 +37,7 @@ const AdminShows = () => {
       <AdminDataState loading={showsQuery.isLoading || profilesQuery.isLoading} error={showsQuery.error || profilesQuery.error} retry={() => { void showsQuery.refetch(); void profilesQuery.refetch(); }} />
       {!showsQuery.isLoading && !showsQuery.error && summary.totalShows === 0 && <p className="py-4 text-muted-foreground">Nenhum show finalizado registrado.</p>}
       {/* Summary Cards */}
+      <AdminMarketMetrics shows={showsQuery.data ?? []} profiles={profilesQuery.data ?? []} unavailable={showsQuery.isLoading || profilesQuery.isLoading || !!showsQuery.error || !!profilesQuery.error} />
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <Card className="border-primary/20">
           <CardContent className="p-5">

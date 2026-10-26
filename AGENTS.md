@@ -4,6 +4,8 @@
 - Administrative queries use user-scoped query keys and paginated reads so cached cross-account data and the default row limit do not distort reports.
 - Operational state is persisted in admin_operations; immutable database-trigger audit entries contain identifiers and actions, not profile contents or credentials.
 - Admin show reports use the shared typed analytics helper and distinguish completed financial results from scheduled shows.
+- Market intelligence reuses completed-show economics (net after recorded show costs, not personal cash profit), groups by musician-profile genre/location, and labels the basis explicitly to avoid fabricating venue or personal-profit data.
+- App engagement and module logs live in separate telemetry tables with server-assigned identity/time; public invoker RPCs delegate to private owner/admin-validated functions, and telemetry never blocks application workflows or stores content, credentials, or locations.
 - Scope the dashboard visual theme and navigation exception to the home route so other pages retain their established layout; dashboard trend charts use actual financial records without placeholder trends.
 - Use shared ModuleArtwork for module navigation, dashboard quick actions, and themed financial/event cards so photography keeps one consistent overlay and glass treatment; StatCard artwork is opt-in.
 - Store rasterized avatars in private Storage under the authenticated user's folder; keep avatar_path and avatar_url in Auth metadata and renew signed display URLs instead of persisting expired links alone.
