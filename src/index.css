@@ -1252,3 +1252,51 @@ footer button,
 .calendar-dot::after { content: ""; position: absolute; bottom: 3px; left: 50%; width: 6px; height: 6px; border-radius: 9999px; transform: translateX(-50%); }
 .calendar-dot-scheduled::after { background: hsl(var(--calendar-scheduled, 45 95% 55%)); }
 .calendar-dot-completed::after { background: hsl(var(--success)); box-shadow: 0 0 6px hsl(var(--success)); }
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+export const useCashFlowProjection = () => {
+  return useQuery({
+    queryKey: ["cash-flow-projection"],
+    queryFn: async () => {
+      // 1. Busca todos os shows agendados (futuros e não cancelados)
+      const { data: shows, error: showsError } = await supabase
+        .from("shows")
+        .select("id, cache_value, status, date")
+        .gte("date", new Date().toISOString().split("T")[0])
+        .neq("status", "canceled");
+
+      if (showsError) throw showsError;
+
+      // 2. Busca todos os cachês de músicos pendentes para esses shows
+      const showIds = shows?.map((s) => s.id) || [];
+      
+      let pendingMusicianFees = 0;
+      if (showIds.length > 0) {
+        const { data: musicians, error: musError } = await supabase
+          .from("show_musicians")
+          .select("fee, status")
+          .in("show_id", showIds)
+          .neq("status", "paid");
+
+        if (!musError && musicians) {
+          pendingMusicianFees = musicians.reduce((acc, m) => acc + (Number(m.fee) || 0), 0);
+        }
+      }
+
+      // 3. Soma das receitas projetadas dos shows futuros
+      const projectedRevenue = shows?.reduce((acc, s) => acc + (Number(s.cache_value) || 0), 0) || 0;
+
+      // 4. Saldo Projetado Líquido
+      const projectedNet = projectedRevenue - pendingMusicianFees;
+
+      return {
+        projectedRevenue,
+        pendingMusicianFees,
+        projectedNet,
+      };
+    },
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Garante atualização imediata
+  });
+};
