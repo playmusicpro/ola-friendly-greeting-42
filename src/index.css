@@ -1277,26 +1277,3 @@ export const useCashFlowProjection = () => {
           .from("show_musicians")
           .select("fee, status")
           .in("show_id", showIds)
-          .neq("status", "paid");
-
-        if (!musError && musicians) {
-          pendingMusicianFees = musicians.reduce((acc, m) => acc + (Number(m.fee) || 0), 0);
-        }
-      }
-
-      // 3. Soma das receitas projetadas dos shows futuros
-      const projectedRevenue = shows?.reduce((acc, s) => acc + (Number(s.cache_value) || 0), 0) || 0;
-
-      // 4. Saldo Projetado Líquido
-      const projectedNet = projectedRevenue - pendingMusicianFees;
-
-      return {
-        projectedRevenue,
-        pendingMusicianFees,
-        projectedNet,
-      };
-    },
-    refetchOnWindowFocus: true,
-    staleTime: 0, // Garante atualização imediata
-  });
-};
