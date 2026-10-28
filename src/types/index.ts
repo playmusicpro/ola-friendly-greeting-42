@@ -42,6 +42,14 @@ export interface ShowMusician {
   paidDate?: string;
 }
 
+/** Músico salvo do usuário para autocomplete no cadastro de shows. */
+export interface SavedMusician {
+  id: string;
+  name: string;
+  instrument: string;
+  defaultFee: number;
+}
+
 export interface ShowCalculations {
   totalGastos: number;
   /** Faturamento líquido do show (receita bruta - custos) */
