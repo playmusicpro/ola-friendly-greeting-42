@@ -1,6 +1,6 @@
-import { PiggyBank, Home as HomeIcon, TrendingDown, TrendingUp, AlertTriangle, Plus, Trash2, ArrowUp, ArrowDown, Edit } from "lucide-react";
+import { PiggyBank, Home as HomeIcon, TrendingDown, TrendingUp, AlertTriangle, Plus, Trash2, ArrowUp, ArrowDown, Edit, Pencil } from "lucide-react";
 import { FixedExpenseForm } from '@/components/FixedExpenseForm';
-import type { FixedExpense, Show, ShowMusician } from '@/types';
+import type { FixedExpense, GeneralExpense, Show, ShowMusician } from '@/types';
 import { ShowForm } from '@/components/ShowForm';
 import StatCard from "@/components/StatCard";
 import ModuleArtwork from "@/components/ModuleArtwork";
@@ -30,7 +30,7 @@ const Financas = () => {
   const {
     shows, showMusicians, setMusicianPaid, deleteShowMusician, setShowSettled, expenses, fixedExpenses, incomes, saveFixedExpense, updateShow,
     generalExpenses, piggyBanks, goalMovements,
-    addGeneralExpense, deleteGeneralExpense,
+    addGeneralExpense, updateGeneralExpense, deleteGeneralExpense,
     addPiggyBank, addToPiggyBank, withdrawFromPiggyBank, deletePiggyBank,
   } = useFinancialData();
 
@@ -40,6 +40,7 @@ const Financas = () => {
   const [editingPayment, setEditingPayment] = useState<Show | undefined>();
   const [editingFixed, setEditingFixed] = useState<FixedExpense | undefined>();
   const [showExpenseForm, setShowExpenseForm] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<GeneralExpense | undefined>();
   const [showPiggyForm, setShowPiggyForm] = useState(false);
   const [transactionPiggyId, setTransactionPiggyId] = useState<string | null>(null);
   const [transactionType, setTransactionType] = useState<'deposito' | 'retirada'>('deposito');
@@ -66,11 +67,15 @@ const Financas = () => {
       <ShowForm open={!!editingPayment} onOpenChange={open => { if (!open) setEditingPayment(undefined); }} initialData={editingPayment} onSubmit={data => editingPayment ? updateShow(editingPayment.id, data) : false} />
       <FixedExpenseForm open={showFixedForm} onOpenChange={setShowFixedForm} initialData={editingFixed} onSubmit={async data => { const ok = await saveFixedExpense(data, editingFixed?.id); if (ok) toast({ title: 'Despesa fixa salva' }); return ok; }} />
       <ExpenseForm
+        key={editingExpense?.id ?? 'novo'}
         open={showExpenseForm}
-        onOpenChange={setShowExpenseForm}
-        onSubmit={(data) => {
-          addGeneralExpense(data);
-          toast({ title: "Gasto registrado!", description: "O gasto foi salvo com sucesso." });
+        onOpenChange={(open) => { setShowExpenseForm(open); if (!open) setEditingExpense(undefined); }}
+        initialData={editingExpense}
+        onSubmit={async (data) => {
+          const ok = editingExpense ? await updateGeneralExpense(editingExpense.id, data) : await addGeneralExpense(data);
+          if (ok === false) return;
+          toast({ title: editingExpense ? "Gasto atualizado!" : "Gasto registrado!", description: "O gasto foi salvo com sucesso." });
+          setEditingExpense(undefined);
         }}
       />
       <PiggyBankForm
@@ -182,6 +187,9 @@ const Financas = () => {
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-lg font-semibold text-destructive">{formatCurrency(exp.valor)}</span>
+                      <Button size="icon" variant="ghost" disabled={!!exp.origin} title={exp.origin ? 'Gerencie este pagamento pelo status do show' : 'Editar gasto'} aria-label={`Editar ${exp.descricao}`} onClick={() => { setEditingExpense(exp); setShowExpenseForm(true); }}>
+                        <Pencil className="h-4 w-4 text-muted-foreground" />
+                      </Button>
                       <Button size="icon" variant="ghost" disabled={!!exp.origin} title={exp.origin ? 'Gerencie este pagamento pelo status do show' : undefined} aria-label={`Excluir ${exp.descricao}`} onClick={() => setPendingDelete({ kind: 'expense', id: exp.id, nome: exp.descricao })}>
                         <Trash2 className="h-4 w-4 text-muted-foreground" />
                       </Button>
