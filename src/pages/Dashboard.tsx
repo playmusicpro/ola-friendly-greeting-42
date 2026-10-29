@@ -62,14 +62,23 @@ export default function Dashboard() {
     <ExpenseForm open={showExpenseForm} onOpenChange={setShowExpenseForm} onSubmit={data => { void addGeneralExpense(data); }} />
     <PiggyBankForm open={showPiggyForm} onOpenChange={setShowPiggyForm} onSubmit={data => { void addPiggyBank(data); }} />
     <ShowForm open={showEventForm} onOpenChange={setShowEventForm} onSubmit={addShow} />
+    <ShowForm open={editingNextShow && !!nextShowRecord} onOpenChange={setEditingNextShow} initialData={nextShowRecord} onSubmit={data => nextShowRecord ? updateShow(nextShowRecord.id, data) : false} />
     <div className="dashboard-content space-y-5">
       <header className="flex items-center gap-3 pb-1"><ProfileAvatar name={displayName} /><h1 className="text-base font-bold min-w-0 truncate">Olá, {displayName.split(' ')[0].toUpperCase()}</h1><Button className="ml-auto shrink-0 text-gold" variant="ghost" size="icon" aria-label={hidden ? 'Mostrar valores' : 'Ocultar valores'} title={hidden ? 'Mostrar valores' : 'Ocultar valores'} aria-pressed={hidden} onClick={() => setHidden(value => !value)}>{hidden ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}</Button></header>
-        <Card className="dashboard-next-show relative overflow-hidden">
+        <div
+          className="next-show-vip"
+          data-status={nextShow?.realizado ? 'realizado' : 'agendado'}
+          role="button"
+          tabIndex={0}
+          aria-label={nextShow ? `Próximo show: ${nextShow.title || nextShow.local}` : 'Adicionar show'}
+          onClick={() => nextShow ? navigate('/agenda') : setShowEventForm(true)}
+          onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); nextShow ? navigate('/agenda') : setShowEventForm(true); } }}
+        >
           <div className="dashboard-show-art" aria-hidden="true"><img src={concertImage} width={1024} height={768} alt="" /><CalendarDays className="dashboard-calendar-lit" /></div>
-          <CardContent className="relative z-10 p-5 sm:p-7">
+          <div className="relative z-10 p-5 sm:p-7">
             <div className="flex items-center justify-between gap-3 mb-5">
               <div className="flex items-center gap-2 text-gold text-sm font-medium"><Calendar className="h-4 w-4" />Próximo Show</div>
-              <Badge variant="outline" className="border-gold/20 bg-gold/5 text-gold text-xs">{nextShow ? 'Agendado' : 'Sua agenda'}</Badge>
+              {nextShow ? <span className="next-show-countdown" data-status={nextShow.realizado ? 'realizado' : 'agendado'}><Clock className="h-3.5 w-3.5" />{nextShowCountdown}</span> : <Badge variant="outline" className="border-gold/20 bg-gold/5 text-gold text-xs">Sua agenda</Badge>}
             </div>
             <div className="flex items-end justify-between gap-4">
               <div className="min-w-0">
@@ -78,12 +87,20 @@ export default function Dashboard() {
                   {nextShow ? <><span className="flex items-center gap-1.5"><CalendarDays className="h-4 w-4" />{formatDateBR(nextShow.date)}</span>{nextShow.time && <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" />{nextShow.time}</span>}</> : <span>Nenhum show agendado</span>}
                 </div>
               </div>
-              <Button variant="ghost" size="icon" aria-label={nextShow ? 'Ver próximo show' : 'Adicionar show'} className="shrink-0 rounded-full border border-gold/20 text-gold" onClick={() => nextShow ? navigate('/agenda') : setShowEventForm(true)}>{nextShow ? <ArrowUpRight className="h-5 w-5" /> : <Plus className="h-5 w-5" />}</Button>
+              <Button variant="ghost" size="icon" aria-label={nextShow ? 'Ver próximo show' : 'Adicionar show'} className="shrink-0 rounded-full border border-gold/20 text-gold" onClick={event => { event.stopPropagation(); nextShow ? navigate('/agenda') : setShowEventForm(true); }}>{nextShow ? <ArrowUpRight className="h-5 w-5" /> : <Plus className="h-5 w-5" />}</Button>
             </div>
-            {nextShow && <div className="mt-4 flex flex-wrap gap-2"><GoogleCalendarShowButton show={nextShow} /><OpenInMapsButton destination={nextShow.address || nextShow.local} /></div>}
-            <Button variant="outline" className="dashboard-itinerary mt-5 gap-2 text-xs" onClick={() => navigate('/agenda')}>Ver Roteiro do Show<ChevronRight className="h-4 w-4" /></Button>
-          </CardContent>
-        </Card>
+            {nextShow && <div className="mt-4 flex flex-wrap gap-2" onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
+              <GoogleCalendarShowButton show={nextShow} />
+              <OpenInMapsButton destination={nextShow.address || nextShow.local} />
+              {nextShowRecord && <>
+                <Button variant="outline" size="sm" aria-label="Editar próximo show" onClick={() => setEditingNextShow(true)}><Edit className="h-4 w-4 mr-1" />Editar</Button>
+                <Button variant="outline" size="sm" aria-label="Duplicar próximo show" onClick={() => duplicateShow(nextShowRecord.id)}><Copy className="h-4 w-4 mr-1" />Duplicar</Button>
+              </>}
+              <Button variant="outline" size="sm" aria-label="Compartilhar próximo show no WhatsApp" onClick={shareNextShow}><Share2 className="h-4 w-4 mr-1" />WhatsApp</Button>
+            </div>}
+            <Button variant="outline" className="dashboard-itinerary mt-5 gap-2 text-xs" onClick={event => { event.stopPropagation(); navigate('/agenda'); }}>Ver Roteiro do Show<ChevronRight className="h-4 w-4" /></Button>
+          </div>
+        </div>
 
         <Card className="thematic-card"><ModuleArtwork module="/financas" /><CardContent className="p-5"><div className="flex justify-between items-center gap-3"><h2 className="text-sm text-muted-foreground">Saldo Disponível no Caixa · Mês</h2><Button variant="ghost" size="icon" aria-label="Abrir Finanças" onClick={() => navigate('/financas')}><ArrowUpRight className="h-4 w-4 text-gold" /></Button></div><p className="dashboard-financial-value text-gold font-semibold mt-2">{money(monthly.saldoDisponivel)}</p><div className="flex flex-wrap justify-between gap-3 mt-4 text-xs text-muted-foreground"><span>Gastos: {money(monthly.totalGastos)}</span><span>Reservas: {money(piggyBanks.reduce((sum, bank) => sum + bank.valorAtual, 0))}</span></div></CardContent></Card>
         {/* Quick Actions */}
