@@ -407,14 +407,16 @@ export function useFinancialData() {
       if (!validation.success) throw new Error(validation.error.issues[0]?.message || 'Complete o cadastro do show.');
       const saved = await req(supabase.from('shows').insert(fromShow(showData, ownerId)).select('id').single());
       await syncMusicians(saved.id, showData.musicians);
-      if (sourceEventId) await req(supabase.from('events').update({ linked_show_id: saved.id, title: showData.title || showData.local, date: showData.date, start_time: showData.time, end_time: showData.endTime || null, local: showData.local, notes: showData.notes || null, realizado: !!showData.realizado }).eq('id', sourceEventId));
-    }, 'shows', 'expenses', 'events', 'show_musicians', 'next_show');
+      await syncMyMusicians(ownerId, showData.musicians);
+        if (sourceEventId) await req(supabase.from('events').update({ linked_show_id: saved.id, title: showData.title || showData.local, date: showData.date, start_time: showData.time, end_time: showData.endTime || null, local: showData.local, notes: showData.notes || null, realizado: !!showData.realizado }).eq('id', sourceEventId));
+    }, 'shows', 'expenses', 'events', 'show_musicians', 'my_musicians', 'next_show');
 
   const updateShow = (id: string, showData: Omit<Show, 'id'>) =>
     run('atualizar show', async (ownerId) => {
       await req(supabase.from('shows').update(fromShow(showData, ownerId)).eq('id', id));
       await syncMusicians(id, showData.musicians);
-    }, 'shows', 'expenses', 'show_musicians', 'next_show');
+      await syncMyMusicians(ownerId, showData.musicians);
+    }, 'shows', 'expenses', 'show_musicians', 'my_musicians', 'next_show');
 
   const setMusicianPaid = (id: string, paid: boolean) =>
     run('atualizar pagamento do músico', async () => {
@@ -619,6 +621,16 @@ export function useFinancialData() {
       }));
     }, 'expenses');
 
+  const updateGeneralExpense = (id: string, data: Omit<GeneralExpense, 'id' | 'criadoEm'>) =>
+    run('atualizar gasto', async (ownerId) => {
+      await req(supabase.from('expenses').update({
+        descricao: data.descricao,
+        categoria: data.categoria,
+        valor: data.valor,
+        data: data.data,
+      }).eq('id', id).eq('user_id', ownerId));
+    }, 'expenses');
+
   const deleteGeneralExpense = (id: string) =>
     run('excluir gasto', async (ownerId) => {
       await req(supabase.from('expenses').delete().eq('id', id));
@@ -660,6 +672,7 @@ export function useFinancialData() {
   return {
     shows: showsQ.data ?? [],
     showMusicians: musiciansQ.data ?? [],
+    myMusicians: myMusiciansQ.data ?? [],
     nextShow: nextShowQ.data ?? null,
     expenses: expensesRaw.map(toExpense) as Expense[],
     fixedExpenses: fixedQ.data ?? [],
@@ -680,7 +693,7 @@ export function useFinancialData() {
     updateNotificationSettings,
     addEvent, updateEvent, deleteEvent, duplicateEvent, markEventAsRealizado,
     addGoal, deleteGoal, moveGoal, saveFixedExpense,
-    addGeneralExpense, deleteGeneralExpense,
+    addGeneralExpense, updateGeneralExpense, deleteGeneralExpense,
     addPiggyBank, addToPiggyBank, withdrawFromPiggyBank, deletePiggyBank,
   };
 }
