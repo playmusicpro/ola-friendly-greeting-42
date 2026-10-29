@@ -7,6 +7,7 @@ import { toast } from '@/hooks/use-toast';
 import {
   Show, Expense, FixedExpense, Project, Income, NotificationSettings,
   Event, FinancialGoal, ShowMusician, GeneralExpense, PiggyBank, GoalMovement,
+  SavedMusician,
 } from '@/types';
 
 /* ------------------------------------------------------------------ */
@@ -212,6 +213,33 @@ export function useFinancialData() {
     },
   });
 
+  const myMusiciansQ = useQuery({
+    queryKey: key('my_musicians'), enabled,
+    queryFn: async (): Promise<SavedMusician[]> => {
+      const { data, error } = await supabase.from('my_musicians').select('*').eq('user_id', userId ?? '').order('name');
+      if (error) throw error;
+      return (data ?? []).map((r) => ({ id: r.id, name: r.name, instrument: r.instrument ?? '', defaultFee: num(r.default_fee) }));
+    },
+  });
+
+  /** Salva/atualiza os músicos do show na base de autocomplete do usuário. */
+  const syncMyMusicians = async (ownerId: string, list: ShowMusician[] | undefined) => {
+    if (!list?.length) return;
+    const saved = new Map((myMusiciansQ.data ?? []).map((m) => [m.name.trim().toLowerCase(), m]));
+    for (const m of list) {
+      const name = m.name.trim();
+      if (!name) continue;
+      const existing = saved.get(name.toLowerCase());
+      if (existing) {
+        if (existing.instrument !== m.instrument.trim() || existing.defaultFee !== (m.cache || 0)) {
+          await req(supabase.from('my_musicians').update({ instrument: m.instrument.trim(), default_fee: m.cache || 0 }).eq('id', existing.id));
+        }
+      } else {
+        await req(supabase.from('my_musicians').insert({ user_id: ownerId, name, instrument: m.instrument.trim(), default_fee: m.cache || 0 }));
+      }
+    }
+  };
+
   const syncMusicians = async (showId: string, list: ShowMusician[] | undefined) => {
     if (!list) return;
     const current = (musiciansQ.data ?? []).filter((m) => m.showId === showId);
@@ -379,14 +407,16 @@ export function useFinancialData() {
       if (!validation.success) throw new Error(validation.error.issues[0]?.message || 'Complete o cadastro do show.');
       const saved = await req(supabase.from('shows').insert(fromShow(showData, ownerId)).select('id').single());
       await syncMusicians(saved.id, showData.musicians);
-      if (sourceEventId) await req(supabase.from('events').update({ linked_show_id: saved.id, title: showData.title || showData.local, date: showData.date, start_time: showData.time, end_time: showData.endTime || null, local: showData.local, notes: showData.notes || null, realizado: !!showData.realizado }).eq('id', sourceEventId));
-    }, 'shows', 'expenses', 'events', 'show_musicians', 'next_show');
+      await syncMyMusicians(ownerId, showData.musicians);
+        if (sourceEventId) await req(supabase.from('events').update({ linked_show_id: saved.id, title: showData.title || showData.local, date: showData.date, start_time: showData.time, end_time: showData.endTime || null, local: showData.local, notes: showData.notes || null, realizado: !!showData.realizado }).eq('id', sourceEventId));
+    }, 'shows', 'expenses', 'events', 'show_musicians', 'my_musicians', 'next_show');
 
   const updateShow = (id: string, showData: Omit<Show, 'id'>) =>
     run('atualizar show', async (ownerId) => {
       await req(supabase.from('shows').update(fromShow(showData, ownerId)).eq('id', id));
       await syncMusicians(id, showData.musicians);
-    }, 'shows', 'expenses', 'show_musicians', 'next_show');
+      await syncMyMusicians(ownerId, showData.musicians);
+    }, 'shows', 'expenses', 'show_musicians', 'my_musicians', 'next_show');
 
   const setMusicianPaid = (id: string, paid: boolean) =>
     run('atualizar pagamento do músico', async () => {
@@ -591,6 +621,16 @@ export function useFinancialData() {
       }));
     }, 'expenses');
 
+  const updateGeneralExpense = (id: string, data: Omit<GeneralExpense, 'id' | 'criadoEm'>) =>
+    run('atualizar gasto', async (ownerId) => {
+      await req(supabase.from('expenses').update({
+        descricao: data.descricao,
+        categoria: data.categoria,
+        valor: data.valor,
+        data: data.data,
+      }).eq('id', id).eq('user_id', ownerId));
+    }, 'expenses');
+
   const deleteGeneralExpense = (id: string) =>
     run('excluir gasto', async (ownerId) => {
       await req(supabase.from('expenses').delete().eq('id', id));
@@ -632,6 +672,7 @@ export function useFinancialData() {
   return {
     shows: showsQ.data ?? [],
     showMusicians: musiciansQ.data ?? [],
+    myMusicians: myMusiciansQ.data ?? [],
     nextShow: nextShowQ.data ?? null,
     expenses: expensesRaw.map(toExpense) as Expense[],
     fixedExpenses: fixedQ.data ?? [],
@@ -652,7 +693,7 @@ export function useFinancialData() {
     updateNotificationSettings,
     addEvent, updateEvent, deleteEvent, duplicateEvent, markEventAsRealizado,
     addGoal, deleteGoal, moveGoal, saveFixedExpense,
-    addGeneralExpense, deleteGeneralExpense,
+    addGeneralExpense, updateGeneralExpense, deleteGeneralExpense,
     addPiggyBank, addToPiggyBank, withdrawFromPiggyBank, deletePiggyBank,
   };
 }

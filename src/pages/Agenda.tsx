@@ -232,7 +232,7 @@ export default function Agenda() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+        <Card className="vip-calendar-card">
           <CardHeader>
             <CardTitle>Calendário</CardTitle>
           </CardHeader>
@@ -243,7 +243,7 @@ export default function Agenda() {
               onSelect={(date) => date && setSelectedDate(date)}
               modifiers={modifiers}
               modifiersClassNames={modifiersClassNames}
-              className="rounded-md border"
+              className="vip-calendar"
             />
           </CardContent>
         </Card>

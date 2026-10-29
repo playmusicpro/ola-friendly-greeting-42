@@ -3,7 +3,7 @@ import { AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContai
 import { EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { buildDashboardFinancialCharts, PRIVATE_CURRENCY, type FinancialRange } from '@/lib/dashboardFinancialCharts';
-import { formatCurrency } from '@/lib/calculations';
+import { formatCurrency, formatPercentage } from '@/lib/calculations';
 import type { Show, Expense, FixedExpense, Income, GeneralExpense } from '@/types';
 
 type Props = { shows: Show[]; expenses: Expense[]; fixedExpenses: FixedExpense[]; incomes: Income[]; generalExpenses: GeneralExpense[]; hidden: boolean };
@@ -43,7 +43,7 @@ export default function DashboardFinancialCharts({ shows, expenses, fixedExpense
           {!hidden && data.totalGastos > 0 && <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={data.distribution.filter(item => item.value > 0)} dataKey="value" nameKey="name" innerRadius="72%" outerRadius="92%" paddingAngle={3} stroke="none" isAnimationActive={false}>{data.distribution.filter(item => item.value > 0).map(item => <Cell key={item.name} fill={`var(--chart-category-${data.distribution.findIndex(entry => entry.name === item.name)})`} />)}</Pie><Tooltip content={({ active, payload }) => active && payload?.length ? <div className="financial-chart-tooltip text-sm">{payload[0].name}: {money(Number(payload[0].value))}</div> : null} /></PieChart></ResponsiveContainer>}
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 text-center"><span className="text-xs text-muted-foreground">Total de Gastos</span><strong className="text-xl font-semibold text-gold tabular-nums">{money(data.totalGastos)}</strong>{!hidden && data.totalGastos === 0 && <span className="text-xs text-muted-foreground">Sem gastos no período</span>}</div>
         </div>
-        <ul className="w-full max-w-sm space-y-3">{data.distribution.map((item, i) => <li key={item.name} className="flex items-center justify-between gap-3 text-sm"><span className="flex items-center gap-2"><i className={`chart-dot chart-category-${i}`} />{item.name}</span><span className="tabular-nums text-muted-foreground">{money(item.value)}</span></li>)}</ul>
+        <ul className="chart-legend w-full max-w-md" aria-label="Legenda de despesas por categoria">{data.distribution.map((item, i) => { const percent = data.totalGastos > 0 ? (item.value / data.totalGastos) * 100 : 0; return <li key={item.name} className="chart-legend-item"><span className="flex min-w-0 items-center gap-2"><i className={`chart-dot chart-legend-dot chart-category-${i}`} aria-hidden="true" /><span className="truncate">{item.name}</span></span><span className="shrink-0 tabular-nums text-muted-foreground">{hidden ? PRIVATE_CURRENCY : `${formatPercentage(percent)} · ${money(item.value)}`}</span></li>; })}</ul>
       </div>
     </div>
   </section>;
