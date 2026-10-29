@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, CalendarDays, Clock, ArrowUpRight, Plus, ChevronRight, PiggyBank, Eye, EyeOff } from 'lucide-react';
+import { Calendar, CalendarDays, Clock, ArrowUpRight, Plus, ChevronRight, PiggyBank, Eye, EyeOff, Edit, Copy, Share2 } from 'lucide-react';
 import ProfileAvatar from '@/components/ProfileAvatar';
 import ModuleArtwork from '@/components/ModuleArtwork';
 import concertImage from '@/assets/dashboard-concert.jpg';
