@@ -129,11 +129,12 @@ All colors MUST be HSL.
     --chart-expense: hsl(345 85% 67%);
     --chart-axis: hsl(var(--muted-foreground));
     --chart-grid: hsl(var(--glass-border) / 0.12);
-    --chart-category-0: hsl(var(--gold));
-    --chart-category-1: hsl(var(--neon-blue));
-    --chart-category-2: hsl(var(--neon-green));
-    --chart-category-3: hsl(var(--neon-violet));
-    --chart-category-4: var(--chart-expense);
+    /* Cores fixas por categoria de despesa (sincronizadas com expenseCategoryColors) */
+    --chart-category-0: hsl(190 95% 55%);
+    --chart-category-1: hsl(38 95% 55%);
+    --chart-category-2: hsl(266 85% 62%);
+    --chart-category-3: hsl(158 80% 45%);
+    --chart-category-4: hsl(345 85% 67%);
     --tuner-scale: linear-gradient(
       90deg,
       hsl(var(--tuner-warning) / 0.45),

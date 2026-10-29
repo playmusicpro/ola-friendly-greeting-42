@@ -5,6 +5,17 @@ export type FinancialRange = 'month' | 'quarter' | 'year';
 export const PRIVATE_CURRENCY = 'R$ ****,**';
 export const expenseCategories = ['Músicos', 'Combustível', 'Alimentação', 'Equipamentos', 'Outros'] as const;
 
+/** Cores fixas por categoria (HSL), sincronizadas com os tokens --chart-category-* do index.css. */
+export const expenseCategoryColors = [
+  '190 95% 55%',  // Músicos — ciano
+  '38 95% 55%',   // Combustível — âmbar
+  '266 85% 62%',  // Alimentação — violeta
+  '158 80% 45%',  // Equipamentos — esmeralda
+  '345 85% 67%',  // Outros — rosa
+] as const;
+
+export const expenseCategoryColor = (index: number) => `hsl(${expenseCategoryColors[index] ?? expenseCategoryColors[4]})`;
+
 export function buildDashboardFinancialCharts(shows: Show[], expenses: Expense[], fixed: FixedExpense[], incomes: Income[], general: GeneralExpense[], range: FinancialRange, reference = new Date()) {
   const months = range === 'month' ? [new Date(reference.getFullYear(), reference.getMonth(), 1)]
     : Array.from({ length: range === 'quarter' ? 3 : 12 }, (_, i) => new Date(reference.getFullYear(), range === 'quarter' ? reference.getMonth() - 2 + i : i, 1));
