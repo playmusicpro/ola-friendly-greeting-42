@@ -7,6 +7,7 @@ import { toast } from '@/hooks/use-toast';
 import {
   Show, Expense, FixedExpense, Project, Income, NotificationSettings,
   Event, FinancialGoal, ShowMusician, GeneralExpense, PiggyBank, GoalMovement,
+  SavedMusician,
 } from '@/types';
 
 /* ------------------------------------------------------------------ */
@@ -211,6 +212,33 @@ export function useFinancialData() {
       return (data ?? []).map((r) => ({ id: r.id, showId: r.show_id, name: r.name, instrument: r.instrument, cache: num(r.cache), paid: r.paid, paidDate: r.paid_date ?? undefined }));
     },
   });
+
+  const myMusiciansQ = useQuery({
+    queryKey: key('my_musicians'), enabled,
+    queryFn: async (): Promise<SavedMusician[]> => {
+      const { data, error } = await supabase.from('my_musicians').select('*').eq('user_id', userId ?? '').order('name');
+      if (error) throw error;
+      return (data ?? []).map((r) => ({ id: r.id, name: r.name, instrument: r.instrument ?? '', defaultFee: num(r.default_fee) }));
+    },
+  });
+
+  /** Salva/atualiza os músicos do show na base de autocomplete do usuário. */
+  const syncMyMusicians = async (ownerId: string, list: ShowMusician[] | undefined) => {
+    if (!list?.length) return;
+    const saved = new Map((myMusiciansQ.data ?? []).map((m) => [m.name.trim().toLowerCase(), m]));
+    for (const m of list) {
+      const name = m.name.trim();
+      if (!name) continue;
+      const existing = saved.get(name.toLowerCase());
+      if (existing) {
+        if (existing.instrument !== m.instrument.trim() || existing.defaultFee !== (m.cache || 0)) {
+          await req(supabase.from('my_musicians').update({ instrument: m.instrument.trim(), default_fee: m.cache || 0 }).eq('id', existing.id));
+        }
+      } else {
+        await req(supabase.from('my_musicians').insert({ user_id: ownerId, name, instrument: m.instrument.trim(), default_fee: m.cache || 0 }));
+      }
+    }
+  };
 
   const syncMusicians = async (showId: string, list: ShowMusician[] | undefined) => {
     if (!list) return;
