@@ -27,12 +27,22 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { profile } = useProfile();
   const displayName = profile?.name?.trim() || 'Músico';
-  const { nextShow, shows, expenses, fixedExpenses, incomes, piggyBanks, goalMovements, addShow, addGoal, addGeneralExpense, addPiggyBank } = useFinancialData();
+  const { nextShow, shows, expenses, fixedExpenses, incomes, piggyBanks, goalMovements, addShow, updateShow, duplicateShow, addGoal, addGeneralExpense, addPiggyBank } = useFinancialData();
   const [showGoalForm, setShowGoalForm] = useState(false);
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showPiggyForm, setShowPiggyForm] = useState(false);
   const [showEventForm, setShowEventForm] = useState(false);
+  const [editingNextShow, setEditingNextShow] = useState(false);
   const [hidden, setHidden] = useState(false);
+  // Só permite editar/duplicar quando o próximo show é um registro real de show (não um evento legado sem financeiro).
+  const nextShowRecord = nextShow ? shows.find(s => s.id === nextShow.id) : undefined;
+  const nextShowDays = nextShow ? Math.ceil((new Date(`${nextShow.date}T00:00:00`).getTime() - new Date(new Date().toDateString()).getTime()) / 86400000) : 0;
+  const nextShowCountdown = !nextShow ? '' : nextShowDays <= 0 ? 'Hoje' : nextShowDays === 1 ? 'Amanhã' : `Em ${nextShowDays} dias`;
+  const shareNextShow = () => {
+    if (!nextShow) return;
+    const msg = `*${nextShow.title || nextShow.local}*\nData: ${formatDateBR(nextShow.date)}\nHorário: ${nextShow.time}\nLocal: ${nextShow.local}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  };
   const money = (value: number) => hidden ? PRIVATE_CURRENCY : formatCurrency(value);
   const { showOnboarding, setShowOnboarding, completeOnboarding } = useOnboarding();
   useShowNotifications(shows);
