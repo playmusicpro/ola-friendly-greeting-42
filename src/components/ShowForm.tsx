@@ -222,7 +222,7 @@ export function ShowForm({ open, onOpenChange, onSubmit, initialData, prefill, o
             {musicians.map((m, i) => (
               <div key={m.id ?? i} className="rounded-xl border border-border p-3 space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div><Label htmlFor={`mus-name-${i}`}>Nome</Label><MusicianCombobox id={`mus-name-${i}`} value={m.name} suggestions={myMusicians} onChange={name => updateMusician(i, { name: name.slice(0, 120) })} onPick={saved => updateMusician(i, { name: saved.name, instrument: saved.instrument, cache: saved.defaultFee })} /></div>
+                  <div><Label htmlFor={`mus-name-${i}`}>Nome</Label><MusicianCombobox id={`mus-name-${i}`} value={m.name} suggestions={myMusicians ?? []} onChange={name => updateMusician(i, { name: name.slice(0, 120) })} onPick={saved => updateMusician(i, { name: saved.name, instrument: saved.instrument, cache: saved.defaultFee })} /></div>
                   <div><Label htmlFor={`mus-inst-${i}`}>Instrumento</Label><Input id={`mus-inst-${i}`} value={m.instrument} maxLength={80} onChange={e => updateMusician(i, { instrument: e.target.value })} /></div>
                   <div><Label htmlFor={`mus-cache-${i}`}>Cachê (R$)</Label><Input id={`mus-cache-${i}`} type="number" min={0} step="0.01" value={m.cache || ''} onChange={e => updateMusician(i, { cache: Math.max(0, Number(e.target.value) || 0) })} /></div>
                 </div>
