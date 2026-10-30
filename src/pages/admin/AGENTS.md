@@ -1,0 +1,6 @@
+- Administrative routes mount data pages only after the server-backed role check; database RLS remains authoritative for every request.
+- Administrative queries use user-scoped query keys and paginated reads so cached cross-account data and the default row limit do not distort reports.
+- Operational state is persisted in admin_operations; immutable database-trigger audit entries contain identifiers and actions, not profile contents or credentials.
+- Admin show reports use the shared typed analytics helper and distinguish completed financial results from scheduled shows.
+- Market intelligence reuses completed-show economics (net after recorded show costs, not personal cash profit), groups by musician-profile genre/location, and labels the basis explicitly to avoid fabricating venue or personal-profit data.
+- App engagement and module logs live in separate telemetry tables with server-assigned identity/time; public invoker RPCs delegate to private owner/admin-validated functions, and telemetry never blocks application workflows or stores content, credentials, or locations.

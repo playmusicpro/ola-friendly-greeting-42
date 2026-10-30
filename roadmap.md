@@ -30,4 +30,5 @@
 - [x] Migrar Administração: métricas, usuários, shows, logs e operações para dados reais.
 - [x] Garantir acesso administrativo validado pelo Supabase.
 - [x] Executar testes (93 aprovados), checagem de tipos e compilação automática sem erros.
-- [ ] Validar leitura e gravação com sessão administrativa real — bloqueado: Supabase externo sem sessão de teste disponível.
+- [ ] Validar leitura e gravação com sessão administrativa real — bloqueado: Supabase externo sem sessão de teste disponível.- [x] Autocomplete de músicos salvos (my_musicians) no cadastro de shows, edição de gastos em Finanças, legenda colorida fixa no donut, cartão VIP do Próximo Show com contagem regressiva e ações, calendário VIP escuro na Agenda. 192 testes aprovados, tipos OK.
+- [ ] Validar autocomplete, edição de gastos e cartão VIP com conta real — bloqueado: Supabase externo sem sessão de teste disponível.
