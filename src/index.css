@@ -1535,9 +1535,9 @@ footer button,
       0 0 0 4px hsl(var(--neon-violet) / 0.6);
   }
   /* Dia selecionado: anel violeta luminoso */
-  .agenda-calendar .day_selected,
-  .agenda-calendar .day_selected:hover,
-  .agenda-calendar .day_selected:focus {
+  .agenda-calendar .agenda-cell-selected,
+  .agenda-calendar .agenda-cell-selected:hover,
+  .agenda-calendar .agenda-cell-selected:focus {
     background-color: hsl(var(--neon-violet) / 0.18) !important;
     background-image: linear-gradient(160deg, hsl(var(--neon-violet) / 0.3), hsl(var(--neon-blue) / 0.12)) !important;
     color: hsl(var(--foreground)) !important;
@@ -1548,16 +1548,16 @@ footer button,
       inset 0 1px 0 hsl(var(--foreground) / 0.12) !important;
   }
   /* Hoje: destaque sutil dourado */
-  .agenda-calendar .day_today:not(.day_selected) {
+  .agenda-calendar .agenda-cell-today:not(.agenda-cell-selected) {
     background-color: hsl(var(--glass) / 0.42);
     color: hsl(var(--gold));
     box-shadow: inset 0 0 0 1px hsl(var(--gold) / 0.35);
   }
-  .agenda-calendar .day_outside {
+  .agenda-calendar .agenda-cell-outside {
     opacity: 0.3;
     color: hsl(var(--muted-foreground));
   }
-  .agenda-calendar .day_disabled {
+  .agenda-calendar .agenda-cell-disabled {
     opacity: 0.35;
   }
   .agenda-calendar .agenda-day-completed {
@@ -1604,7 +1604,7 @@ footer button,
   .agenda-day-footer .agenda-day-today + .agenda-day-pill {
     width: 8px;
   }
-  .agenda-calendar .day_selected .agenda-day-today {
+  .agenda-calendar .agenda-cell-selected .agenda-day-today {
     color: hsl(var(--foreground));
   }
   :root[data-theme="light"] .agenda-day-pill,
