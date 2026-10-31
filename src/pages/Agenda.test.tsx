@@ -37,7 +37,7 @@ describe('Calendário da Agenda (reformulado sem alterar a lógica)', () => {
     const { container } = render(<Agenda />);
     expect(container.querySelectorAll('.agenda-day-scheduled .agenda-day-pill')).toHaveLength(1);
     expect(container.querySelectorAll('.agenda-day-completed .agenda-day-pill-completed')).toHaveLength(1);
-    expect(container.querySelector('.day_today .agenda-day-today')?.textContent).toBe('Hoje');
+    expect(container.querySelector('.agenda-cell-today .agenda-day-today')?.textContent).toBe('Hoje');
   });
 
   it('mantém a seleção de dia: clicar no dia pendente abre os lançamentos daquela data', () => {

@@ -268,6 +268,12 @@ export default function Agenda() {
               onSelect={(date) => date && setSelectedDate(date)}
               modifiers={modifiers}
               modifiersClassNames={modifiersClassNames}
+              classNames={{
+                day_selected: 'agenda-cell-selected',
+                day_today: 'agenda-cell-today',
+                day_outside: 'agenda-cell-outside',
+                day_disabled: 'agenda-cell-disabled',
+              }}
               components={{ DayContent: AgendaDayContent }}
               className="agenda-calendar"
             />
