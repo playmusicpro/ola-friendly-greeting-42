@@ -125,6 +125,9 @@ All colors MUST be HSL.
     --module-text-shadow: 0 1px 4px hsl(var(--stage));
     --artwork-muted-foreground: 230 15% 80%;
     --tuner-warning: 22 95% 62%;
+    /* Pílulas de status do calendário da Agenda: âmbar = agendado, verde neon = realizado */
+    --agenda-scheduled: var(--stage-amber);
+    --agenda-completed: var(--neon-green);
     --chart-income: hsl(var(--neon-green));
     --chart-expense: hsl(345 85% 67%);
     --chart-axis: hsl(var(--muted-foreground));
@@ -199,6 +202,8 @@ All colors MUST be HSL.
       transparent 86%
     );
     --card-glass-surface: hsl(var(--card) / 0.88);
+    --agenda-scheduled: 38 88% 42%;
+    --agenda-completed: 158 70% 30%;
   }
 
   .high-contrast {
@@ -1248,28 +1253,7 @@ footer button,
   box-shadow: none !important;
 }
 
-/* Marcadores do calendário da Agenda: amarelo = agendado, verde neon = realizado */
-.calendar-dot {
-  position: relative;
-  font-weight: 700;
-}
-.calendar-dot::after {
-  content: "";
-  position: absolute;
-  bottom: 3px;
-  left: 50%;
-  width: 6px;
-  height: 6px;
-  border-radius: 9999px;
-  transform: translateX(-50%);
-}
-.calendar-dot-scheduled::after {
-  background: hsl(var(--calendar-scheduled, 45 95% 55%));
-}
-.calendar-dot-completed::after {
-  background: hsl(var(--success));
-  box-shadow: 0 0 6px hsl(var(--success));
-}
+/* Marcadores do calendário da Agenda: ver .agenda-day-pill dentro de @layer components. */
 
 @layer components {
   /* Legenda do gráfico de despesas por categoria (cores fixas sincronizadas com as fatias) */
@@ -1371,73 +1355,402 @@ footer button,
     }
   }
 
-  /* Calendário VIP escuro da Agenda */
-  .vip-calendar-card {
-    border-radius: 24px;
-    border: 1px solid hsl(var(--glass-border) / 0.18);
-    background: hsl(var(--stage) / 0.85);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: var(--glass-shadow);
+  /* ===== Agenda: painel de vidro fosco premium ===== */
+  .agenda-shell {
+    position: relative;
   }
-  .vip-calendar {
-    width: 100%;
-  }
-  .vip-calendar .caption_label {
-    font-size: 13px;
+  .agenda-header .agenda-title {
+    font-size: clamp(26px, 5vw, 32px);
     font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: hsl(var(--artwork-muted-foreground));
-  }
-  .vip-calendar .nav_button {
-    border-radius: 999px;
-    border: 1px solid hsl(var(--glass-border) / 0.2);
-    background: hsl(var(--glass) / 0.5);
+    letter-spacing: -0.02em;
     color: hsl(var(--foreground));
+  }
+  .agenda-header .agenda-subtitle {
+    font-size: 13px;
+    color: hsl(var(--muted-foreground));
+  }
+  .agenda-header .agenda-header-button {
+    border-radius: 999px;
+    padding-inline: 16px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* Superfície de vidro fosco dos painéis da Agenda */
+  .app-glass-card.agenda-glass-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: 28px;
+    border-color: hsl(var(--glass-border) / 0.14);
+    background-color: transparent;
+    background-image:
+      radial-gradient(120% 80% at 8% 0%, hsl(var(--neon-violet) / 0.12), transparent 58%),
+      radial-gradient(90% 70% at 100% 100%, hsl(var(--neon-blue) / 0.1), transparent 62%),
+      linear-gradient(165deg, hsl(var(--stage-bottom) / 0.9), hsl(var(--stage) / 0.82));
+    backdrop-filter: blur(22px) saturate(150%);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+    box-shadow:
+      0 24px 60px hsl(var(--background) / 0.5),
+      inset 0 1px 0 hsl(var(--foreground) / 0.07);
+  }
+  .app-glass-card.agenda-glass-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(140deg, hsl(var(--foreground) / 0.05), transparent 40%);
+  }
+  :root[data-theme="light"] .app-glass-card.agenda-glass-card {
+    border-color: hsl(var(--glass-border) / 0.3);
+    background-image:
+      radial-gradient(120% 80% at 8% 0%, hsl(var(--primary) / 0.08), transparent 58%),
+      radial-gradient(90% 70% at 100% 100%, hsl(var(--accent) / 0.08), transparent 62%),
+      linear-gradient(165deg, hsl(var(--card) / 0.94), hsl(var(--secondary) / 0.82));
+    box-shadow:
+      0 18px 44px hsl(220 25% 30% / 0.14),
+      inset 0 1px 0 hsl(var(--foreground) / 0.05);
+  }
+  .agenda-glass-card .agenda-card-header {
+    padding: 22px 24px 4px;
+  }
+  .agenda-glass-card .agenda-card-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+  }
+  .agenda-glass-card .agenda-card-content {
+    padding: 8px 18px 20px;
+  }
+  .agenda-empty {
+    padding: 28px 12px;
+    text-align: center;
+    font-size: 14px;
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* Calendário: cabeçalho do mês em maiúsculas, setas discretas, dias centralizados */
+  .agenda-calendar-card .agenda-calendar {
+    width: 100%;
+    padding: 0;
+  }
+  .agenda-calendar .caption {
+    padding: 4px 42px 18px;
+  }
+  .agenda-calendar .caption_label {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    text-align: center;
+    color: hsl(var(--foreground));
+  }
+  .agenda-calendar .nav_button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    width: 32px;
+    padding: 0;
+    border-radius: 999px;
+    border: 1px solid hsl(var(--glass-border) / 0.18);
+    background-color: hsl(var(--glass) / 0.45);
+    color: hsl(var(--foreground) / 0.7);
     opacity: 1;
     transition:
       border-color 180ms ease,
-      box-shadow 180ms ease;
-  }
-  .vip-calendar .nav_button:hover {
-    border-color: hsl(var(--neon-violet) / 0.5);
-    box-shadow: 0 0 10px hsl(var(--neon-violet) / 0.2);
-    opacity: 1;
-  }
-  .vip-calendar .head_cell {
-    color: hsl(var(--muted-foreground));
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-  .vip-calendar .day {
-    border-radius: 999px;
-    transition:
+      background-color 180ms ease,
       box-shadow 180ms ease,
-      background-color 180ms ease;
+      color 180ms ease;
   }
-  .vip-calendar .day:hover {
-    background: hsl(var(--neon-violet) / 0.12);
+  .agenda-calendar .nav_button:hover {
+    border-color: hsl(var(--neon-violet) / 0.5);
+    background-color: hsl(var(--glass) / 0.75);
+    color: hsl(var(--foreground));
+    box-shadow: 0 0 14px hsl(var(--neon-violet) / 0.22);
   }
-  /* Dia selecionado: anel violeta luminoso */
-  .vip-calendar .day_selected,
-  .vip-calendar .day_selected:hover,
-  .vip-calendar .day_selected:focus {
-    background: hsl(var(--neon-violet) / 0.2) !important;
-    color: hsl(var(--neon-violet)) !important;
-    font-weight: 700;
-    box-shadow:
-      0 0 0 2px hsl(var(--neon-violet)),
-      0 0 14px hsl(var(--neon-violet) / 0.35);
+  .agenda-calendar .head_row {
+    display: flex;
+    width: 100%;
   }
-  .vip-calendar .day_today:not(.day_selected) {
-    background: hsl(var(--glass) / 0.6);
-    color: hsl(var(--gold));
-    box-shadow: inset 0 0 0 1px hsl(var(--gold) / 0.4);
+  .agenda-calendar .head_cell {
+    flex: 1 1 0;
+    width: auto;
+    padding: 0;
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: hsl(var(--muted-foreground) / 0.75);
+  }
+  .agenda-calendar .row {
+    display: flex;
+    width: 100%;
+    margin-top: 4px;
+  }
+  .agenda-calendar .cell {
+    flex: 1 1 0;
+    width: auto;
+    height: auto;
+    padding: 0;
+    background-color: transparent;
   }
   /* A célula não deve pintar fundo quadrado atrás do dia selecionado */
-  .vip-calendar .cell:has([aria-selected]) {
-    background: transparent;
+  .agenda-calendar .cell:has([aria-selected]) {
+    background-color: transparent;
+  }
+  .agenda-calendar .day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    width: 100%;
+    height: 46px;
+    padding: 0;
+    border-radius: 16px;
+    background-color: transparent;
+    color: hsl(var(--foreground) / 0.82);
+    font-size: 14px;
+    font-weight: 500;
+    transition:
+      background-color 180ms ease,
+      box-shadow 180ms ease,
+      color 180ms ease;
+  }
+  .agenda-calendar .day:hover {
+    background-color: hsl(var(--glass) / 0.5);
+    color: hsl(var(--foreground));
+    box-shadow: inset 0 0 0 1px hsl(var(--glass-border) / 0.16);
+  }
+  .agenda-calendar .day:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--neon-violet) / 0.6);
+  }
+  /* Dia selecionado: anel violeta luminoso */
+  .agenda-calendar .agenda-cell-selected,
+  .agenda-calendar .agenda-cell-selected:hover,
+  .agenda-calendar .agenda-cell-selected:focus {
+    background-color: hsl(var(--neon-violet) / 0.18) !important;
+    background-image: linear-gradient(160deg, hsl(var(--neon-violet) / 0.3), hsl(var(--neon-blue) / 0.12)) !important;
+    color: hsl(var(--foreground)) !important;
+    font-weight: 700;
+    box-shadow:
+      0 0 0 1.5px hsl(var(--neon-violet) / 0.85),
+      0 0 22px hsl(var(--neon-violet) / 0.32),
+      inset 0 1px 0 hsl(var(--foreground) / 0.12) !important;
+  }
+  /* Hoje: destaque sutil dourado */
+  .agenda-calendar .agenda-cell-today:not(.agenda-cell-selected) {
+    background-color: hsl(var(--glass) / 0.42);
+    color: hsl(var(--gold));
+    box-shadow: inset 0 0 0 1px hsl(var(--gold) / 0.35);
+  }
+  .agenda-calendar .agenda-cell-outside {
+    opacity: 0.3;
+    color: hsl(var(--muted-foreground));
+  }
+  .agenda-calendar .agenda-cell-disabled {
+    opacity: 0.35;
+  }
+  .agenda-calendar .agenda-day-completed {
+    color: hsl(var(--agenda-completed) / 0.9);
+  }
+
+  /* Micro-pílulas integradas à célula do dia */
+  .agenda-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    line-height: 1;
+  }
+  .agenda-day-number {
+    font-variant-numeric: tabular-nums;
+  }
+  .agenda-day-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-height: 6px;
+  }
+  .agenda-day-pill {
+    display: block;
+    width: 14px;
+    height: 4px;
+    border-radius: 999px;
+    background-color: hsl(var(--agenda-scheduled));
+    box-shadow: 0 0 8px hsl(var(--agenda-scheduled) / 0.5);
+  }
+  .agenda-day-pill-completed {
+    background-color: hsl(var(--agenda-completed));
+    box-shadow: 0 0 8px hsl(var(--agenda-completed) / 0.55);
+  }
+  .agenda-day-today {
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: hsl(var(--gold));
+  }
+  .agenda-day-footer .agenda-day-today + .agenda-day-pill {
+    width: 8px;
+  }
+  .agenda-calendar .agenda-cell-selected .agenda-day-today {
+    color: hsl(var(--foreground));
+  }
+  :root[data-theme="light"] .agenda-day-pill,
+  :root[data-theme="light"] .agenda-day-pill-completed {
+    box-shadow: none;
+  }
+
+  /* Cartões de lançamento do dia */
+  .app-glass-card.agenda-event-card {
+    border-radius: 22px;
+    border-color: hsl(var(--glass-border) / 0.12);
+    background-color: hsl(var(--glass) / 0.3);
+    background-image: linear-gradient(160deg, hsl(var(--foreground) / 0.04), transparent 55%);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow:
+      0 14px 30px hsl(var(--background) / 0.35),
+      inset 0 1px 0 hsl(var(--foreground) / 0.05);
+    transition:
+      border-color 200ms ease,
+      box-shadow 200ms ease;
+  }
+  .app-glass-card.agenda-event-card:hover {
+    border-color: hsl(var(--neon-violet) / 0.3);
+    box-shadow:
+      0 18px 36px hsl(var(--background) / 0.45),
+      inset 0 1px 0 hsl(var(--foreground) / 0.07),
+      0 0 18px hsl(var(--neon-violet) / 0.08);
+  }
+  :root[data-theme="light"] .app-glass-card.agenda-event-card {
+    border-color: hsl(var(--glass-border) / 0.26);
+    background-color: hsl(var(--card) / 0.7);
+    background-image: none;
+    box-shadow: 0 10px 24px hsl(220 25% 30% / 0.1);
+  }
+  .agenda-event-card .agenda-event-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px;
+  }
+  .agenda-event-card .agenda-event-title {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: hsl(var(--foreground));
+  }
+  .agenda-event-card .agenda-event-meta {
+    font-size: 13px;
+    color: hsl(var(--muted-foreground));
+  }
+  .agenda-event-card .agenda-event-badge {
+    align-self: flex-start;
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border-color: transparent;
+  }
+  .agenda-event-card .agenda-status-realizado {
+    border-color: hsl(var(--agenda-completed) / 0.35);
+    background-color: hsl(var(--agenda-completed) / 0.1);
+    color: hsl(var(--agenda-completed));
+  }
+
+  /* Ações integradas aos cartões */
+  .agenda-event-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .agenda-event-actions button,
+  .agenda-event-actions a {
+    border-radius: 999px;
+    border: 1px solid hsl(var(--glass-border) / 0.18);
+    background-color: hsl(var(--glass) / 0.38);
+    color: hsl(var(--foreground) / 0.88);
+    font-size: 12px;
+    font-weight: 500;
+    padding-inline: 12px;
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease,
+      box-shadow 180ms ease,
+      color 180ms ease;
+  }
+  .agenda-event-actions button:hover,
+  .agenda-event-actions a:hover {
+    border-color: hsl(var(--neon-violet) / 0.45);
+    background-color: hsl(var(--glass) / 0.62);
+    color: hsl(var(--foreground));
+    box-shadow: 0 0 14px hsl(var(--neon-violet) / 0.16);
+  }
+  .agenda-event-actions .agenda-action-danger {
+    width: 34px;
+    padding-inline: 0;
+    border-color: hsl(var(--destructive) / 0.4);
+    background-color: hsl(var(--destructive) / 0.12);
+    color: hsl(var(--destructive));
+  }
+  .agenda-event-actions .agenda-action-danger:hover {
+    border-color: hsl(var(--destructive) / 0.6);
+    background-color: hsl(var(--destructive) / 0.2);
+    color: hsl(var(--destructive));
+    box-shadow: 0 0 14px hsl(var(--destructive) / 0.22);
+  }
+
+  /* Lista de próximos shows */
+  .agenda-upcoming-card .agenda-upcoming-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 4px;
+    border-bottom: 1px solid hsl(var(--glass-border) / 0.1);
+  }
+  .agenda-upcoming-card .agenda-upcoming-item:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+  .agenda-upcoming-card .agenda-upcoming-trigger {
+    min-width: 0;
+    text-align: left;
+    background-color: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: inherit;
+  }
+  .agenda-upcoming-card .agenda-upcoming-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    overflow-wrap: anywhere;
+    transition: color 180ms ease;
+  }
+  .agenda-upcoming-card .agenda-upcoming-meta {
+    font-size: 12px;
+    color: hsl(var(--muted-foreground));
+  }
+  .agenda-upcoming-card .agenda-upcoming-trigger:hover .agenda-upcoming-title {
+    color: hsl(var(--neon-violet));
   }
 }
