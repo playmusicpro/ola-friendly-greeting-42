@@ -125,6 +125,9 @@ All colors MUST be HSL.
     --module-text-shadow: 0 1px 4px hsl(var(--stage));
     --artwork-muted-foreground: 230 15% 80%;
     --tuner-warning: 22 95% 62%;
+    /* Pílulas de status do calendário da Agenda: âmbar = agendado, verde neon = realizado */
+    --agenda-scheduled: var(--stage-amber);
+    --agenda-completed: var(--neon-green);
     --chart-income: hsl(var(--neon-green));
     --chart-expense: hsl(345 85% 67%);
     --chart-axis: hsl(var(--muted-foreground));
@@ -199,6 +202,8 @@ All colors MUST be HSL.
       transparent 86%
     );
     --card-glass-surface: hsl(var(--card) / 0.88);
+    --agenda-scheduled: 38 88% 42%;
+    --agenda-completed: 158 70% 30%;
   }
 
   .high-contrast {
@@ -1248,28 +1253,7 @@ footer button,
   box-shadow: none !important;
 }
 
-/* Marcadores do calendário da Agenda: amarelo = agendado, verde neon = realizado */
-.calendar-dot {
-  position: relative;
-  font-weight: 700;
-}
-.calendar-dot::after {
-  content: "";
-  position: absolute;
-  bottom: 3px;
-  left: 50%;
-  width: 6px;
-  height: 6px;
-  border-radius: 9999px;
-  transform: translateX(-50%);
-}
-.calendar-dot-scheduled::after {
-  background: hsl(var(--calendar-scheduled, 45 95% 55%));
-}
-.calendar-dot-completed::after {
-  background: hsl(var(--success));
-  box-shadow: 0 0 6px hsl(var(--success));
-}
+/* Marcadores do calendário da Agenda: ver .agenda-day-pill dentro de @layer components. */
 
 @layer components {
   /* Legenda do gráfico de despesas por categoria (cores fixas sincronizadas com as fatias) */
