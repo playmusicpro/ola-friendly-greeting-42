@@ -1587,7 +1587,7 @@ footer button,
     box-shadow: inset 0 0 0 1px hsl(var(--gold) / 0.35);
   }
   .agenda-calendar .agenda-cell-outside {
-    opacity: 0.45;
+    opacity: 0.62;
     color: hsl(var(--muted-foreground));
   }
   .agenda-calendar .agenda-cell-disabled {
