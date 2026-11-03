@@ -46,6 +46,6 @@ describe('Calendário da Agenda (reformulado sem alterar a lógica)', () => {
     expect(pendingCell).not.toBeNull();
     fireEvent.click(pendingCell as Element);
     expect(screen.getByText(/^Eventos - /)).toHaveTextContent(`${pendingDay.getDate()} de`);
-    expect(screen.getByText('Show no Bar')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Show no Bar' })).toBeInTheDocument();
   });
 });

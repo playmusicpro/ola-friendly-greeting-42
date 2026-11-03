@@ -264,15 +264,31 @@ export default function Agenda() {
           <CardContent className="agenda-card-content">
             <Calendar
               mode="single"
+              locale={ptBR}
               selected={selectedDate}
               onSelect={(date) => date && setSelectedDate(date)}
               modifiers={modifiers}
               modifiersClassNames={modifiersClassNames}
               classNames={{
-                day_selected: 'agenda-cell-selected',
-                day_today: 'agenda-cell-today',
-                day_outside: 'agenda-cell-outside',
-                day_disabled: 'agenda-cell-disabled',
+                months: 'agenda-months',
+                month: 'agenda-month',
+                caption: 'agenda-caption',
+                caption_label: 'agenda-caption-label',
+                nav: 'agenda-nav',
+                nav_button: 'agenda-nav-button',
+                nav_button_previous: 'agenda-nav-button agenda-nav-button-previous',
+                nav_button_next: 'agenda-nav-button agenda-nav-button-next',
+                table: 'agenda-table',
+                head_row: 'agenda-head-row',
+                head_cell: 'agenda-head-cell',
+                row: 'agenda-row',
+                cell: 'agenda-cell',
+                day: 'agenda-day-button',
+                day_selected: 'agenda-day-button agenda-cell-selected',
+                day_today: 'agenda-day-button agenda-cell-today',
+                day_outside: 'agenda-day-button agenda-cell-outside',
+                day_disabled: 'agenda-day-button agenda-cell-disabled',
+                day_hidden: 'agenda-day-button agenda-cell-hidden',
               }}
               components={{ DayContent: AgendaDayContent }}
               className="agenda-calendar"
