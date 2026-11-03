@@ -55,6 +55,7 @@ function Harness() {
           <CardContent className="agenda-card-content">
             <Calendar
               mode="single"
+              locale={ptBR}
               selected={selected}
               onSelect={(d) => d && setSelected(d)}
               modifiers={{ scheduled: [pending], completed: [done] }}
