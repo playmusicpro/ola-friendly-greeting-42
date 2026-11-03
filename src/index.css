@@ -1235,9 +1235,10 @@ body,
   -webkit-backdrop-filter: blur(8px) !important;
 }
 
-/* Contorno brilhante com efeito Neon apenas nos botões de conteúdo dos cards */
-[class*="card"] button,
-main button:not(nav button) {
+/* Contorno brilhante com efeito Neon apenas nos botões de ação dos cartões.
+   As células do calendário, as setas de mês e os títulos clicáveis da Agenda ficam de fora. */
+[class*="card"] button:not(.agenda-day-button):not(.agenda-nav-button):not(.agenda-upcoming-trigger),
+main button:not(nav button):not(.agenda-day-button):not(.agenda-nav-button):not(.agenda-upcoming-trigger) {
   border: 1px solid rgba(168, 85, 247, 0.5) !important;
   box-shadow:
     0 0 12px rgba(168, 85, 247, 0.35),
