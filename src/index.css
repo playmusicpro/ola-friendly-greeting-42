@@ -1439,10 +1439,10 @@ footer button,
     width: 100%;
     padding: 0;
   }
-  .agenda-calendar .caption {
+  .agenda-calendar .agenda-caption {
     padding: 4px 42px 18px;
   }
-  .agenda-calendar .caption_label {
+  .agenda-calendar .agenda-caption-label {
     font-size: 14px;
     font-weight: 700;
     letter-spacing: 0.22em;
@@ -1450,7 +1450,7 @@ footer button,
     text-align: center;
     color: hsl(var(--foreground));
   }
-  .agenda-calendar .nav_button {
+  .agenda-calendar .agenda-nav-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1468,17 +1468,17 @@ footer button,
       box-shadow 180ms ease,
       color 180ms ease;
   }
-  .agenda-calendar .nav_button:hover {
+  .agenda-calendar .agenda-nav-button:hover {
     border-color: hsl(var(--neon-violet) / 0.5);
     background-color: hsl(var(--glass) / 0.75);
     color: hsl(var(--foreground));
     box-shadow: 0 0 14px hsl(var(--neon-violet) / 0.22);
   }
-  .agenda-calendar .head_row {
+  .agenda-calendar .agenda-head-row {
     display: flex;
     width: 100%;
   }
-  .agenda-calendar .head_cell {
+  .agenda-calendar .agenda-head-cell {
     flex: 1 1 0;
     width: auto;
     padding: 0;
@@ -1489,12 +1489,12 @@ footer button,
     letter-spacing: 0.14em;
     color: hsl(var(--muted-foreground) / 0.75);
   }
-  .agenda-calendar .row {
+  .agenda-calendar .agenda-row {
     display: flex;
     width: 100%;
     margin-top: 4px;
   }
-  .agenda-calendar .cell {
+  .agenda-calendar .agenda-cell {
     flex: 1 1 0;
     width: auto;
     height: auto;
@@ -1502,10 +1502,10 @@ footer button,
     background-color: transparent;
   }
   /* A célula não deve pintar fundo quadrado atrás do dia selecionado */
-  .agenda-calendar .cell:has([aria-selected]) {
+  .agenda-calendar .agenda-cell:has([aria-selected]) {
     background-color: transparent;
   }
-  .agenda-calendar .day {
+  .agenda-calendar .agenda-day-button {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1524,12 +1524,12 @@ footer button,
       box-shadow 180ms ease,
       color 180ms ease;
   }
-  .agenda-calendar .day:hover {
+  .agenda-calendar .agenda-day-button:hover {
     background-color: hsl(var(--glass) / 0.5);
     color: hsl(var(--foreground));
     box-shadow: inset 0 0 0 1px hsl(var(--glass-border) / 0.16);
   }
-  .agenda-calendar .day:focus-visible {
+  .agenda-calendar .agenda-day-button:focus-visible {
     outline: none;
     box-shadow:
       0 0 0 2px hsl(var(--background)),
