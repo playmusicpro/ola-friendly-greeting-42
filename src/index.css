@@ -1439,8 +1439,37 @@ footer button,
     width: 100%;
     padding: 0;
   }
+  .agenda-calendar .agenda-months {
+    display: flex;
+    flex-direction: column;
+  }
+  .agenda-calendar .agenda-month {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .agenda-calendar .agenda-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
   .agenda-calendar .agenda-caption {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 4px 42px 18px;
+  }
+  .agenda-calendar .agenda-nav {
+    display: flex;
+  }
+  .agenda-calendar .agenda-nav-button-previous {
+    left: 0;
+  }
+  .agenda-calendar .agenda-nav-button-next {
+    right: 0;
+  }
+  .agenda-calendar .agenda-cell-hidden {
+    visibility: hidden;
   }
   .agenda-calendar .agenda-caption-label {
     font-size: 14px;
@@ -1451,6 +1480,9 @@ footer button,
     color: hsl(var(--foreground));
   }
   .agenda-calendar .agenda-nav-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     display: inline-flex;
     align-items: center;
     justify-content: center;
