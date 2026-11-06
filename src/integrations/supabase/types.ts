@@ -991,6 +991,7 @@ export type Database = {
           key: string
           label: string
           mode: string
+          plan_label: string
           plan_type: string
           price_cents: number
           sort_order: number
@@ -1008,6 +1009,7 @@ export type Database = {
           key: string
           label: string
           mode?: string
+          plan_label?: string
           plan_type: string
           price_cents: number
           sort_order?: number
@@ -1025,6 +1027,7 @@ export type Database = {
           key?: string
           label?: string
           mode?: string
+          plan_label?: string
           plan_type?: string
           price_cents?: number
           sort_order?: number
