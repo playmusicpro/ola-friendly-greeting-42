@@ -576,6 +576,8 @@ export type Database = {
           name: string
           onboarding_completed: boolean
           plan: string | null
+          plan_type: string | null
+          status: string
           tipo_musico: string | null
           updated_at: string
           whatsapp: string | null
@@ -593,6 +595,8 @@ export type Database = {
           name?: string
           onboarding_completed?: boolean
           plan?: string | null
+          plan_type?: string | null
+          status?: string
           tipo_musico?: string | null
           updated_at?: string
           whatsapp?: string | null
@@ -610,6 +614,8 @@ export type Database = {
           name?: string
           onboarding_completed?: boolean
           plan?: string | null
+          plan_type?: string | null
+          status?: string
           tipo_musico?: string | null
           updated_at?: string
           whatsapp?: string | null
@@ -923,6 +929,169 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      stripe_coupons: {
+        Row: {
+          active: boolean
+          affiliate: string | null
+          code: string
+          created_at: string
+          description: string | null
+          discount_cents: number
+          max_uses: number | null
+          offer_key: string | null
+          stripe_coupon_id: string
+          updated_at: string
+          used_count: number
+        }
+        Insert: {
+          active?: boolean
+          affiliate?: string | null
+          code: string
+          created_at?: string
+          description?: string | null
+          discount_cents: number
+          max_uses?: number | null
+          offer_key?: string | null
+          stripe_coupon_id: string
+          updated_at?: string
+          used_count?: number
+        }
+        Update: {
+          active?: boolean
+          affiliate?: string | null
+          code?: string
+          created_at?: string
+          description?: string | null
+          discount_cents?: number
+          max_uses?: number | null
+          offer_key?: string | null
+          stripe_coupon_id?: string
+          updated_at?: string
+          used_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_coupons_offer_key_fkey"
+            columns: ["offer_key"]
+            isOneToOne: false
+            referencedRelation: "stripe_offers"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
+      stripe_offers: {
+        Row: {
+          active: boolean
+          created_at: string
+          currency: string
+          description: string | null
+          highlight: boolean
+          interval: string | null
+          key: string
+          label: string
+          mode: string
+          plan_type: string
+          price_cents: number
+          sort_order: number
+          stripe_price_id: string
+          stripe_product_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          description?: string | null
+          highlight?: boolean
+          interval?: string | null
+          key: string
+          label: string
+          mode?: string
+          plan_type: string
+          price_cents: number
+          sort_order?: number
+          stripe_price_id: string
+          stripe_product_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          description?: string | null
+          highlight?: boolean
+          interval?: string | null
+          key?: string
+          label?: string
+          mode?: string
+          plan_type?: string
+          price_cents?: number
+          sort_order?: number
+          stripe_price_id?: string
+          stripe_product_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      stripe_purchases: {
+        Row: {
+          affiliate: string | null
+          amount_cents: number
+          coupon_code: string | null
+          created_at: string
+          currency: string
+          id: string
+          offer_key: string | null
+          paid_at: string | null
+          status: string
+          stripe_customer_id: string | null
+          stripe_payment_intent: string | null
+          stripe_session_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          affiliate?: string | null
+          amount_cents: number
+          coupon_code?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          offer_key?: string | null
+          paid_at?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          affiliate?: string | null
+          amount_cents?: number
+          coupon_code?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          offer_key?: string | null
+          paid_at?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_purchases_offer_key_fkey"
+            columns: ["offer_key"]
+            isOneToOne: false
+            referencedRelation: "stripe_offers"
+            referencedColumns: ["key"]
+          },
+        ]
       }
       user_roles: {
         Row: {
