@@ -16,6 +16,7 @@ import { PRIVATE_CURRENCY } from '@/lib/dashboardFinancialCharts';
 import DashboardOperations from '@/components/DashboardOperations';
 import { formatDateBR } from '@/lib/dateUtils';
 import Onboarding from '@/components/Onboarding';
+import FounderVipDialog from '@/components/FounderVipDialog';
 import { GoogleCalendarShowButton } from '@/components/GoogleCalendarShowButton';
 import { OpenInMapsButton } from '@/components/OpenInMapsButton';
 import { GoalForm } from '@/components/GoalForm';
@@ -132,6 +133,7 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-2 gap-3 sm:gap-5">{metrics.map(metric => <Card key={metric.title} className="thematic-card min-w-0"><ModuleArtwork module={metric.module} /><CardContent className="p-4 sm:p-5"><h2 className="text-sm text-muted-foreground">{metric.title}</h2><p className="dashboard-financial-value mt-3 font-semibold text-gold tabular-nums">{money(metric.value)}</p>{metric.title === 'Lucro Líquido Real' && !hidden && <Badge variant="outline" className="mt-3 text-xs text-gold">{formatPercentage(monthly.dre.margemFinal)} de margem</Badge>}</CardContent></Card>)}</div>
         <DashboardOperations hidden={hidden} />
+        <FounderVipDialog />
     </div>
   </>;
 }
