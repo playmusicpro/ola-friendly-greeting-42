@@ -8,7 +8,7 @@ const { invoke } = vi.hoisted(() => ({ invoke: vi.fn() }));
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     functions: {
-      invoke: (_name: string, options: { body: { action: string } }) => invoke(options),
+      invoke: (name: string, options: { body: { action: string } }) => invoke(name, options),
     },
   },
 }));
