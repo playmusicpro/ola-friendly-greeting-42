@@ -78,7 +78,7 @@ describe('Tela de Planos', () => {
     expect(screen.getByText('R$ 499,90')).toBeInTheDocument();
     expect(screen.getByText('Plano Mensal')).toBeInTheDocument();
     expect(screen.getByText('Plano Anual')).toBeInTheDocument();
-    expect(screen.getByText(/PIX/)).toBeInTheDocument();
+    expect(screen.getAllByText(/PIX/).length).toBeGreaterThan(0);
     expect(screen.getByText(/12x de R\$ 41,66/)).toBeInTheDocument();
   });
 
