@@ -9,6 +9,9 @@ import {
   planTitle,
 } from "./billing";
 
+/** O formatador do app usa espaço indivisível entre "R$" e o número; normaliza para comparar. */
+const plain = (text: string) => text.replace(/\u00a0/g, " ");
+
 describe("cupom e preço do checkout", () => {
   it("aplica o desconto de R$ 120,00 sobre o Lote Vitalício de R$ 499,90", () => {
     expect(applyDiscount(49990, 12000)).toBe(37990);
@@ -19,14 +22,14 @@ describe("cupom e preço do checkout", () => {
   });
 
   it("formata os valores em reais como o app mostra", () => {
-    expect(formatBRL(49990)).toBe("R$ 499,90");
-    expect(formatBRL(37990)).toBe("R$ 379,90");
-    expect(formatBRL(2990)).toBe("R$ 29,90");
-    expect(formatBRL(29700)).toBe("R$ 297,00");
+    expect(plain(formatBRL(49990))).toBe("R$ 499,90");
+    expect(plain(formatBRL(37990))).toBe("R$ 379,90");
+    expect(plain(formatBRL(2990))).toBe("R$ 29,90");
+    expect(plain(formatBRL(29700))).toBe("R$ 297,00");
   });
 
   it("mostra a parcela de até 12x sem arredondar para baixo", () => {
-    expect(installmentLabel(37990)).toBe("12x de R$ 31,66");
+    expect(plain(installmentLabel(37990))).toBe("12x de R$ 31,66");
   });
 
   it("aceita o cupom escrito com espaços e minúsculas", () => {

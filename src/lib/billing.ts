@@ -1,3 +1,5 @@
+import { formatCurrency } from "@/lib/calculations";
+
 export type BillingOffer = {
   key: string;
   label: string;
@@ -27,9 +29,10 @@ export function normalizeCouponCode(code: string): string {
   return code.trim().toUpperCase().replace(/\s+/g, "");
 }
 
+/** Reaproveita o formatador de moeda do app para o preço nunca divergir do resto da interface. */
 export function formatBRL(cents: number): string {
   const value = (Number.isFinite(cents) ? cents : 0) / 100;
-  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  return formatCurrency(value);
 }
 
 /** Valor final depois do desconto do cupom, nunca abaixo de zero. */
