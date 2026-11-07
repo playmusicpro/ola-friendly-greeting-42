@@ -9,7 +9,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import loginStudio from '@/assets/login-studio.jpg';
-import brandLogo from '@/assets/play-pro-logo.jpeg.asset.json';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -73,7 +72,7 @@ const Login = () => {
         {/* Logo/Brand */}
         <div className="text-center space-y-3">
           <h1 className="login-logo mx-auto">
-            <img src={brandLogo.url} alt="Play Pro" width={1029} height={768} />
+            <img src="/logo.jpg" alt="Play Pro" width={1920} height={1434} />
           </h1>
           <p className="text-muted-foreground text-xs sm:text-sm">
             Seu assistente profissional para músicos
