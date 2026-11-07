@@ -54,7 +54,7 @@ const offers = [
 ];
 
 function mockInvoke() {
-  invoke.mockImplementation(async ({ body }: { body: { action: string } }) => {
+  invoke.mockImplementation(async (_name: string, { body }: { body: { action: string } }) => {
     if (body.action === 'list_offers') return { data: { offers } };
     if (body.action === 'validate_coupon') {
       return { data: { valid: true, couponCode: 'BLACKFRIDAY120', affiliate: 'play_pro', discountCents: 12000, priceCents: 49990, totalCents: 37990 } };
