@@ -31,6 +31,7 @@ import MobileHeader from "./components/MobileHeader";
 import DesktopSidebar from "./components/DesktopSidebar";
 import MusicianProfileGate from "./components/MusicianProfileGate";
 import AdminRoute from "./components/AdminRoute";
+import SubscriptionGate from "./components/SubscriptionGate";
 import { AppUsageTracker } from './components/AppUsageTracker';
 import { lazy, Suspense } from 'react';
 import { ThemeProvider } from 'next-themes';
@@ -54,6 +55,15 @@ const LoginRoute = () => {
   return <Login />;
 };
 
+// Tela de planos isolada, sem menus, para quem ainda não tem assinatura ativa
+const PaywallLayout = () => (
+  <main className="min-h-screen w-full bg-background">
+    <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
+      <Planos />
+    </div>
+  </main>
+);
+
 // Main app layout with sidebar and navigation
 const AppLayout = () => {
   const isDashboard = useLocation().pathname === "/";
@@ -66,6 +76,7 @@ const AppLayout = () => {
           <MusicianProfileGate>
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/agenda" element={<Agenda />} />
             <Route path="/modo-show/:playlistId" element={<ModoShow />} />
             <Route path="/financas" element={<Financas />} />
@@ -135,7 +146,9 @@ const App = () => (
             {/* Main App Routes - Protected */}
             <Route path="/*" element={
               <ProtectedRoute>
-                <AppLayout />
+                <SubscriptionGate lockedLayout={<PaywallLayout />}>
+                  <AppLayout />
+                </SubscriptionGate>
               </ProtectedRoute>
             } />
           </Routes>
