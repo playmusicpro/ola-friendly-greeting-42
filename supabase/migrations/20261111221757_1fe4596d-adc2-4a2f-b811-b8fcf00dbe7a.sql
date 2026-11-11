@@ -1,0 +1,3 @@
+UPDATE public.stripe_offers SET stripe_price_id='price_1UajZCRJsa1P41oYaGQI7Ues', price_cents=49990, description='Acesso vitalício ao Play Pro, lote fundador da Black Friday. Leve todas as ferramentas e futuras atualizações sem mensalidade.' WHERE key='lifetime_founder';
+UPDATE public.stripe_offers SET stripe_price_id='price_1UahncRJsa1P41oYe0sOYwbG', price_cents=2990, description='Assinatura mensal do Play Pro, cobrada todo mês. Cancele quando quiser.' WHERE key='monthly';
+UPDATE public.stripe_offers SET stripe_price_id='price_1UajgPRJsa1P41oY0143a5F4', price_cents=29790, description='Profissionalize toda a sua temporada de shows pagando o menor valor proporcional. Garanta quase 17% de desconto (R$ 24,82/mês).' WHERE key='yearly';
