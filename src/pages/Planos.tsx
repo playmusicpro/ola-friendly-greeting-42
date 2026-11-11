@@ -278,9 +278,14 @@ export default function Planos() {
                     <h3 className="text-lg font-bold text-foreground">{offer.label}</h3>
                     <p className="text-sm text-muted-foreground mt-1">{offer.description}</p>
                   </div>
-                  <Badge variant="outline" className="border-gold/20 text-gold shrink-0">
-                    {offer.mode === "subscription" ? "Recorrente" : "Avulso"}
-                  </Badge>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <Badge variant="outline" className="border-gold/20 text-gold">
+                      {offer.mode === "subscription" ? "Recorrente" : "Avulso"}
+                    </Badge>
+                    {offer.interval === "year" && (
+                      <Badge className="bg-success/20 text-success border border-success/40">17% OFF · Economize R$ 60,90</Badge>
+                    )}
+                  </div>
                 </div>
                 <p className="text-3xl font-bold text-gold tabular-nums">
                   {formatBRL(offer.priceCents)}
