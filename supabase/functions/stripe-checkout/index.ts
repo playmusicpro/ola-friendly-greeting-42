@@ -117,13 +117,16 @@ serve(async (req) => {
       ? `${origin}/dashboard?concluido=1&plano=${encodeURIComponent(offer.planType)}&sessao={CHECKOUT_SESSION_ID}`
       : `${origin}/dashboard?concluido=1&plano=${encodeURIComponent(offer.planType)}`;
 
-    const session = await stripe.checkout.sessions.create({
+    const useCoupon = Boolean(check.ok && check.coupon);
+    const buildParams = (withCoupon: boolean) => ({
       mode: offer.mode,
       customer: customerId,
       line_items: [{ price: offer.stripePriceId, quantity: 1 }],
       allowed_payment_method_types: isOneTime ? ["card", "pix"] : ["card"],
       ...(isOneTime ? { payment_method_options: { card: { installments: { enabled: true } } } } : {}),
-      ...(check.ok && check.coupon ? { discounts: [{ coupon: check.coupon.stripeCouponId }] } : {}),
+      ...(withCoupon && check.coupon
+        ? { discounts: [{ coupon: check.coupon.stripeCouponId }] }
+        : { allow_promotion_codes: true }),
       metadata: {
         user_id: user.id,
         offer_key: offer.key,
@@ -137,6 +140,17 @@ serve(async (req) => {
       success_url: successUrl,
       cancel_url: `${origin}/planos?cancelado=1`,
     });
+    let session;
+    try {
+      // deno-lint-ignore no-explicit-any
+      session = await stripe.checkout.sessions.create(buildParams(useCoupon) as any);
+    } catch (err) {
+      // Cupom não existe na conta live: deixa o cliente digitar o código no próprio Stripe.
+      if (!useCoupon) throw err;
+      console.warn("[stripe-checkout] cupom indisponível no Stripe, usando allow_promotion_codes", message(err));
+      // deno-lint-ignore no-explicit-any
+      session = await stripe.checkout.sessions.create(buildParams(false) as any);
+    }
 
     // Registro da compra em aberto — o webhook confirma o pagamento depois.
     try {
