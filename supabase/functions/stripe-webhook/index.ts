@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { corsHeaders, getAdminClient, getStripe, json, mapOffer, type Offer } from "../_shared/billing.ts";
+import { invoiceSubscriptionId, isPaidInvoiceEvent } from "./invoice.ts";
 
 function message(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -118,7 +119,7 @@ async function markPaid(session: Stripe.Checkout.Session) {
 async function activateFromInvoice(invoice: Stripe.Invoice) {
   const admin = getAdminClient();
   const stripe = getStripe();
-  const subscriptionId = typeof invoice.subscription === "string" ? invoice.subscription : null;
+  const subscriptionId = invoiceSubscriptionId(invoice);
   if (!subscriptionId) return;
 
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
@@ -180,7 +181,7 @@ serve(async (req) => {
   const payload = await req.text();
   let event: Stripe.Event;
   try {
-    event = getStripe().webhooks.constructEvent(payload, signature, secret);
+    event = await getStripe().webhooks.constructEventAsync(payload, signature, secret);
   } catch (error) {
     log("assinatura inválida", message(error));
     return json({ error: "Assinatura inválida." }, 400);
@@ -189,6 +190,10 @@ serve(async (req) => {
   log("evento recebido", { type: event.type, id: event.id });
 
   try {
+    if (isPaidInvoiceEvent(event.type)) {
+      await activateFromInvoice(event.data.object as Stripe.Invoice);
+      return json({ received: true });
+    }
     switch (event.type) {
       case "checkout.session.completed":
       case "checkout.session.async_payment_succeeded": {
@@ -198,10 +203,6 @@ serve(async (req) => {
         } else {
           log("sessão concluída sem pagamento confirmado", { session: session.id, status: session.payment_status });
         }
-        break;
-      }
-      case "invoice.paid": {
-        await activateFromInvoice(event.data.object as Stripe.Invoice);
         break;
       }
       case "customer.subscription.deleted": {
