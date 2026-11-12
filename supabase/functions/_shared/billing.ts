@@ -15,7 +15,7 @@ export function json(data: unknown, status = 200): Response {
 }
 
 export function getStripe(): Stripe {
-  const key = Deno.env.get("STRIPE_RESTRICTED_API_KEY") || Deno.env.get("STRIPE_SECRET_KEY");
+  const key = Deno.env.get("STRIPE_RESTRICTED_API_KEY");
   if (!key) throw new Error("Chave do Stripe não está configurada");
   return new Stripe(key, { apiVersion: "2025-08-27.basil" });
 }

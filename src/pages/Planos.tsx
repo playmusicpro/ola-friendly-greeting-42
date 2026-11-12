@@ -33,7 +33,11 @@ type OfferResponse = { offers?: BillingOffer[] };
 type CouponResponse = Partial<CouponPreview> & { error?: string };
 type SessionResponse = { url?: string; error?: string };
 
-function readErrorMessage(error: unknown, fallback: string): string {
+async function readErrorMessage(error: unknown, fallback: string): Promise<string> {
+  if (error && typeof error === "object" && "context" in error && error.context instanceof Response) {
+    const body = await error.context.clone().json().catch(() => null);
+    if (typeof body?.error === "string" && body.error) return body.error;
+  }
   if (error instanceof Error && error.message) return error.message;
   if (typeof error === "string" && error) return error;
   return fallback;
@@ -56,7 +60,7 @@ export default function Planos() {
       body: { action: "list_offers" },
     });
     if (error) {
-      setLoadError(readErrorMessage(error, "Não foi possível carregar os planos."));
+      setLoadError(await readErrorMessage(error, "Não foi possível carregar os planos."));
       setLoading(false);
       return;
     }
@@ -101,7 +105,7 @@ export default function Planos() {
     setCouponChecking(false);
     if (error) {
       setCoupon(null);
-      toast.error(readErrorMessage(error, "Cupom inválido."));
+      toast.error(await readErrorMessage(error, "Cupom inválido."));
       return;
     }
     const result = data as CouponResponse;
@@ -132,7 +136,7 @@ export default function Planos() {
     const { data, error } = await supabase.functions.invoke("stripe-checkout", { body });
     if (error || !(data as SessionResponse)?.url) {
       setBusyOffer(null);
-      toast.error(readErrorMessage(error, (data as SessionResponse)?.error) || "Não foi possível iniciar o pagamento.");
+      toast.error(await readErrorMessage(error, (data as SessionResponse)?.error || "Não foi possível iniciar o pagamento."));
       return;
     }
     const url = (data as SessionResponse).url as string;

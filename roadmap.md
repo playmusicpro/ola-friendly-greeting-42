@@ -2,3 +2,4 @@
 - [x] Logo da tela de Login quebrado na Netlify: imagem salva em `public/logo.jpg` e renderizada por caminho absoluto (`src="/logo.jpg"`), além de `public/_redirects` (`/* /index.html 200`) para links diretos não darem 404.
 - [x] Aplicar STRIPE_WEBHOOK_SECRET já salvo e implantar stripe-webhook; suporte a checkout.session.completed e invoice.payment_succeeded, verificação assíncrona de assinatura, 10 testes aprovados e endpoint rejeitando requisições sem assinatura.
 - [ ] Confirmar entrega assinada do webhook Live e liberação de membro após pagamento real. Bloqueio: a conexão Stripe disponível mostra apenas o endpoint de teste; nenhum evento Live validado nesta sessão.
+- [ ] Corrigir checkout: usar exclusivamente STRIPE_RESTRICTED_API_KEY, validar os três preços de produção e retornar erros Stripe seguros e detalhados; chave salva retorna resource_missing para os três preços.
