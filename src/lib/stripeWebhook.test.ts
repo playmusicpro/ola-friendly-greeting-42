@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { invoiceSubscriptionId, isPaidInvoiceEvent } from "./invoice";
+import { invoiceSubscriptionId, isPaidInvoiceEvent } from "../../supabase/functions/stripe-webhook/invoice";
 
 describe("paid invoice processing", () => {
   it("accepts invoice.payment_succeeded", () => {
