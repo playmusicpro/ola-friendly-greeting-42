@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { z } from "npm:zod@3.25.76";
+import { checkoutError } from "../_shared/checkout-errors.ts";
 import {
   checkCoupon,
   corsHeaders,
@@ -122,7 +123,7 @@ serve(async (req) => {
       mode: offer.mode,
       customer: customerId,
       line_items: [{ price: offer.stripePriceId, quantity: 1 }],
-      allowed_payment_method_types: isOneTime ? ["card", "pix"] : ["card"],
+      payment_method_types: isOneTime ? ["card", "pix"] : ["card"],
       ...(isOneTime ? { payment_method_options: { card: { installments: { enabled: true } } } } : {}),
       ...(withCoupon && check.coupon
         ? { discounts: [{ coupon: check.coupon.stripeCouponId }] }
@@ -174,8 +175,9 @@ serve(async (req) => {
 
     return json({ url: session.url, sessionId: session.id, totalCents: session.amount_total ?? offer.priceCents });
   } catch (error) {
-    console.error("[stripe-checkout] erro", message(error));
-    return json({ error: message(error) || "Não foi possível iniciar o pagamento." }, 500);
+    const details = checkoutError(error);
+    console.error("[stripe-checkout] erro", details.stripeError);
+    return json(details, 500);
   }
 });
 

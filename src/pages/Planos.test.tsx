@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import Planos from './Planos';
+import { toast } from 'sonner';
 
 const { invoke } = vi.hoisted(() => ({ invoke: vi.fn() }));
 
@@ -71,6 +72,19 @@ const renderPage = () =>
   );
 
 describe('Tela de Planos', () => {
+  it('exibe o erro retornado pelo Stripe em vez da mensagem genérica', async () => {
+    invoke.mockImplementation(async (_name: string, { body }: { body: { action: string } }) => {
+      if (body.action === 'list_offers') return { data: { offers } };
+      return { error: Object.assign(new Error('Edge Function returned a non-2xx status code'), {
+        context: new Response(JSON.stringify({ error: "No such price: 'price_1UahncRJsa1P41oYe0sOYwbG'" }), { status: 500 }),
+      }) };
+    });
+    renderPage();
+    fireEvent.click(await screen.findByRole('button', { name: 'Assinar Plano Mensal' }));
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("No such price: 'price_1UahncRJsa1P41oYe0sOYwbG'"));
+    expect(screen.getByRole('button', { name: 'Assinar Plano Mensal' })).toBeEnabled();
+  });
+
   it('mostra a oferta da Black Friday e os dois planos recorrentes', async () => {
     mockInvoke();
     renderPage();
