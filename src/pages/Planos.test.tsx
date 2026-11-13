@@ -72,6 +72,14 @@ const renderPage = () =>
   );
 
 describe('Tela de Planos', () => {
+  it('mostra o cabeçalho com a logo e o botão Entrar apontando para /login', async () => {
+    mockInvoke();
+    renderPage();
+    const entrar = screen.getByRole('link', { name: /Já tenho conta · Entrar/ });
+    expect(entrar).toHaveAttribute('href', '/login');
+    expect(screen.getByRole('img', { name: 'Play Pro' })).toHaveAttribute('src', '/logo.jpg');
+  });
+
   it('exibe o erro retornado pelo Stripe em vez da mensagem genérica', async () => {
     invoke.mockImplementation(async (_name: string, { body }: { body: { action: string } }) => {
       if (body.action === 'list_offers') return { data: { offers } };
