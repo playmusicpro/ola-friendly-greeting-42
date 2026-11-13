@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import {
   BadgeCheck,
   Clock3,
   CreditCard,
   Loader2,
+  LogIn,
   QrCode,
   ShieldCheck,
   Sparkles,
