@@ -44,7 +44,7 @@ serve(async (req) => {
       const stripe = getStripe();
       const key = Deno.env.get("STRIPE_SECRET_KEY") || "";
       const out: Record<string, unknown> = { mode: key.startsWith("sk_live_") ? "live" : key.startsWith("rk_live_") ? "rk_live" : key.slice(0,3), sameAcct: key.includes("Uah9SR") };
-      for (const id of ["price_1UajZCRJsa1P41oYaGQI7Ues", "price_1UahncRJsa1P41oYe0sOYwbG", "price_1UajgPRJsa1P41oY0143a5F4"]) {
+      for (const id of ["price_1UajZCRjsa1P41oYaGQl7Ues", "price_1UahncRjsa1P41oYe0sOYwbG", "price_1Uaji2Rjsa1P41oYg3Iv6wZH"]) {
         try { const p = await stripe.prices.retrieve(id); out[id] = { ok: true, live: p.livemode, active: p.active }; }
         catch (e) { out[id] = { ok: false, msg: message(e) }; }
       }
