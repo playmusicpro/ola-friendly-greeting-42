@@ -15,9 +15,10 @@ export function json(data: unknown, status = 200): Response {
 }
 
 export function getStripe(): Stripe {
-  const key = Deno.env.get("STRIPE_RESTRICTED_API_KEY");
-  if (!key) throw new Error("Chave do Stripe não está configurada");
-  return new Stripe(key, { apiVersion: "2025-08-27.basil" });
+  const key = Deno.env.get("STRIPE_SECRET_KEY") || "";
+  if (!key) throw new Error("STRIPE_SECRET_KEY não está configurada");
+  // deno-lint-ignore no-explicit-any
+  return new Stripe(key, { apiVersion: "2023-10-16" as any });
 }
 
 /** Client with elevated privileges — only for server-side writes (edge functions). */
