@@ -48,6 +48,8 @@ serve(async (req) => {
         try { const p = await stripe.prices.retrieve(id); out[id] = { ok: true, live: p.livemode, active: p.active }; }
         catch (e) { out[id] = { ok: false, msg: message(e) }; }
       }
+      try { const l = await stripe.prices.list({ limit: 20 }); out.livePrices = l.data.map((p) => ({ id: p.id, amt: p.unit_amount, cur: p.currency, active: p.active, rec: p.recurring?.interval ?? null })); }
+      catch (e) { out.listErr = message(e); }
       return json(out);
     }
     if (action === "list_offers") {
