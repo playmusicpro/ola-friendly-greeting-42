@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import {
   BadgeCheck,
   Clock3,
   CreditCard,
   Loader2,
+  LogIn,
   QrCode,
   ShieldCheck,
   Sparkles,
@@ -147,6 +148,19 @@ export default function Planos() {
 
   return (
     <div className="space-y-6">
+      <header className="flex items-center justify-between gap-3 rounded-2xl border border-gold/15 bg-card/50 backdrop-blur-xl px-4 py-3">
+        <Link to="/planos" className="flex items-center gap-3 shrink-0" aria-label="Play Pro">
+          <img src="/logo.jpg" alt="Play Pro" width={1920} height={1434} className="h-9 w-auto rounded-lg" />
+          <span className="hidden sm:block text-sm font-semibold text-foreground">Play Pro</span>
+        </Link>
+        <Button asChild variant="outline" size="sm" className="border-gold/30 hover:bg-gold/10">
+          <Link to="/login">
+            <LogIn className="h-4 w-4 mr-2" />
+            Já tenho conta · Entrar
+          </Link>
+        </Button>
+      </header>
+
       <div className="flex items-center gap-3">
         <div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-gold/20 border border-gold/20">
           <Ticket className="h-6 w-6 text-gold" />
