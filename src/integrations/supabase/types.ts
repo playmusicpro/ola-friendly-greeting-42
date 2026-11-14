@@ -1146,6 +1146,15 @@ export type Database = {
           users_count: number
         }[]
       }
+      admin_set_user_vip: {
+        Args: {
+          p_expires_at: string
+          p_is_vip: boolean
+          p_notes: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       admin_usage_logs_page: {
         Args: { p_offset?: number }
         Returns: {
