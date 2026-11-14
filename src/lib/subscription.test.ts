@@ -17,3 +17,12 @@ describe('paywall', () => {
     expect(isPaywallAllowedPath('/repertorio')).toBe(false);
   });
 });
+
+import { hasAppAccess } from './subscription';
+describe('acesso VIP', () => {
+  const now = new Date('2026-11-13T12:00:00Z');
+  it('VIP sem validade libera', () => expect(hasAppAccess({ status: 'inactive', is_vip: true }, now)).toBe(true));
+  it('VIP com validade futura libera', () => expect(hasAppAccess({ is_vip: true, vip_expires_at: '2026-12-01T00:00:00Z' }, now)).toBe(true));
+  it('VIP expirado bloqueia', () => expect(hasAppAccess({ is_vip: true, vip_expires_at: '2026-11-01T00:00:00Z' }, now)).toBe(false));
+  it('sem VIP e sem assinatura bloqueia', () => expect(hasAppAccess({ status: 'inactive', is_vip: false }, now)).toBe(false));
+});

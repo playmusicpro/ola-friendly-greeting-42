@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import {
   BadgeCheck,
@@ -7,6 +8,7 @@ import {
   CreditCard,
   Loader2,
   LogIn,
+  LogOut,
   QrCode,
   ShieldCheck,
   Sparkles,
@@ -45,6 +47,12 @@ async function readErrorMessage(error: unknown, fallback: string): Promise<strin
 }
 
 export default function Planos() {
+  const { user: authUser } = useAuth();
+  const navigate = useNavigate();
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/login", { replace: true });
+  };
   const [searchParams, setSearchParams] = useSearchParams();
   const [offers, setOffers] = useState<BillingOffer[]>([]);
   const [loading, setLoading] = useState(true);
