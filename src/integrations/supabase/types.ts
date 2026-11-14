@@ -1148,9 +1148,9 @@ export type Database = {
       }
       admin_set_user_vip: {
         Args: {
-          p_expires_at: string
+          p_expires_at?: string
           p_is_vip: boolean
-          p_notes: string
+          p_notes?: string
           p_user_id: string
         }
         Returns: undefined
