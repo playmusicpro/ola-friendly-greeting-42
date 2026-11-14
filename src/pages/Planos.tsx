@@ -153,12 +153,22 @@ export default function Planos() {
           <img src="/logo.jpg" alt="Play Pro" width={1920} height={1434} className="h-9 w-auto rounded-lg" />
           <span className="hidden sm:block text-sm font-semibold text-foreground">Play Pro</span>
         </Link>
-        <Button asChild variant="outline" size="sm" className="border-gold/30 hover:bg-gold/10">
-          <Link to="/login">
-            <LogIn className="h-4 w-4 mr-2" />
-            Já tenho conta · Entrar
-          </Link>
-        </Button>
+        {authUser ? (
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="truncate text-xs text-muted-foreground" title={authUser.email ?? ""}>{authUser.email}</span>
+            <Button variant="outline" size="sm" className="shrink-0 border-gold/30 hover:bg-gold/10" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Sair / Trocar conta
+            </Button>
+          </div>
+        ) : (
+          <Button asChild variant="outline" size="sm" className="border-gold/30 hover:bg-gold/10">
+            <Link to="/login">
+              <LogIn className="h-4 w-4 mr-2" />
+              Já tenho conta · Entrar
+            </Link>
+          </Button>
+        )}
       </header>
 
       <div className="flex items-center gap-3">
