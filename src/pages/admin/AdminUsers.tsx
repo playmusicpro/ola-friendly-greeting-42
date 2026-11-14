@@ -30,6 +30,7 @@ type AdminUser = { id: string; name: string; email: string; plan: string; status
 import { useToast } from "@/hooks/use-toast";
 import { useAdminIntelligenceRows } from '@/hooks/useAdminIntelligence';
 import { AdminEngagement } from '@/components/AdminEngagement';
+import { AdminVipAccess } from '@/components/AdminVipAccess';
 
 const AdminUsers = () => {
   const profilesQuery = useAdminRows('profiles');
@@ -103,6 +104,7 @@ const AdminUsers = () => {
       <AdminDataState loading={activityQuery.isLoading} error={activityQuery.error} retry={activityQuery.refetch} />
       <AdminEngagement userIds={(profilesQuery.data ?? []).map(profile => profile.id)} activity={activityQuery.data ?? []} unavailable={profilesQuery.isLoading || activityQuery.isLoading || !!profilesQuery.error || !!activityQuery.error} />
       <AdminDataState loading={profilesQuery.isLoading || showsQuery.isLoading} error={profilesQuery.error || showsQuery.error} retry={() => { void profilesQuery.refetch(); void showsQuery.refetch(); }} />
+      {!profilesQuery.isLoading && !profilesQuery.error && <AdminVipAccess profiles={(profilesQuery.data ?? []) as never} onSaved={() => void profilesQuery.refetch()} />}
       {/* Search */}
       <Card className="mb-6">
         <CardContent className="p-4">
