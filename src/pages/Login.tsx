@@ -15,6 +15,8 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<"login" | "signup">("login");
+  const isSignup = mode === "signup";
   const { login } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -23,6 +25,27 @@ const Login = () => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
+
+    if (isSignup) {
+      const { data, error: signErr } = await supabase.auth.signUp({
+        email: email.toLowerCase().trim(),
+        password,
+        options: { emailRedirectTo: `${window.location.origin}/` },
+      });
+      setIsLoading(false);
+      if (signErr) {
+        setError(signErr.message.toLowerCase().includes("registered") ? "Este email já tem conta. Use a aba Entrar." : "Não foi possível criar a conta. Tente novamente.");
+        return;
+      }
+      if (data.session) {
+        toast({ title: "Conta criada!", description: "Escolha seu plano para liberar o app." });
+        navigate("/planos", { replace: true });
+      } else {
+        toast({ title: "Conta criada!", description: "Confirme seu email e depois entre para escolher seu plano." });
+        setMode("login");
+      }
+      return;
+    }
 
     const { error: loginError } = await login(email, password);
 
@@ -82,9 +105,23 @@ const Login = () => {
         {/* Login Card */}
         <Card className="login-glass">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Entrar</CardTitle>
+            <div role="tablist" aria-label="Acesso" className="grid grid-cols-2 gap-1 rounded-xl bg-muted/40 p-1 mb-3">
+              {(["login", "signup"] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === m}
+                  onClick={() => { setMode(m); setError(null); }}
+                  className={`rounded-lg py-2 text-sm font-medium transition-colors ${mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  {m === "login" ? "Entrar" : "Criar Conta"}
+                </button>
+              ))}
+            </div>
+            <CardTitle className="text-2xl text-center">{isSignup ? "Criar Conta" : "Entrar"}</CardTitle>
             <CardDescription className="text-center">
-              Digite seu email e senha para continuar
+              {isSignup ? "Cadastre seu email e uma senha para começar" : "Digite seu email e senha para continuar"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -126,7 +163,7 @@ const Login = () => {
                     className="login-input pl-10"
                     required
                     minLength={6}
-                    autoComplete="current-password"
+                    autoComplete={isSignup ? "new-password" : "current-password"}
                   />
                 </div>
                 {error && (
@@ -134,9 +171,9 @@ const Login = () => {
                 )}
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-xs text-muted-foreground">
-                    Primeiro acesso? Sua conta é criada automaticamente.
+                    {isSignup ? "Já tem conta? Use a aba Entrar." : "Novo por aqui? Use a aba Criar Conta."}
                   </p>
-                  <Button
+                  {!isSignup && <Button
                     variant="link"
                     type="button"
                     onClick={handleForgot}
@@ -144,7 +181,7 @@ const Login = () => {
                     className="h-auto p-0 text-xs font-medium whitespace-nowrap"
                   >
                     {isSendingReset ? "Enviando..." : "Esqueci minha senha"}
-                  </Button>
+                  </Button>}
                 </div>
               </div>
 
@@ -157,11 +194,11 @@ const Login = () => {
                 {isLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Entrando...
+                    {isSignup ? "Criando conta..." : "Entrando..."}
                   </>
                 ) : (
                   <>
-                    Continuar
+                    {isSignup ? "Criar Conta" : "Entrar"}
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}

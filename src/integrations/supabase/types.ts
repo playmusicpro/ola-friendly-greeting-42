@@ -573,6 +573,7 @@ export type Database = {
           google_calendar_status: string
           google_connected_at: string | null
           id: string
+          is_vip: boolean
           name: string
           onboarding_completed: boolean
           plan: string | null
@@ -580,6 +581,8 @@ export type Database = {
           status: string
           tipo_musico: string | null
           updated_at: string
+          vip_expires_at: string | null
+          vip_notes: string | null
           whatsapp: string | null
         }
         Insert: {
@@ -592,6 +595,7 @@ export type Database = {
           google_calendar_status?: string
           google_connected_at?: string | null
           id?: string
+          is_vip?: boolean
           name?: string
           onboarding_completed?: boolean
           plan?: string | null
@@ -599,6 +603,8 @@ export type Database = {
           status?: string
           tipo_musico?: string | null
           updated_at?: string
+          vip_expires_at?: string | null
+          vip_notes?: string | null
           whatsapp?: string | null
         }
         Update: {
@@ -611,6 +617,7 @@ export type Database = {
           google_calendar_status?: string
           google_connected_at?: string | null
           id?: string
+          is_vip?: boolean
           name?: string
           onboarding_completed?: boolean
           plan?: string | null
@@ -618,6 +625,8 @@ export type Database = {
           status?: string
           tipo_musico?: string | null
           updated_at?: string
+          vip_expires_at?: string | null
+          vip_notes?: string | null
           whatsapp?: string | null
         }
         Relationships: []

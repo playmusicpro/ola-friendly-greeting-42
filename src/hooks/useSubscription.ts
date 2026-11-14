@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
-import { isSubscriptionActive } from '@/lib/subscription';
+import { hasAppAccess, type AccessProfile } from '@/lib/subscription';
 
 /**
  * Lê profiles.status (escrito apenas pelo stripe-webhook). Ao voltar do checkout
@@ -17,7 +17,7 @@ export function useSubscription(awaitingConfirmation = false) {
     queryFn: async () => {
       const { data, error } = await supabase.from('profiles').select('*').eq('id', user!.id).maybeSingle();
       if (error) throw error;
-      return isSubscriptionActive(data as { status?: string | null; has_active_subscription?: boolean | null } | null);
+      return hasAppAccess(data as AccessProfile | null);
     },
     refetchOnWindowFocus: true,
     refetchInterval: (q) => (awaitingConfirmation && q.state.data !== true ? 3000 : false),
